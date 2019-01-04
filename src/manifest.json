@@ -8,8 +8,18 @@
     "default_popup": "popup.html"
   },
   "permissions": [
+      "notifications",
       "http://*/"
   ],
+  "commands": {
+    "_execute_browser_action": {
+      "description": "Capture current page",
+      "suggested_key": {
+        "default": "Ctrl+Shift+C",
+        "mac": "Command+Shift+C"
+      }
+    }
+  },
   "manifest_version": 2,
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 }

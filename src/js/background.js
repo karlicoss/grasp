@@ -1,23 +1,14 @@
 /* @flow */
 // TODO do I really need to annotate all files with @flow??
 
-// TODO wtf?? what does that import mean??
-// import '../img/icon-128.png'
-// import '../img/icon-34.png'
-
-const capture_endpoint = 'capture';
-// TODO configure port
-const port = 8000;
-
-
-function capture_url (): string {
-    return `http://localhost:${port}/${capture_endpoint}`;
-}
+import {CAPTURE_SELECTED_METHOD, showNotification} from './common';
+import {capture_url} from './config';
 
 function makeCaptureRequest(
     url: string,
     selection: ?string=null,
-    comment: ?string=null, // TODO anything alse??
+    comment: ?string=null,
+    // TODO anything alse??
 ) {
     const data = JSON.stringify({
         'url': url,
@@ -27,25 +18,32 @@ function makeCaptureRequest(
 
 
     var request = new XMLHttpRequest();
-    console.log(`capturing ${data}`);
+    console.log(`[background] capturing ${data}`);
 
     request.open('POST', capture_url(), true);
-    request.onload = function() {
-        if (this.status >= 200 && this.status < 400) {
-            // Success!
-            var response = JSON.parse(this.response);
-            console.log(`SUCCESS ${response}`);
-        } else {
-            // We reached our target server, but it returned an error
+    request.onreadystatechange = () => {
+        if (request.readyState != 4) {
+            return;
         }
-    };
-
-    request.onerror = function() {
-        console.log("ERROR!!!");
-        // There was a connection error of some sort
+        console.log('[background] status:', request.status);
+        if (request.status >= 200 && request.status < 400) { // success
+            var response = JSON.parse(request.response);
+            console.log(`[background] success: ${response}`);
+            showNotification(`OK: ${response}`);
+        } else {
+            // TODO more error context?
+            console.log(`[background] ERROR: ${request.status}`);
+            showNotification(`ERROR: ${request.status}`, 1);
+            // TODO crap, doesn't really seem to respect urgency...
+        }
     };
 
     request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     request.send(data);
 }
-makeCaptureRequest('hello');
+
+chrome.runtime.onMessage.addListener((message: any, sender: chrome$MessageSender, sendResponse) => {
+    if (message.method === CAPTURE_SELECTED_METHOD) {
+        makeCaptureRequest(message.url);
+    }
+});
