@@ -5,10 +5,10 @@
     "page": "background.html"
   },
   "browser_action": {
-    "default_popup": "popup.html"
   },
   "permissions": [
       "notifications",
+      "activeTab",
       "http://*/"
   ],
   "commands": {
