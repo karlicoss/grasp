@@ -1,9 +1,21 @@
 """First API, local access only"""
+import json
+
 import hug # type: ignore
 import hug.types as T # type: ignore
 
+from kython.org import append_org_entry
 
+from config import CAPTURE_PATH
 
+def empty(s) -> bool:
+    return s is None or len(s.strip()) == 0
+
+def log(*things):
+    # TODO proper logging
+    print(*things)
+
+# TODO allow to pass tags??
 @hug.local()
 @hug.post('/capture')
 def capture(
@@ -11,10 +23,42 @@ def capture(
         selection: T.Nullable(T.text),
         comment: T.Nullable(T.text),
 ):
-    # TODO can even configure the path in browser? but fine for now..
-    print("HELOOO")
-    """Says happy birthday to a user"""
-    print(url, selection, comment)
-    return {}
-    # return {'message': 'Happy {0} Birthday {1}!'.format(age, name),
-    #         'took': float(hug_timer)}
+    log("capturing", url, selection, comment)
+
+    parts = []
+    # TODO not sure, maybe add as org quote?
+    if not empty(selection):
+        parts.extend([
+            'Selection:',
+            selection,
+        ])
+    if not empty(comment):
+        parts.extend([
+            'Comment:',
+            comment
+        ])
+    body = None if len(parts) == 0 else '\n'.join(parts)
+
+
+    response = {
+        'file': str(CAPTURE_PATH),
+    }
+    try:
+        append_org_entry(
+            CAPTURE_PATH,
+            heading=url,
+            body=body,
+            tags=['grasp'],
+            todo=False,
+        )
+        response.update({
+            'status': 'ok',
+        })
+    except Exception as e:
+        log(str(e))
+        response.update({
+            'status': 'error',
+            'error' : str(e),
+        })
+
+    return json.dumps(response).encode('utf8')

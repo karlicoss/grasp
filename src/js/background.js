@@ -10,20 +10,20 @@ function makeCaptureRequest(
     comment: ?string=null,
     // TODO anything alse??
 ) {
-    const data = JSON.stringify({
-        'url': url,
-        'selection': selection,
-        'comment': comment,
-    });
-
     if (url == null) {
         showNotification('ERROR: trying to capture null');
         return;
     }
 
-    var request = new XMLHttpRequest();
+    const data = JSON.stringify({
+        'url': url,
+        'selection': selection,
+        'comment': comment,
+    });
     console.log(`[background] capturing ${data}`);
 
+
+    var request = new XMLHttpRequest();
     request.open('POST', capture_url(), true);
     request.onreadystatechange = () => {
         if (request.readyState != 4) {
@@ -31,7 +31,7 @@ function makeCaptureRequest(
         }
         console.log('[background] status:', request.status);
         if (request.status >= 200 && request.status < 400) { // success
-            var response = JSON.parse(request.response);
+            var response = JSON.parse(request.responseText);
             console.log(`[background] success: ${response}`);
             showNotification(`OK: ${response}`);
         } else {
@@ -62,6 +62,7 @@ function makeCaptureRequest(
 //     }
 // });
 
+// TODO hmm. I suppose we wanna title + url instead...
 // TODO handle cannot access chrome:// url??
 // TODO ok, need to add comment popup?
 chrome.browserAction.onClicked.addListener(tab => {
