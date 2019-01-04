@@ -1,7 +1,7 @@
 {
-  "name": "chrome-extension-webpack",
+  "name": "grasp-extension",
   "version": "0.0.1",
-  "description": "A boilerplate to chrome extension with webpack",
+  "description": "A reliable way of capturing web pages and content",
   "scripts": {
     "build": "node utils/build.js",
     "start": "node utils/webserver.js"
