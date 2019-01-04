@@ -20,17 +20,24 @@ def log(*things):
 @hug.post('/capture')
 def capture(
         url: T.text,
+        title: T.Nullable(T.text),
         selection: T.Nullable(T.text),
         comment: T.Nullable(T.text),
 ):
-    log("capturing", url, selection, comment)
+    log("capturing", url, title, selection, comment)
 
+    heading = url
     parts = []
+
+    if not empty(title):
+        heading = title
+        parts.append(url)
+
     # TODO not sure, maybe add as org quote?
     if not empty(selection):
         parts.extend([
             'Selection:',
-            selection,
+            selection, # TODO tabulate?
         ])
     if not empty(comment):
         parts.extend([
@@ -46,7 +53,7 @@ def capture(
     try:
         append_org_entry(
             CAPTURE_PATH,
-            heading=url,
+            heading=heading,
             body=body,
             tags=['grasp'],
             todo=False,

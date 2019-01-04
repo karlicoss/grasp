@@ -4,22 +4,19 @@
 import {CAPTURE_SELECTED_METHOD, showNotification} from './common';
 import {capture_url} from './config';
 
-function makeCaptureRequest(
-    url: string,
-    selection: ?string=null,
-    comment: ?string=null,
-    // TODO anything alse??
-) {
-    if (url == null) {
-        showNotification('ERROR: trying to capture null');
-        return;
-    }
 
-    const data = JSON.stringify({
-        'url': url,
-        'selection': selection,
-        'comment': comment,
-    });
+type Params = {
+    url: string,
+    title: ?string,
+    selection: ?string,
+    comment: ?string,
+}
+
+
+function makeCaptureRequest(
+    params: Params,
+) {
+    const data = JSON.stringify(params);
     console.log(`[background] capturing ${data}`);
 
 
@@ -66,7 +63,12 @@ function makeCaptureRequest(
 // TODO handle cannot access chrome:// url??
 // TODO ok, need to add comment popup?
 chrome.browserAction.onClicked.addListener(tab => {
-    const url = tab.url;
+    if (tab.url == null) {
+        showNotification('ERROR: trying to capture null');
+        return;
+    }
+    const url: string = tab.url;
+    const title: ?string = tab.title;
 
     // console.log('action!');
     // ugh.. https://stackoverflow.com/a/19165930/706389
@@ -74,9 +76,11 @@ chrome.browserAction.onClicked.addListener(tab => {
         code: "window.getSelection().toString();"
     }, selections => {
         const selection = selections == null ? null : selections[0];
-        makeCaptureRequest(
-            url,
-            selection
-        );
+        makeCaptureRequest({
+            url: url,
+            title: title,
+            selection: selection,
+            comment: null,
+        });
     });
 });
