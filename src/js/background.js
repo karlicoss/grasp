@@ -1,23 +1,40 @@
-import '../img/icon-128.png'
-import '../img/icon-34.png'
+/* @flow */
+// TODO do I really need to annotate all files with @flow??
 
 // TODO wtf?? what does that import mean??
+// import '../img/icon-128.png'
+// import '../img/icon-34.png'
 
-function makeCaptureRequest() {
+const capture_endpoint = 'capture';
+// TODO configure port
+const port = 8000;
+
+
+function capture_url (): string {
+    return `http://localhost:${port}/${capture_endpoint}`;
+}
+
+function makeCaptureRequest(
+    url: string,
+    selection: ?string=null,
+    comment: ?string=null, // TODO anything alse??
+) {
+    const data = JSON.stringify({
+        'url': url,
+        'selection': selection,
+        'comment': comment,
+    });
+
+
     var request = new XMLHttpRequest();
-    console.log('adadad');
+    console.log(`capturing ${data}`);
 
-    // TODO configure port
-    request.open('POST', 'http://localhost:8000/capture', true);
-
-
-    // TODO request header??
-
+    request.open('POST', capture_url(), true);
     request.onload = function() {
         if (this.status >= 200 && this.status < 400) {
             // Success!
-            var data = JSON.parse(this.response);
-            console.log(`SUCCESS ${data}`);
+            var response = JSON.parse(this.response);
+            console.log(`SUCCESS ${response}`);
         } else {
             // We reached our target server, but it returned an error
         }
@@ -29,8 +46,6 @@ function makeCaptureRequest() {
     };
 
     request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    // xmlhttp.send(JSON.stringify({ "email": "hello@user.com", "response": { "name": "Tester" } }));
-    request.send(JSON.stringify({'name': 'alala', 'age': 10}));
+    request.send(data);
 }
-makeCaptureRequest();
-
+makeCaptureRequest('hello');

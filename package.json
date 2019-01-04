@@ -3,20 +3,35 @@
   "version": "0.0.1",
   "description": "A reliable way of capturing web pages and content",
   "scripts": {
-    "build": "node utils/build.js",
-    "start": "node utils/webserver.js"
+    "build": "webpack --progress --profile --colors",
+    "watch": "webpack --watch --progress --colors",
+    "dev": "npm run watch",
+    "eslint": "eslint src",
+    "flow": "flow"
   },
   "devDependencies": {
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.2.3",
+    "@babel/preset-flow": "^7.0.0",
     "clean-webpack-plugin": "^0.1.17",
     "copy-webpack-plugin": "^4.2.0",
     "css-loader": "^0.25.0",
+    "eslint": "^5.11.1",
+    "eslint-config-google": "^0.11.0",
     "file-loader": "^0.11.2",
     "fs-extra": "^0.30.0",
     "html-loader": "^0.4.5",
     "html-webpack-plugin": "2.24.1",
     "style-loader": "^0.13.0",
-    "webpack": "2.2.1",
+    "webpack": "^2.2.1",
     "webpack-dev-server": "^2.3.0",
     "write-file-webpack-plugin": "3.4.2"
+  },
+  "dependencies": {
+    "babel-loader": "^8.0.5",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "flow": "^0.2.3"
   }
 }
