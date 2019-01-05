@@ -1,0 +1,21 @@
+* TODO some sort of append logic? e.g. don't dump immediately and add as subitems?
+* ???
+npm install --save-dev @babel/core @babel/preset-env
+npm install babel-preset-stage-0
+npm install babel-preset-env -- wtf is that shit??
+
+npm run build 
+
+npm run flow
+
+* DONE [#A] move server to a separate folder, systemd install script
+  CLOSED: [2019-01-05 Sat 14:38]
+  
+* TODO [#A] release somewhere? not sure if necessary
+
+* TODO [#B] docs on using
+  
+* TODO [#B] circleci?
+* TODO [#D] nicer manifest?
+* TODO [#D] do not minfy for dev
+* TODO [#C] motivation
