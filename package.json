@@ -1,6 +1,6 @@
 {
   "name": "grasp-extension",
-  "version": "0.0.1",
+  "version": "0.1",
   "description": "A reliable way of capturing web pages and content",
   "scripts": {
     "build": "webpack --progress --profile --colors",
@@ -24,8 +24,8 @@
     "html-loader": "^0.4.5",
     "html-webpack-plugin": "2.24.1",
     "style-loader": "^0.13.0",
-    "webpack": "^2.2.1",
-    "webpack-dev-server": "^2.3.0",
+    "webpack": "^4.28.3",
+    "webpack-dev-server": "^3.1.14",
     "write-file-webpack-plugin": "3.4.2"
   },
   "dependencies": {
