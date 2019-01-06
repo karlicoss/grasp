@@ -3,6 +3,6 @@ set -eux
 
 cd "$(dirname "$0")"
 
-PORT=8090
+PORT=12212
 
 hug -p "$PORT" -f server.py

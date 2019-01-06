@@ -1,117 +1,53 @@
 Build status: [![CircleCI](https://circleci.com/gh/karlicoss/grasp.svg?style=svg)](https://circleci.com/gh/karlicoss/grasp)
 
-# TODO add some docs..
+Grasp is an extension for Chrome (Firefox support is in progress), which adds a button/keybinding to capture current page title and url,
+possibly selected text, additional comments or tags and send it into your [Org Mode](https://orgmode.org/) file.
 
-# Chrome Extension Webpack Boilerplate
+# Requirements
+* `pip3 install --user hug` for [Hug](http://www.hug.rest/) HTTP server.
 
-A basic foundation boilerplate for rich Chrome Extensions using [Webpack](https://webpack.github.io/) to help you write modular and modern Javascript code, load CSS easily and [automatic reload the browser on code changes](https://webpack.github.io/docs/webpack-dev-server.html#automatic-refresh).
+# Running
+1. Install server counterpart as systemd service: `server/setup`.
+2. Install chrome extension and configure hotkeys
 
-## Developing a new extension
-_I'll assume that you already read the [Webpack docs](https://webpack.github.io/docs) and the [Chrome Extension](https://developer.chrome.com/extensions/getstarted) docs._
+That's it! Currently port `12212` is hardcoded, but it will be configurable.
 
+# Motivation
+Why use org-capture? Well, it's hard to explain, maybe some other time... However if you do know you want to use it instead/alongside your browser bookmarks, by default
+you don't have much choice and have to copy everything manually. For an average Org Mode user it's a torture. 
 
-1. Check if your Node.js version is >= 6.
-2. Clone the repository.
-3. Install [yarn](https://yarnpkg.com/lang/en/docs/install/).
-4. Run `yarn`.
-5. Change the package's name and description on `package.json`.
-6. Change the name of your extension on `src/manifest.json`.
-7. Run `npm run start`
-8. Load your extension on Chrome following:
-    1. Access `chrome://extensions/`
-    2. Check `Developer mode`
-    3. Click on `Load unpacked extension`
-    4. Select the `build` folder.
-8. Have fun.
+For a while, I used [the only](https://github.com/sprig/org-capture-extension) Chrome extension for that (as for January 2019). However, it relies on setting up MIME
+handler which is quite flaky for many people. What is more, capturing via org template requires always running emacs daemon, which might be too much for some people.
+But the worst thing is if capturing fails, you have to way of knowing about it. After losing few days of captured stuff due to MIME handler mysteriously not working,
+I got fed up and figured it's time to implement something more reliable. 
 
-## Structure
-All your extension's development code must be placed in `src` folder, including the extension manifest.
+My approach still requires a running server, but it's a simple python script which simply appends a text entry to a text file. The backend always responds back and in case anything
+fails, you get a notification.
 
-The boilerplate is already prepared to have a popup, a options page and a background page. You can easily customize this.
+Extra collateral benefit is that you can potentially add anything as a backend, e.g. you might be more of a Markdown or Todo.txt fan (let me know if you are interested in that!).
 
-Each page has its own [assets package defined](https://github.com/samuelsimoes/chrome-extension-webpack-boilerplate/blob/master/webpack.config.js#L16-L20). So, to code on popup you must start your code on `src/js/popup.js`, for example.
+# Potentional improvements
+* due to server counterpart, one could even run it elsewhere, not necessarily on localhost
+* also see [todos](./TODO.org)
 
-You must use the [ES6 modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) to a better code organization. The boilerplate is already prepared to that and [here you have a little example](https://github.com/samuelsimoes/chrome-extension-webpack-boilerplate/blob/master/src/js/popup.js#L2-L4).
+# Building extension
+The most up-to-date instructions should be in [CI config](./.circleci/config.yml).
 
-## Webpack auto-reload and HRM
-To make your workflow much more efficient this boilerplate uses the [webpack server](https://webpack.github.io/docs/webpack-dev-server.html) to development (started with `npm run server`) with auto reload feature that reloads the browser automatically every time that you save some file o your editor.
+You're gonna need `npm` for building extension.
 
-You can run the dev mode on other port if you want. Just specify the env var `port` like this:
+    npm install
+    npm run build
+    
+After that you can find the extension in `build` directory and 'Load unpacked' if necessary. There is also Flow and Eslint set up.
 
-```
-$ PORT=6002 npm run start
-```
+# Permissions used
+* `notifications` for showing error notification
+* `activeTab` for requesting url, title and selected text
+* `http://*/capture` for talking with backend. This is a bit too broad, but don't think there is a stricter way of doing that? Let me know if there is.
 
-## Content Scripts
+* `content_security_policy` needed for webpack.
 
-Although this boilerplate uses the webpack dev server, it's also prepared to write all your bundles files on the disk at every code change, so you can point, on your extension manifest, to your bundles that you want to use as [content scripts](https://developer.chrome.com/extensions/content_scripts), but you need to exclude these entry points from hot reloading [(why?)](https://github.com/samuelsimoes/chrome-extension-webpack-boilerplate/issues/4#issuecomment-261788690). To do so you need to expose which entry points are content scripts on the `webpack.config.js` using the `chromeExtensionBoilerplate -> notHotReload` config. Look the example below.
-
-Let's say that you want use the `myContentScript` entry point as content script, so on your `webpack.config.js` you will configure the entry point and exclude it from hot reloading, like this:
-
-```js
-{
-  …
-  entry: {
-    myContentScript: "./src/js/myContentScript.js"
-  },
-  chromeExtensionBoilerplate: {
-    notHotReload: ["myContentScript"]
-  }
-  …
-}
-```
-
-and on your `src/manifest.json`:
-
-```json
-{
-  "content_scripts": [
-    {
-      "matches": ["https://www.google.com/*"],
-      "js": ["myContentScript.bundle.js"]
-    }
-  ]
-}
-
-```
-
-## Packing
-After the development of your extension run the command
-
-```
-$ NODE_ENV=production npm run build
-```
-Now, the content of `build` folder will be the extension ready to be submitted to the Chrome Web Store. Just take a look at the [official guide](https://developer.chrome.com/webstore/publish) to more infos about publishing.
-
-## Secrets
-If you are developing an extension that talks with some API you probably are using different keys for testing and production. Is a good practice you not commit your secret keys and expose to anyone that have access to the repository.
-
-To this task this boilerplate import the file `./secrets.<THE-NODE_ENV>.js` on your modules through the module named as `secrets`, so you can do things like this:
-
-_./secrets.development.js_
-
-```js
-export default { key: "123" };
-```
-
-_./src/popup.js_
-
-```js
-import secrets from "secrets";
-ApiCall({ key: secrets.key });
-```
-:point_right: The files with name `secrets.*.js` already are ignored on the repository.
-
-## With React.js
-:bulb: If you want use [React.js](https://facebook.github.io/react/) with this boilerplate, check the **[react branch](https://github.com/samuelsimoes/chrome-extension-webpack-boilerplate/tree/react)**.
-
-
-## Contributing
-
-1. **Please!! Do not create a pull request without an issue before discussing the problem.**
-2. On your PR make sure that you are following the current codebase style.
-3. Your PR must be single purpose. Resolve just one problem on your PR.
-4. Make sure to commit in the same style that we are committing until now on the project.
-
--------------
-Samuel Simões ~ [@samuelsimoes](https://twitter.com/samuelsimoes) ~ [Blog](http://blog.samuelsimoes.com/)
+# Credits
+* Icon made by <a href="https://www.freepik.com/" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" 			    title="Flaticon">www.flaticon.com</a>, licensed by <a href="http://creativecommons.org/licenses/by/3.0/" 			    title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>
+* [Original Org Capture extension](https://github.com/sprig/org-capture-extension)
+* [Boilerplate for Webpack Chrome extension](https://github.com/samuelsimoes/chrome-extension-webpack-boilerplate))

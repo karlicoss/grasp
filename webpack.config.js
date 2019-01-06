@@ -65,6 +65,9 @@ var options = {
   plugins: [
     // clean the build folder
     new CleanWebpackPlugin(["build/*"]),
+    new CopyWebpackPlugin([
+        { from: 'src/img/unicorn.png' },
+    ]),
     // expose and write the allowed env vars on the compiled bundle
     new webpack.DefinePlugin({
       "process.env.NODE_ENV": JSON.stringify(env.NODE_ENV)

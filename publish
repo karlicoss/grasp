@@ -1,0 +1,9 @@
+#!/bin/bash
+set -eu
+
+
+VERSION="$(git tag --points-at)"
+[[ -n $VERSION ]]
+
+npm run build
+zip "grasp-$VERSION.zip" build/

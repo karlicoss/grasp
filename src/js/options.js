@@ -3,7 +3,7 @@
 const capture_endpoint = 'capture';
 
 function port(): string {
-    return "8090";
+    return "12212";
 }
 
 // none means do not use tags

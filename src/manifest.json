@@ -1,5 +1,8 @@
 {
   "name": "Grasp Extension",
+  "icons": {
+      "128": "unicorn.png"
+  },
   "options_page": "options.html",
   "background": {
     "page": "background.html"
@@ -11,7 +14,7 @@
   "permissions": [
       "notifications",
       "activeTab",
-      "http://*/"
+      "http://*/capture"
   ],
   "commands": {
     "capture-simple": {

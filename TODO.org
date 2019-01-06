@@ -1,21 +1,34 @@
-* TODO [#B] release somewhere? not sure if necessary
-* TODO [#B] docs on using
+* TODO [#A] adjust permissions... I guess gonna have to make it include /capture endpoint?
+
   
+
+
+* START [#B] release somewhere? not sure if necessary
+* TODO [#B] get rid of kython, run ci for python too?
+ 
 * TODO [#B] doesn't look like hotkey working unless you manually rebind.. wtf?
 
   
-* TODO [#C] motivation
-** TODO the benefit is that you can also add anything as a backend, e.g. you might be more of markdown fan or todo.txt
-
 * TODO [#C] how to test it? try on different pages?
 * TODO [#C] some sort of append logic? e.g. don't dump immediately and add as subitems?
+* TODO [#C] make notification configurable or only in case of errors
 * TODO [#D] do not minfy for dev
 * TODO not sure, maybe extension press should be default? control it via option?
-* TODO or, add menu to extension?
+* TODO [#C] or, add menu to extension?
 
 * TODO unsafe-eval in content security policy??
   
 * TODO make manifest templated so we don't have to hardcode actions
+
+* TODO 
+## Packing
+After the development of your extension run the command
+
+```
+$ NODE_ENV=production npm run build
+```
+Now, the content of `build` folder will be the extension ready to be submitted to the Chrome Web Store. Just take a look at the [official guide](https://developer.chrome.com/webstore/publish) to more infos about publishing.
+
 
 * DONE [#A] move server to a separate folder, systemd install script
   CLOSED: [2019-01-05 Sat 14:38]
@@ -23,7 +36,15 @@
 * DONE [#A] entering additional information and tags
   CLOSED: [2019-01-06 Sun 20:41]
 
+* DONE [#B] docs on using
+  CLOSED: [2019-01-06 Sun 21:39]
 * DONE [#B] circleci?
   CLOSED: [2019-01-06 Sun 13:50]
+* DONE [#C] motivation
+  CLOSED: [2019-01-06 Sun 21:35]
+** DONE the benefit is that you can also add anything as a backend, e.g. you might be more of markdown fan or todo.txt
+   CLOSED: [2019-01-06 Sun 21:35]
+
 * DONE [#D] nicer manifest?
   CLOSED: [2019-01-06 Sun 13:43]
+
