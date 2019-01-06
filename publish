@@ -5,5 +5,8 @@ set -eu
 VERSION="$(git tag --points-at)"
 [[ -n $VERSION ]]
 
+OUT="grasp-$VERSION.zip"
+
 npm run build
-zip "grasp-$VERSION.zip" build/
+zip -r -j "$OUT" build/*
+unzip -l "$OUT"
