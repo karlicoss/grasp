@@ -1,14 +1,22 @@
+# TODO should I use yarn as in circleci node example??
 version: 2
 jobs:
   build:
-    working_directory: ~/grasp
     docker:
       - image: circleci/node:latest
+
+    working_directory: ~/repo
+
     steps:
       - checkout
       - run: sudo npm install -g npm
+
       - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
+          keys:
+          - dependency-cache-{{ checksum "package.json" }}
+          # fallback to using the latest cache if no exact match is found
+          - dependency-cache-
+
       - run: npm install
       - save_cache:
           key: dependency-cache-{{ checksum "package.json" }}

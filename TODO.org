@@ -27,7 +27,8 @@ npm run flow
 
 * TODO [#B] docs on using
   
-* TODO [#B] circleci?
+* DONE [#B] circleci?
+  CLOSED: [2019-01-06 Sun 13:50]
 * DONE [#D] nicer manifest?
   CLOSED: [2019-01-06 Sun 13:43]
 * TODO [#D] do not minfy for dev
