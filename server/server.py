@@ -5,9 +5,8 @@ import re
 import hug # type: ignore
 import hug.types as T # type: ignore
 
-from kython.org import append_org_entry
-
-from config import CAPTURE_PATH
+from config import CAPTURE_PATH # TODO mm, maybe configure it during server setup?
+from org_tools import append_org_entry
 
 def empty(s) -> bool:
     return s is None or len(s.strip()) == 0
