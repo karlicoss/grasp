@@ -45,7 +45,7 @@ After that you can find the extension in `build` directory and 'Load unpacked' i
 # Permissions used
 * `notifications` for showing error notification
 * `activeTab` for requesting url, title and selected text
-* `http://*/capture` for talking with backend. This is a bit too broad, but don't think there is a stricter way of doing that? Let me know if there is.
+* `http://localhost/capture` for talking with backend
 
 * `content_security_policy` needed for webpack.
 

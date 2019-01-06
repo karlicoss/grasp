@@ -15,7 +15,8 @@
   "permissions": [
       "notifications",
       "activeTab",
-      "http://*/capture"
+      "http://localhost/capture",
+      "https://localhost/capture"
   ],
   "commands": {
     "capture-simple": {
