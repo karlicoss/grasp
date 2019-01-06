@@ -8,7 +8,7 @@ export function showNotification(text: string, priority: number=0) {
         Notification.requestPermission();
     } else {
         // TODO ugh. is there no way to show in-browser only notification??
-        const notification = new Notification(
+        new Notification(
             'grasp-notification',
             // $FlowFixMe
             {
