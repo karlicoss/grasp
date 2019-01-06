@@ -28,7 +28,8 @@ npm run flow
 * TODO [#B] docs on using
   
 * TODO [#B] circleci?
-* TODO [#D] nicer manifest?
+* DONE [#D] nicer manifest?
+  CLOSED: [2019-01-06 Sun 13:43]
 * TODO [#D] do not minfy for dev
 * TODO [#C] motivation
 * TODO [#B] doesn't look like hotkey working unless you manually rebind.. wtf?

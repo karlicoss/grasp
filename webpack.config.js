@@ -5,7 +5,11 @@ var webpack = require("webpack"),
     CleanWebpackPlugin = require("clean-webpack-plugin"),
     CopyWebpackPlugin = require("copy-webpack-plugin"),
     HtmlWebpackPlugin = require("html-webpack-plugin"),
-    WriteFilePlugin = require("write-file-webpack-plugin");
+    WriteFilePlugin = require("write-file-webpack-plugin"),
+    WebpackExtensionManifestPlugin = require("webpack-extension-manifest-plugin");
+
+const pkg = require('./package.json');
+const baseManifest = require('./src/manifest.json');
 
 // load the secrets
 var alias = {};
@@ -65,17 +69,15 @@ var options = {
     new webpack.DefinePlugin({
       "process.env.NODE_ENV": JSON.stringify(env.NODE_ENV)
     }),
-    new CopyWebpackPlugin([{
-      from: "src/manifest.json",
-      transform: function (content, path) {
-        // generates the manifest file using the package.json informations
-        return Buffer.from(JSON.stringify({
-          description: process.env.npm_package_description,
-          version: process.env.npm_package_version,
-          ...JSON.parse(content.toString())
-        }))
-      }
-    }]),
+    new WebpackExtensionManifestPlugin({
+        config: {
+            base: baseManifest,
+            extend: {
+                version: pkg.version,
+                description: pkg.description,
+            }
+        }
+    }),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src", "popup.html"),
       filename: "popup.html",
