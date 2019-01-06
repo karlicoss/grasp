@@ -1,7 +1,7 @@
 /* @flow */
 // TODO do I really need to annotate all files with @flow??
 
-import {CAPTURE_SELECTED_METHOD, showNotification} from './common';
+import {COMMAND_CAPTURE_SIMPLE, METHOD_CAPTURE_WITH_EXTRAS, showNotification} from './common';
 import {capture_url} from './config';
 
 
@@ -51,36 +51,44 @@ function makeCaptureRequest(
     request.send(data);
 }
 
+function capture(comment: ?string = null) {
+    chrome.tabs.query({currentWindow: true, active: true }, tabs => {
+        const tab = tabs[0];
+        if (tab.url == null) {
+            showNotification('ERROR: trying to capture null');
+            return;
+        }
+        const url: string = tab.url;
+        const title: ?string = tab.title;
 
-// TODO mm. not sure if should do browserAction.onclicked instead?? I suppose it's more flexible??
-// TODO hmm. content script or js??
-// chrome.runtime.onMessage.addListener((message: any, sender: chrome$MessageSender, sendResponse) => {
-//     if (message.method === CAPTURE_SELECTED_METHOD) {
-//     }
-// });
-
-// TODO hmm. I suppose we wanna title + url instead...
-// TODO handle cannot access chrome:// url??
-// TODO ok, need to add comment popup?
-chrome.browserAction.onClicked.addListener(tab => {
-    if (tab.url == null) {
-        showNotification('ERROR: trying to capture null');
-        return;
-    }
-    const url: string = tab.url;
-    const title: ?string = tab.title;
-
-    // console.log('action!');
-    // ugh.. https://stackoverflow.com/a/19165930/706389
-    chrome.tabs.executeScript( {
-        code: "window.getSelection().toString();"
-    }, selections => {
-        const selection = selections == null ? null : selections[0];
-        makeCaptureRequest({
-            url: url,
-            title: title,
-            selection: selection,
-            comment: null,
+        // console.log('action!');
+        // ugh.. https://stackoverflow.com/a/19165930/706389
+        chrome.tabs.executeScript( {
+            code: "window.getSelection().toString();"
+        }, selections => {
+            const selection = selections == null ? null : selections[0];
+            makeCaptureRequest({
+                url: url,
+                title: title,
+                selection: selection,
+                comment: comment,
+            });
         });
     });
+}
+
+
+chrome.commands.onCommand.addListener(command => {
+    if (command === COMMAND_CAPTURE_SIMPLE) {
+        capture(null);
+    }
 });
+
+chrome.runtime.onMessage.addListener((message: any, sender: chrome$MessageSender, sendResponse) => {
+    if (message.method === METHOD_CAPTURE_WITH_EXTRAS) {
+        const comment = message.comment;
+        capture(comment);
+    }
+});
+
+// TODO handle cannot access chrome:// url??

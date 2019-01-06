@@ -5,6 +5,8 @@
     "page": "background.html"
   },
   "browser_action": {
+      "default_popup": "popup.html",
+      "default_title": "Capture page, with extra information"
   },
   "permissions": [
       "notifications",
@@ -12,11 +14,18 @@
       "http://*/"
   ],
   "commands": {
-    "_execute_browser_action": {
-      "description": "Capture current page",
+    "capture-simple": {
+      "description": "Quick capture: url, title and selection",
       "suggested_key": {
         "default": "Ctrl+Shift+C",
         "mac": "Command+Shift+C"
+      }
+    },
+    "_execute_browser_action": {
+      "description": "Capture page, with extra information",
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y"
       }
     }
   },
