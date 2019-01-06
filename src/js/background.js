@@ -2,14 +2,14 @@
 // TODO do I really need to annotate all files with @flow??
 
 import {COMMAND_CAPTURE_SIMPLE, METHOD_CAPTURE_WITH_EXTRAS, showNotification} from './common';
-import {capture_url} from './config';
-
+import {defaultTagStr, capture_url} from './options';
 
 type Params = {
     url: string,
     title: ?string,
     selection: ?string,
     comment: ?string,
+    tag_str: ?string,
 }
 
 
@@ -18,7 +18,6 @@ function makeCaptureRequest(
 ) {
     const data = JSON.stringify(params);
     console.log(`[background] capturing ${data}`);
-
 
     var request = new XMLHttpRequest();
     request.open('POST', capture_url(), true);
@@ -51,13 +50,17 @@ function makeCaptureRequest(
     request.send(data);
 }
 
-function capture(comment: ?string = null) {
+function capture(comment: ?string = null, tag_str: ?string = null) {
     chrome.tabs.query({currentWindow: true, active: true }, tabs => {
         const tab = tabs[0];
         if (tab.url == null) {
             showNotification('ERROR: trying to capture null');
             return;
         }
+        if (tag_str === null) {
+            tag_str = defaultTagStr();
+        }
+
         const url: string = tab.url;
         const title: ?string = tab.title;
 
@@ -72,6 +75,7 @@ function capture(comment: ?string = null) {
                 title: title,
                 selection: selection,
                 comment: comment,
+                tag_str: tag_str,
             });
         });
     });
@@ -80,14 +84,15 @@ function capture(comment: ?string = null) {
 
 chrome.commands.onCommand.addListener(command => {
     if (command === COMMAND_CAPTURE_SIMPLE) {
-        capture(null);
+        capture(null, null);
     }
 });
 
 chrome.runtime.onMessage.addListener((message: any, sender: chrome$MessageSender, sendResponse) => {
     if (message.method === METHOD_CAPTURE_WITH_EXTRAS) {
         const comment = message.comment;
-        capture(comment);
+        const tag_str = message.tag_str;
+        capture(comment, tag_str);
     }
 });
 

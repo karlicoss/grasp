@@ -1,39 +1,29 @@
-* TODO some sort of append logic? e.g. don't dump immediately and add as subitems?
-* ???
-npm install --save-dev @babel/core @babel/preset-env
-npm install babel-preset-stage-0
-npm install babel-preset-env -- wtf is that shit??
-
-npm run build 
-
-npm run flow
-
-* DONE [#A] move server to a separate folder, systemd install script
-  CLOSED: [2019-01-05 Sat 14:38]
+* TODO [#B] release somewhere? not sure if necessary
+* TODO [#B] docs on using
   
-* START [#A] entering additional information and tags
+* TODO [#B] doesn't look like hotkey working unless you manually rebind.. wtf?
 
-* TODO the benefit is that you can also add anything as a backend, e.g. you might be more of markdown fan or todo.txt
-
-* TODO shortcut for org mode to create timestsamped note  
   
+* TODO [#C] motivation
+** TODO the benefit is that you can also add anything as a backend, e.g. you might be more of markdown fan or todo.txt
+
+* TODO [#C] how to test it? try on different pages?
+* TODO [#C] some sort of append logic? e.g. don't dump immediately and add as subitems?
+* TODO [#D] do not minfy for dev
 * TODO not sure, maybe extension press should be default? control it via option?
 * TODO or, add menu to extension?
 
-* TODO [#B] release somewhere? not sure if necessary
 * TODO unsafe-eval in content security policy??
   
 * TODO make manifest templated so we don't have to hardcode actions
 
-* TODO [#B] docs on using
+* DONE [#A] move server to a separate folder, systemd install script
+  CLOSED: [2019-01-05 Sat 14:38]
   
+* DONE [#A] entering additional information and tags
+  CLOSED: [2019-01-06 Sun 20:41]
+
 * DONE [#B] circleci?
   CLOSED: [2019-01-06 Sun 13:50]
 * DONE [#D] nicer manifest?
   CLOSED: [2019-01-06 Sun 13:43]
-* TODO [#D] do not minfy for dev
-* TODO [#C] motivation
-* TODO [#B] doesn't look like hotkey working unless you manually rebind.. wtf?
-
-  
-* TODO [#C] how to test it? try on different pages?

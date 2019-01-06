@@ -1,5 +1,6 @@
 """First API, local access only"""
 import json
+import re
 
 import hug # type: ignore
 import hug.types as T # type: ignore
@@ -23,11 +24,16 @@ def capture(
         title: T.Nullable(T.text),
         selection: T.Nullable(T.text),
         comment: T.Nullable(T.text),
+        tag_str: T.Nullable(T.text),
 ):
     log("capturing", url, title, selection, comment)
 
     heading = url
     parts = []
+    tags = []
+    if not empty(tag_str):
+        tags = re.split('[\s,]', tag_str)
+        tags = [t for t in tags if not empty(t)] # just in case
 
     if not empty(title):
         heading = title
@@ -55,7 +61,7 @@ def capture(
             CAPTURE_PATH,
             heading=heading,
             body=body,
-            tags=['grasp'],
+            tags=tags,
             todo=False,
         )
         response.update({
