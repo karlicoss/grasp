@@ -8,12 +8,12 @@ const COMMENT_ID = 'comment_id';
 const TAGS_ID = 'tags_id';
 
 function getComment(): HTMLInputElement {
-    const comment = ((document.getElementById(COMMENT_ID) : any): HTMLInputElement);
+    const comment = ((document.getElementById(COMMENT_ID): any): HTMLInputElement);
     return comment;
 }
 
 function getTags(): HTMLInputElement {
-    const tags = ((document.getElementById(TAGS_ID) : any): HTMLInputElement);
+    const tags = ((document.getElementById(TAGS_ID): any): HTMLInputElement);
     return tags;
 }
 
@@ -30,7 +30,7 @@ function submitComment () {
         'method': METHOD_CAPTURE_WITH_EXTRAS,
         'comment': comment_text,
         'tag_str': tag_str,
-    }, resp => {
+    }, () => {
         console.log("[popup] captured!");
     });
     window.close();

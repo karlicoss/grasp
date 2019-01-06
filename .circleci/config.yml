@@ -28,6 +28,9 @@ jobs:
       - run:
           name: flow
           command: npm run flow
+      - run:
+          name: eslint
+          command: npm run eslint
       # - store_artifacts:
       #     path: test-results.xml
       #     prefix: tests

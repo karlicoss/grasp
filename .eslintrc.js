@@ -1,7 +1,12 @@
 module.exports = {
+    "parser": "babel-eslint",
+    "plugins": [
+        "flowtype"
+    ],
     'extends': [
         // "google",
         "eslint:recommended",
+        "plugin:flowtype/recommended",
     ],
     'env': {
         'browser': true,
