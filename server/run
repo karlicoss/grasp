@@ -1,8 +1,0 @@
-#!/bin/bash
-set -eux
-
-cd "$(dirname "$0")"
-
-PORT=12212
-
-hug -p "$PORT" -f server.py

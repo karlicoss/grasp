@@ -1,12 +1,16 @@
-"""First API, local access only"""
+#!/usr/bin/python3
+import argparse
 import json
 import re
+import os
+from pathlib import Path
 
 import hug # type: ignore
 import hug.types as T # type: ignore
 
-from config import CAPTURE_PATH # TODO mm, maybe configure it during server setup?
 from org_tools import append_org_entry
+
+CAPTURE_PATH_VAR = 'GRASP_CAPTURE_PATH'
 
 def empty(s) -> bool:
     return s is None or len(s.strip()) == 0
@@ -26,6 +30,8 @@ def capture(
         tag_str: T.Nullable(T.text),
 ):
     log("capturing", url, title, selection, comment)
+
+    capture_path = Path(os.environ[CAPTURE_PATH_VAR]).expanduser()
 
     heading = url
     parts = []
@@ -51,13 +57,13 @@ def capture(
         ])
     body = None if len(parts) == 0 else '\n'.join(parts)
 
-
+    # TODO format response on extension site
     response = {
-        'file': str(CAPTURE_PATH),
+        'file': str(capture_path),
     }
     try:
         append_org_entry(
-            CAPTURE_PATH,
+            capture_path,
             heading=heading,
             body=body,
             tags=tags,
@@ -74,3 +80,30 @@ def capture(
         })
 
     return json.dumps(response).encode('utf8')
+
+def run(port: str, capture_path: str):
+    env = os.environ.copy()
+    # not sure if there is a simpler way to communicate with the server...
+    env[CAPTURE_PATH_VAR] = capture_path
+    os.execvpe(
+        'hug',
+        [
+            'grasp-server',
+            '-p', port,
+            '-f', __file__,
+        ],
+        env,
+    )
+
+def setup_parser(p):
+    p.add_argument('--port', type=str, default='12212', help='Port for communicating with extension')
+    p.add_argument('--path', type=str, default='~/capture.org', help='File to capture into')
+
+def main():
+    p = argparse.ArgumentParser('grasp server setup', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    setup_parser(p)
+    args = p.parse_args()
+    run(args.port, args.path)
+
+if __name__ == '__main__':
+    main()

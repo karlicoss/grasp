@@ -9,10 +9,12 @@ possibly selected text, additional comments or tags and send it into your [Org M
 * `pip3 install --user hug` for [Hug](http://www.hug.rest/) HTTP server.
 
 # Running
-1. Install server counterpart as systemd service: `server/setup`.
+1. Install server counterpart as systemd service (to autostart it): `server/setup --path /path/to/your/capture.org [--port <custom port>]`.
+
+    Or alternatively, just run it directly if you don't want to autostart it: `server/grasp_server.py --path /path/to/your/capture.org [--port <custom_port>]`.
 2. Install chrome extension and configure hotkeys
 
-That's it! Currently port `12212` is hardcoded, but it will be configurable.
+That's it! **Currently port `12212` is hardcoded** in the extension, but it will be configurable later.
 
 # Motivation
 Why use org-capture? Well, it's hard to explain, maybe some other time... However if you do know you want to use it instead/alongside your browser bookmarks, by default

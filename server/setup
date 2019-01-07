@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
+import argparse
+
 from pathlib import Path
 from subprocess import check_call
 
-run_script = Path(__file__).parent.joinpath('run').absolute()
+# TODO rename to grasp_server.py
+from server import setup_parser
 
-CONFIG = f"""
+SYSTEMD_CONFIG = """
 [Unit]
 Description=Grasp extension server conterpart
 
@@ -12,19 +15,10 @@ Description=Grasp extension server conterpart
 WantedBy=default.target
 
 [Service]
-ExecStart={run_script}
+ExecStart={server} {extra_args}
 Type=simple
 Restart=always
 """
-
-SNAME = 'grasp.service'
-
-out = Path(f'~/.config/systemd/user/{SNAME}').expanduser()
-
-print(f"Writing systemd config to {out}:")
-with out.open('w') as fo:
-    fo.write(CONFIG)
-
 
 
 def systemd(*args):
@@ -32,9 +26,35 @@ def systemd(*args):
         'systemctl', '--user', *args,
     ])
 
-systemd('daemon-reload')
-systemd('enable', SNAME)
-systemd('start' , SNAME)
-systemd('status', SNAME)
+def setup(args):
+    unit_name = args.unit_name
+    out = Path(f'~/.config/systemd/user/{unit_name}').expanduser()
+    print(f"Writing systemd config to {out}:")
 
-# TODO journalctl --user -u grasp.service to debug
+    server_bin = Path(__file__).parent.joinpath('server.py').absolute()
+    extra_args = f'--port {args.port} --path {args.path}'
+
+    with out.open('w') as fo:
+        fo.write(SYSTEMD_CONFIG.format(
+            server=server_bin,
+            extra_args=extra_args,
+        ))
+
+    try:
+        systemd('daemon-reload')
+        systemd('enable', unit_name)
+        systemd('start' , unit_name)
+        systemd('status', unit_name)
+    except Exception as e:
+        print(f"Something has gone wrong... you might want to use 'journalctl --user -u {unit_name}' to debug")
+        raise e
+
+def main():
+    p = argparse.ArgumentParser('grasp server setup', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    p.add_argument('--unit-name', type=str, default='grasp.service', help='Systemd unit name')
+    setup_parser(p)
+    args = p.parse_args()
+    setup(args)
+
+if __name__ == '__main__':
+    main()
