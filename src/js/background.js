@@ -25,26 +25,38 @@ function makeCaptureRequest(
         if (request.readyState != 4) {
             return;
         }
-        console.log('[background] status:', request.status);
-        if (request.status >= 200 && request.status < 400) { // success
-            // TODO handle json parsing defensively here
-            var response = JSON.parse(request.responseText);
-            console.log(`[background] success: ${response}`);
-            showNotification(`OK: ${response}`);
-        } else {
-            // TODO more error context?
-            console.log(`[background] ERROR: ${request.status}`);
-
-            var explain = "";
-            if (request.status === 0) {
-                explain = `Unavaiable: ${capture_url()}`;
+        const status = request.status;
+        const rtext = request.responseText;
+        var had_error = false;
+        var error_message = `status ${status}, response ${rtext}`;
+        console.log(`[background] status: ${status}, response: ${rtext}`);
+        if (status >= 200 && status < 400) { // success
+            try {
+                // TODO handle json parsing defensively here
+                const response = JSON.parse(rtext);
+                const path = response.path;
+                console.log(`[background] success: ${response}`);
+                showNotification(`OK: captured to ${path}`);
+            } catch (err) {
+                had_error = true;
+                error_message = error_message.concat(String(err));
+                console.error(err);
             }
-            showNotification(`ERROR: ${request.status}: ${explain}`, 1);
+        } else {
+            had_error = true;
+            if (status == 0) {
+                error_message = error_message.concat(` ${capture_url()} must be unavailable `);
+            }
+        }
+
+        if (had_error) {
+            console.error(`[background] ERROR: ${error_message}`);
+            showNotification(`ERROR: ${error_message}`, 1);
             // TODO crap, doesn't really seem to respect urgency...
         }
     };
     request.onerror = () => {
-        console.log(request);
+        console.error(request);
     };
 
     request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");

@@ -54,27 +54,27 @@ def capture(
         ])
     body = None if len(parts) == 0 else '\n'.join(parts)
 
-    # TODO format response on extension site
     response = {
-        'file': str(capture_path),
+        'path': str(capture_path),
     }
-    try:
-        append_org_entry(
-            capture_path,
-            heading=heading,
-            body=body,
-            tags=tags,
-            todo=False,
-        )
-        response.update({
-            'status': 'ok',
-        })
-    except Exception as e:
-        log(str(e))
-        response.update({
-            'status': 'error',
-            'error' : str(e),
-        })
+    # try:
+    append_org_entry(
+        capture_path,
+        heading=heading,
+        body=body,
+        tags=tags,
+        todo=False,
+    )
+    response.update({
+        'status': 'ok',
+    })
+    # just rely on setting 500 instead
+    # except Exception as e:
+    #     log(str(e))
+    #     response.update({
+    #         'status': 'error',
+    #         'error' : str(e),
+    #     })
 
     return json.dumps(response).encode('utf8')
 
