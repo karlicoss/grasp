@@ -4,8 +4,7 @@ import argparse
 from pathlib import Path
 from subprocess import check_call
 
-# TODO rename to grasp_server.py
-from server import setup_parser
+from grasp_server import setup_parser
 
 SYSTEMD_CONFIG = """
 [Unit]
@@ -31,7 +30,7 @@ def setup(args):
     out = Path(f'~/.config/systemd/user/{unit_name}').expanduser()
     print(f"Writing systemd config to {out}:")
 
-    server_bin = Path(__file__).parent.joinpath('server.py').absolute()
+    server_bin = Path(__file__).parent.joinpath('grasp_server.py').absolute()
     extra_args = f'--port {args.port} --path {args.path}'
 
     with out.open('w') as fo:
