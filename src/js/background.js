@@ -27,6 +27,7 @@ function makeCaptureRequest(
         }
         console.log('[background] status:', request.status);
         if (request.status >= 200 && request.status < 400) { // success
+            // TODO handle json parsing defensively here
             var response = JSON.parse(request.responseText);
             console.log(`[background] success: ${response}`);
             showNotification(`OK: ${response}`);

@@ -6,7 +6,7 @@ possibly selected text, additional comments or tags and send it into your [Org M
 [See a short demo](https://www.youtube.com/watch?v=Z8Bk-IazdGo).
 
 # Requirements
-* `pip3 install --user hug` for [Hug](http://www.hug.rest/) HTTP server.
+No third party dependencies! Just `python 3.6`.
 
 # Running
 1. Install server counterpart as systemd service (to autostart it): `server/setup --path /path/to/your/capture.org [--port <custom port>]`.

@@ -1,41 +1,38 @@
 #!/usr/bin/python3
 import argparse
+from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
-import re
 import os
 from pathlib import Path
-
-import hug # type: ignore
-import hug.types as T # type: ignore
+import re
+from typing import List
 
 from org_tools import append_org_entry
 
 CAPTURE_PATH_VAR = 'GRASP_CAPTURE_PATH'
 
-def empty(s) -> bool:
-    return s is None or len(s.strip()) == 0
-
 def log(*things):
     # TODO proper logging
     print(*things)
 
-# TODO allow to pass tags??
-@hug.local()
-@hug.post('/capture')
+
 def capture(
-        url: T.text,
-        title: T.Nullable(T.text),
-        selection: T.Nullable(T.text),
-        comment: T.Nullable(T.text),
-        tag_str: T.Nullable(T.text),
+        url,
+        title,
+        selection,
+        comment,
+        tag_str,
 ):
+    def empty(s) -> bool:
+        return s is None or len(s.strip()) == 0
+
     log("capturing", url, title, selection, comment)
 
     capture_path = Path(os.environ[CAPTURE_PATH_VAR]).expanduser()
 
     heading = url
     parts = []
-    tags = []
+    tags: List[str] = []
     if not empty(tag_str):
         tags = re.split('[\s,]', tag_str)
         tags = [t for t in tags if not empty(t)] # just in case
@@ -81,19 +78,42 @@ def capture(
 
     return json.dumps(response).encode('utf8')
 
+
+
+class GraspRequestHandler(BaseHTTPRequestHandler):
+    def handle_POST(self):
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+        payload = json.loads(post_data.decode('utf8'))
+        log("incoming request:")
+        log(payload)
+        res = capture(**payload)
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(res)
+
+    def respond_error(self, message: str):
+        self.send_response(500)
+        self.send_header('Content-Type', 'text/html')
+        self.end_headers()
+        self.wfile.write(message.encode('utf8'))
+
+    def do_POST(self):
+        try:
+            self.handle_POST()
+        except Exception as e:
+            log("Error during processing")
+            log(str(e))
+            self.respond_error(message=str(e))
+
+
 def run(port: str, capture_path: str):
-    env = os.environ.copy()
     # not sure if there is a simpler way to communicate with the server...
-    env[CAPTURE_PATH_VAR] = capture_path
-    os.execvpe(
-        'hug',
-        [
-            'grasp-server',
-            '-p', port,
-            '-f', __file__,
-        ],
-        env,
-    )
+    os.environ[CAPTURE_PATH_VAR] = capture_path
+    httpd = HTTPServer(('', int(port)), GraspRequestHandler)
+    log(f"Starting httpd on port {port}")
+    httpd.serve_forever()
 
 def setup_parser(p):
     p.add_argument('--port', type=str, default='12212', help='Port for communicating with extension')

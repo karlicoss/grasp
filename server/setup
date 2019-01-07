@@ -2,7 +2,7 @@
 import argparse
 
 from pathlib import Path
-from subprocess import check_call
+from subprocess import check_call, run
 
 from grasp_server import setup_parser
 
@@ -20,8 +20,8 @@ Restart=always
 """
 
 
-def systemd(*args):
-    check_call([
+def systemd(*args, method=check_call):
+    method([
         'systemctl', '--user', *args,
     ])
 
@@ -40,6 +40,7 @@ def setup(args):
         ))
 
     try:
+        systemd('stop' , unit_name, method=run) # ignore errors here if it wasn't running in the first place
         systemd('daemon-reload')
         systemd('enable', unit_name)
         systemd('start' , unit_name)
