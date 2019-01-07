@@ -1,4 +1,5 @@
 * START [#B] release somewhere? not sure if necessary
+** TODO [#C] post on reddit? 
 * START [#B] get rid of kython, run ci for python too?
  
 * TODO [#B] doesn't look like hotkey working unless you manually rebind.. wtf?
@@ -34,8 +35,7 @@ Now, the content of `build` folder will be the extension ready to be submitted t
 
 * DONE [#B] docs on using
   CLOSED: [2019-01-06 Sun 21:39]
-* DONE [#B] circleci?
-  CLOSED: [2019-01-06 Sun 13:50]
+* TODO [#B] circleci?
 * DONE [#C] motivation
   CLOSED: [2019-01-06 Sun 21:35]
 ** DONE the benefit is that you can also add anything as a backend, e.g. you might be more of markdown fan or todo.txt
