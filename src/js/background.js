@@ -2,7 +2,7 @@
 // TODO do I really need to annotate all files with @flow??
 
 import {COMMAND_CAPTURE_SIMPLE, METHOD_CAPTURE_WITH_EXTRAS, showNotification} from './common';
-import {defaultTagStr, capture_url} from './options';
+import {get_options, capture_url} from './options';
 
 type Params = {
     url: string,
@@ -15,12 +15,18 @@ type Params = {
 
 function makeCaptureRequest(
     params: Params,
+    options,
 ) {
+    if (params.tag_str == null) {
+        params.tag_str = options.default_tags;
+    }
+
     const data = JSON.stringify(params);
     console.log(`[background] capturing ${data}`);
 
     var request = new XMLHttpRequest();
-    request.open('POST', capture_url(), true);
+    const curl = capture_url(options);
+    request.open('POST', curl, true);
     request.onreadystatechange = () => {
         if (request.readyState != 4) {
             return;
@@ -36,7 +42,9 @@ function makeCaptureRequest(
                 const response = JSON.parse(rtext);
                 const path = response.path;
                 console.log(`[background] success: ${response}`);
-                showNotification(`OK: captured to ${path}`);
+                if (options.notification) {
+                    showNotification(`OK: captured to ${path}`);
+                }
             } catch (err) {
                 had_error = true;
                 error_message = error_message.concat(String(err));
@@ -45,7 +53,7 @@ function makeCaptureRequest(
         } else {
             had_error = true;
             if (status == 0) {
-                error_message = error_message.concat(` ${capture_url()} must be unavailable `);
+                error_message = error_message.concat(` ${curl} must be unavailable `);
             }
         }
 
@@ -70,25 +78,23 @@ function capture(comment: ?string = null, tag_str: ?string = null) {
             showNotification('ERROR: trying to capture null');
             return;
         }
-        if (tag_str === null) {
-            tag_str = defaultTagStr();
-        }
-
         const url: string = tab.url;
         const title: ?string = tab.title;
 
-        // console.log('action!');
-        // ugh.. https://stackoverflow.com/a/19165930/706389
-        chrome.tabs.executeScript( {
-            code: "window.getSelection().toString();"
-        }, selections => {
-            const selection = selections == null ? null : selections[0];
-            makeCaptureRequest({
-                url: url,
-                title: title,
-                selection: selection,
-                comment: comment,
-                tag_str: tag_str,
+        get_options(opts => {
+            // console.log('action!');
+            // ugh.. https://stackoverflow.com/a/19165930/706389
+            chrome.tabs.executeScript( {
+                code: "window.getSelection().toString();"
+            }, selections => {
+                const selection = selections == null ? null : selections[0];
+                makeCaptureRequest({
+                    url: url,
+                    title: title,
+                    selection: selection,
+                    comment: comment,
+                    tag_str: tag_str,
+                }, opts);
             });
         });
     });
@@ -110,3 +116,4 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome$MessageSender
 });
 
 // TODO handle cannot access chrome:// url??
+

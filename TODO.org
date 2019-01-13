@@ -1,18 +1,12 @@
-* DONE [#B] release somewhere? not sure if necessary
-  CLOSED: [2019-01-07 Mon 23:57]
-** TODO [#C] post on reddit? 
-* DONE [#B] get rid of kython, run ci for python too?
-  CLOSED: [2019-01-07 Mon 23:57]
- 
 * TODO [#B] doesn't look like hotkey working unless you manually rebind.. wtf?
 
 * TODO [#C] update screens and video now that the notification is nicer
   
 * TODO [#C] how to test it? try on different pages?
 * TODO [#C] some sort of delayed append logic? e.g. don't dump immediately and add as subitems?
-* TODO [#C] make notification configurable or only in case of errors
 * TODO [#C] or, add menu to extension?
 
+* TODO [#C] custom capture template?
 * TODO [#D] do not minfy for dev
 * TODO [#D] make manifest templated so we don't have to hardcode actions
 
@@ -36,9 +30,18 @@ Now, the content of `build` folder will be the extension ready to be submitted t
 * DONE [#A] entering additional information and tags
   CLOSED: [2019-01-06 Sun 20:41]
 
+* DONE [#B] circleci?
+  CLOSED: [2019-01-13 Sun 13:01]
+* DONE [#B] release somewhere? not sure if necessary
+  CLOSED: [2019-01-07 Mon 23:57]
+** TODO [#C] post on reddit? 
+* DONE [#B] get rid of kython, run ci for python too?
+  CLOSED: [2019-01-07 Mon 23:57]
+ 
 * DONE [#B] docs on using
   CLOSED: [2019-01-06 Sun 21:39]
-* TODO [#B] circleci?
+* DONE [#C] make notification configurable or only in case of errors
+  CLOSED: [2019-01-13 Sun 13:01]
 * DONE [#C] motivation
   CLOSED: [2019-01-06 Sun 21:35]
 ** DONE the benefit is that you can also add anything as a backend, e.g. you might be more of markdown fan or todo.txt

@@ -2,15 +2,32 @@
 
 const capture_endpoint = 'capture';
 
-function port(): string {
-    return "12212";
+type Options = {
+    port: string;
+    default_tags: string;
+    notification: boolean;
 }
 
-// none means do not use tags
-export function defaultTagStr (): ?string {
-    return 'grasp';
+function default_options(): Options {
+    return {
+        port: "12212",
+        default_tags: "grasp",
+        notification: true,
+    };
 }
 
-export function capture_url (): string {
-    return `http://localhost:${port()}/${capture_endpoint}`;
+export function get_options(cb: (Options) => void)  {
+    chrome.storage.local.get(null, res => {
+        res = {...default_options(), ...res};
+        cb(res);
+    });
+}
+
+export function set_options(opts: Options, cb: () => void) {
+    console.log('Saving %s', JSON.stringify(opts));
+    chrome.storage.local.set(opts, cb);
+}
+
+export function capture_url(options: Options): string {
+    return `http://localhost:${options.port}/${capture_endpoint}`;
 }
