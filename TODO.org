@@ -3,10 +3,12 @@
 * TODO [#C] update screens and video now that the notification is nicer
   
 * TODO [#C] how to test it? try on different pages?
+  https://www.blazemeter.com/blog/6-easy-steps-testing-your-chrome-extension-selenium
+  looks tricky...
 * TODO [#C] some sort of delayed append logic? e.g. don't dump immediately and add as subitems?
 * TODO [#C] or, add menu to extension?
 
-* TODO [#C] custom capture template?
+* TODO [#C] hmm. if template is specified on client site, it's easier to dispatch todo vs non-todo etc?..
 * TODO [#D] do not minfy for dev
 * TODO [#D] make manifest templated so we don't have to hardcode actions
 
@@ -40,6 +42,8 @@ Now, the content of `build` folder will be the extension ready to be submitted t
  
 * DONE [#B] docs on using
   CLOSED: [2019-01-06 Sun 21:39]
+* DONE [#C] custom capture template?
+  CLOSED: [2019-01-13 Sun 14:57]
 * DONE [#C] make notification configurable or only in case of errors
   CLOSED: [2019-01-13 Sun 13:01]
 * DONE [#C] motivation

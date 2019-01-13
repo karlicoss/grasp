@@ -1,8 +1,8 @@
 from datetime import datetime
-import logging
-from pathlib import Path
 import re
 from typing import List, Optional
+
+DEFAULT_TEMPLATE = "* %U %:description %:tags\n%:link\n%:initial\n"
 
 def date2org(t: datetime) -> str:
     return t.strftime("%Y-%m-%d %a")
@@ -13,63 +13,109 @@ def datetime2orgtime(t: datetime) -> str:
 def datetime2org(t: datetime) -> str:
     return date2org(t) + " " + datetime2orgtime(t)
 
-# TODO priority maybe??
-# TODO need to sanitize!
-def as_org_entry(
-        heading: Optional[str] = None,
-        tags: List[str] = [],
-        body: Optional[str] = None,
-        created: Optional[datetime]=None,
-        todo=True,
+
+def empty(s) -> bool:
+    return s is None or len(s.strip()) == 0
+
+
+def as_org(
+        url: str,
+        title: str,
+        selection: str,
+        comment: str,
+        tags: List[str],
+        org_template: str,
 ):
-    if heading is None:
-        if body is None:
-            raise RuntimeError('Both heading and body are empty!!')
-        heading = body.splitlines()[0] # TODO ??
+    """
+Formats captured results according to org template. Supports all sensible (e.g. non-interactive) template expansions from https://orgmode.org/manual/Template-expansion.html#Template-expansion.
 
-    if body is None:
-        body = ''
+Additionally, supports :selection, :comment and :tags expansions.
 
-    # TODO FIXME escape everything properly!
-    heading = re.sub(r'\s', ' ', heading)
-    # TODO remove newlines from body
+You can look at `test_templates` for some specific examples.
+    """
+    py_template = re.sub(r'%[:]?([?\w]+)', r'{\1}', org_template)
 
-    NOW = datetime.now() # TODO tz??
-    # appended only added if it's different from created
-    app = [f':APPENDED: [{datetime2org(NOW)}]'] if created is not None else []
-    if created is None:
-        created = NOW
+    NOW = datetime.now()
+    org_date = date2org(NOW)
+    org_datetime = datetime2org(NOW)
 
+    tags_s = '' if len(tags) == 0 else (':' + ':'.join(tags) + ':')
 
-    todo_s = ' TODO' if todo else ''
-    tag_s = ':'.join(tags)
+    # TODO tabulate selection and comments?
+    # TODO not sure, maybe add as org quote?
+    parts = []
+    if not empty(selection):
+        parts.extend([
+            'Selection:',
+            selection,
+        ])
+    if not empty(comment):
+        parts.extend([
+            'Comment:',
+            comment
+        ])
+    initial = '\n'.join(parts)
 
-    sch = [f'  SCHEDULED: <{date2org(NOW)}>'] if todo else []
+    res = py_template.format(
+        t=f'<{org_date}>',
+        u=f'[{org_date}]',
+        T=f'<{org_datetime}>',
+        U=f'[{org_datetime}]',
+        description=title,
+        link=url,
 
-    if len(tag_s) != 0:
-        tag_s = f':{tag_s}:'
-    lines = [
-        f"""*{todo_s} {heading} {tag_s}""",
-        *sch,
-        ':PROPERTIES:',
-        *app,
-        f':CREATED: [{datetime2org(created)}]',
-        ':END:',
-        body,
-        "",
-        "",
+        initial=initial,
+        i=initial,
+
+        tags=tags_s,
+        selection=selection,
+        comment=comment,
+        annotation=f'[[{url}][{title}]]', # https://orgmode.org/manual/capture-protocol.html
+        **{'?': ''}, # just ignore it
+    )
+    return res
+
+# TODO escaping?
+# just checks it's not crashing for now
+def test_templates():
+    url = 'https://whatever'
+    title = 'hello'
+    selection = """some
+    selected
+       text
+    """
+    comment = 'fafewfewf'
+    tags = ['aba', 'caba']
+
+    # https://orgmode.org/guide/Capture-templates.html
+    org_templates = [
+        DEFAULT_TEMPLATE,
+        "* %? [[%:link][%:description]] \nCaptured On: %U",
+        "* %:annotation",
+        "* %U %:description :protocol: \n %:link \n%:initial \n\n",
+        "* %t captured stuff %:tags \n ",
+        "\n** Selection\n%:selection\n** Comment\n%:comment\n",
+        """* TODO [#A] %:link
+** Selection
+%:selection
+** Comment
+%:comment
+        """,
+        """* %T %:link %:description
+#+BEGIN_QUOTE
+%:selection
+#+END_QUOTE
+        """,
     ]
-    return '\n'.join(lines)
+    for org_template in org_templates:
+        res = as_org(
+            url,
+            title,
+            selection,
+            comment,
+            tags,
+            org_template=org_template
 
-# TODO should we check if it exists first?
-def append_org_entry(
-        path: Path,
-        *args,
-        **kwargs,
-):
-    res = as_org_entry(*args, **kwargs)
-    # https://stackoverflow.com/a/13232181
-    if len(res.encode('utf8')) > 4096:
-        logging.warning("writing out %s might be non-atomic", res)
-    with path.open('a') as fo:
-        fo.write(res)
+        )
+        print()
+        print(res)
