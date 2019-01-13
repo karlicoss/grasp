@@ -4,7 +4,11 @@
   "icons": {
       "128": "unicorn.png"
   },
-  "options_page": "options.html",
+  "options_ui": {
+      "page": "options.html",
+      "chrome_style": true
+  },
+
   "background": {
     "page": "background.html"
   },
@@ -13,6 +17,7 @@
       "default_title": "Capture page, with extra information"
   },
   "permissions": [
+      "storage",
       "notifications",
       "activeTab",
       "http://localhost/capture",

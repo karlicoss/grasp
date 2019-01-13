@@ -1,6 +1,7 @@
 /* @flow */
 
 import {METHOD_CAPTURE_WITH_EXTRAS} from './common';
+import {get_options} from './options';
 
 // TODO template it in html too?
 const BUTTON_ID = 'button_id';
@@ -63,6 +64,7 @@ function setupPage () {
     comment.addEventListener('keydown', ctrlEnterSubmit);
 
     const tags = getTags();
+    get_options(opts => {tags.value = opts.default_tags;});
     tags.addEventListener('keydown', ctrlEnterSubmit);
     tags.addEventListener('focus', () => moveCaretToEnd(tags)); // to put cursor to the end of tags when tabbed
 

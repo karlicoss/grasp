@@ -14,7 +14,7 @@ No third party dependencies! Just `python 3.6`.
     Or alternatively, just run it directly if you don't want to autostart it: `server/grasp_server.py --path /path/to/your/capture.org [--port <custom_port>]`.
 2. Install chrome extension and configure hotkeys
 
-That's it! **Currently port `12212` is hardcoded** in the extension, but it will be configurable later.
+That's it! If you're using custom port make sure it's same as in the extension settings.
 
 # Motivation
 Why use org-capture? Well, it's hard to explain, maybe some other time... However if you do know you want to use it instead/alongside your browser bookmarks, by default
@@ -45,6 +45,7 @@ You're gonna need `npm` for building extension.
 After that you can find the extension in `build` directory and 'Load unpacked' if necessary. There is also Flow and Eslint set up.
 
 # Permissions used
+* `storage` for settings
 * `notifications` for showing error notification
 * `activeTab` for requesting url, title and selected text
 * `http://localhost/capture` for talking with backend
