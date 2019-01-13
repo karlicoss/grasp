@@ -9,9 +9,9 @@ possibly selected text, additional comments or tags and send it into your [Org M
 No third party dependencies! Just `python 3.6`.
 
 # Running
-1. Install server counterpart as systemd service (to autostart it): `server/setup --path /path/to/your/capture.org [--port <custom port>]`.
+1. Install server counterpart as systemd service (to autostart it): `server/setup --path /path/to/your/capture.org [--port <custom port>] [--template <custom org-capture template>]`.
 
-    Or alternatively, just run it directly if you don't want to autostart it: `server/grasp_server.py --path /path/to/your/capture.org [--port <custom_port>]`.
+    Or alternatively, just run it directly if you don't want to autostart it: `server/grasp_server.py --path /path/to/your/capture.org [--port <custom_port>] [--template <custom org-capture template>]`.
 2. Install chrome extension and configure hotkeys
 
 That's it! If you're using custom port make sure it's same as in the extension settings.

@@ -31,7 +31,9 @@ def setup(args):
     print(f"Writing systemd config to {out}:")
 
     server_bin = Path(__file__).parent.joinpath('grasp_server.py').absolute()
-    extra_args = f'--port {args.port} --path {args.path}'
+
+    template = args.template.replace('%', '%%') # escape for systemd...
+    extra_args = f'--port {args.port} --path {args.path} --template \"{template}\"'
 
     with out.open('w') as fo:
         fo.write(SYSTEMD_CONFIG.format(
@@ -50,7 +52,7 @@ def setup(args):
         raise e
 
 def main():
-    p = argparse.ArgumentParser('grasp server setup', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    p = argparse.ArgumentParser('grasp server setup', formatter_class=lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog, width=100)) # type: ignore
     p.add_argument('--unit-name', type=str, default='grasp.service', help='Systemd unit name')
     setup_parser(p)
     args = p.parse_args()

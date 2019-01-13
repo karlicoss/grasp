@@ -4,3 +4,5 @@ set -eux
 pylint -E *.py setup
 
 mypy --check-untyped-defs *.py setup
+
+pytest -s org_tools.py
