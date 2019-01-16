@@ -1,7 +1,5 @@
 * TODO [#B] doesn't look like hotkey working unless you manually rebind.. wtf?
 
-* TODO [#C] update screens and video now that the notification is nicer
-  
 * TODO [#C] how to test it? try on different pages?
   https://www.blazemeter.com/blog/6-easy-steps-testing-your-chrome-extension-selenium
   looks tricky...
@@ -12,7 +10,7 @@
 * TODO [#D] do not minfy for dev
 * TODO [#D] make manifest templated so we don't have to hardcode actions
 
-* TODO [#D] 
+* TODO [#D] production build?
 ## Packing
 After the development of your extension run the command
 
@@ -42,6 +40,9 @@ Now, the content of `build` folder will be the extension ready to be submitted t
  
 * DONE [#B] docs on using
   CLOSED: [2019-01-06 Sun 21:39]
+* DONE [#C] update screens and video now that the notification is nicer
+  CLOSED: [2019-01-13 Sun 15:32]
+  
 * DONE [#C] custom capture template?
   CLOSED: [2019-01-13 Sun 14:57]
 * DONE [#C] make notification configurable or only in case of errors
