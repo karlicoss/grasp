@@ -3,7 +3,11 @@ set -eux
 
 
 VERSION="$(git tag --points-at)"
-[[ -n $VERSION ]]
+if [[ ! -n $VERSION ]]; then
+    >&2 echo "Dirty build!"
+    VERSION="$(git rev-parse --short HEAD)"
+fi
+   
 
 OUT="grasp-$VERSION.zip"
 
