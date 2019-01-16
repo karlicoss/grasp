@@ -2,7 +2,7 @@
 // TODO do I really need to annotate all files with @flow??
 
 import {COMMAND_CAPTURE_SIMPLE, METHOD_CAPTURE_WITH_EXTRAS, showNotification} from './common';
-import {get_options, capture_url} from './options';
+import {get_options} from './options';
 
 type Params = {
     url: string,
@@ -25,7 +25,9 @@ function makeCaptureRequest(
     console.log(`[background] capturing ${data}`);
 
     var request = new XMLHttpRequest();
-    const curl = capture_url(options);
+    const curl = options.endpoint;
+
+    request.timeout = 10 * 1000; // TODO should it be configurable?
     request.open('POST', curl, true);
     request.onreadystatechange = () => {
         if (request.readyState != 4) {

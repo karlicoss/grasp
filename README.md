@@ -14,7 +14,7 @@ No third party dependencies! Just `python 3.6`.
     Or alternatively, just run it directly if you don't want to autostart it: `server/grasp_server.py --path /path/to/your/capture.org [--port <custom_port>] [--template <custom org-capture template>]`.
 2. Install chrome extension and configure hotkeys
 
-That's it! If you're using custom port make sure it's same as in the extension settings.
+That's it! If you're using custom port make sure it's same as in the extension settings (default is `12212`).
 
 # Motivation
 Why use org-capture? Well, it's hard to explain, maybe some other time... However if you do know you want to use it instead/alongside your browser bookmarks, by default
@@ -42,7 +42,10 @@ You're gonna need `npm` for building extension.
     npm install
     npm run build
     
-After that you can find the extension in `build` directory and 'Load unpacked' if necessary. There is also Flow and Eslint set up.
+After that you can find the extension in `build` directory and 'Load unpacked** if necessary. There is also Flow and Eslint set up.
+
+## Unrestricted url
+If you want to run server remotely, you need extra permissions. Chrome store requires some extra checks when publishing if you do that, so I figured it's better to have localhost only by default. If you do need unresticted url permissions, build the extensions like that: `ANY_URL=yes npm run build`. Then don't forget to set the endpoint in extension settings.
 
 # Permissions used
 * `storage` for settings
