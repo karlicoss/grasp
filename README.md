@@ -16,6 +16,9 @@ No third party dependencies! Just `python 3.6`.
 
 That's it! If you're using custom port make sure it's same as in the extension settings (default is `12212`).
 
+## Using arbitrary endpoint instead of localhost
+If you want to run the server remotely, you need extra permissions. Chrome store requires some extra checks when publishing if you do that, so I figured it's better to have localhost only by default. You can use unrestricted extension instead and connect to the remote host. Ssee `grasp-anyhost` packages [here](https://github.com/karlicoss/grasp/releases), or 'Building' section if you'd rather build it yourself. Don't forget to set the endpoint in extension settings!
+
 # Motivation
 Why use org-capture? Well, it's hard to explain, maybe some other time... However if you do know you want to use it instead/alongside your browser bookmarks, by default
 you don't have much choice and have to copy everything manually. For an average Org Mode user it's a torture. 
@@ -45,7 +48,7 @@ You're gonna need `npm` for building extension.
 After that you can find the extension in `build` directory and 'Load unpacked** if necessary. There is also Flow and Eslint set up.
 
 ## Unrestricted url
-If you want to run server remotely, you need extra permissions. Chrome store requires some extra checks when publishing if you do that, so I figured it's better to have localhost only by default. If you do need unresticted url permissions, build the extensions like that: `ANY_URL=yes npm run build`. Then don't forget to set the endpoint in extension settings.
+If you do need unresticted url permissions, build the extensions like that: `ANY_URL=yes npm run build`.
 
 # Permissions used
 * `storage` for settings
