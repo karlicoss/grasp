@@ -1,16 +1,14 @@
 /* @flow */
 
-const capture_endpoint = 'capture';
-
 type Options = {
-    port: string;
+    endpoint: string;
     default_tags: string;
     notification: boolean;
 }
 
 function default_options(): Options {
     return {
-        port: "12212",
+        endpoint: "http://localhost:12212/capture",
         default_tags: "grasp",
         notification: true,
     };
@@ -26,8 +24,4 @@ export function get_options(cb: (Options) => void)  {
 export function set_options(opts: Options, cb: () => void) {
     console.log('Saving %s', JSON.stringify(opts));
     chrome.storage.local.set(opts, cb);
-}
-
-export function capture_url(options: Options): string {
-    return `http://localhost:${options.port}/${capture_endpoint}`;
 }

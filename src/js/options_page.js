@@ -1,14 +1,15 @@
 /* @flow */
 import {get_options, set_options} from './options';
 
-const SAVE_ID = 'save_id';
-const PORT_ID = 'port_id';
+const ENDPOINT_ID = 'endpoint_id';
 const NOTIFICATION_ID = 'notification_id';
 const DEFAULT_TAGS_ID = 'default_tags_id';
 // TODO specify capture path here?
 
-function getPort(): HTMLInputElement {
-    return ((document.getElementById(PORT_ID): any): HTMLInputElement);
+const SAVE_ID = 'save_id';
+
+function getEndpoint(): HTMLInputElement {
+    return ((document.getElementById(ENDPOINT_ID): any): HTMLInputElement);
 }
 
 function getDefaultTags(): HTMLInputElement {
@@ -26,7 +27,7 @@ function getSaveButton(): HTMLInputElement {
 
 function restoreOptions() {
     get_options(opts => {
-        getPort().value = opts.port;
+        getEndpoint().value = opts.endpoint;
         getDefaultTags().value = opts.default_tags;
         getEnableNotification().checked = opts.notification;
     });
@@ -34,11 +35,11 @@ function restoreOptions() {
 
 function saveOptions() {
     const opts = {
-        port: getPort().value, // TODO validate??
+        endpoint: getEndpoint().value, // TODO validate??
         default_tags: getDefaultTags().value,
         notification: getEnableNotification().checked,
     };
-    set_options(opts, () => { console.log('fewf'); alert('Saved!'); });
+    set_options(opts, () => { alert('Saved!'); });
 }
 
 
