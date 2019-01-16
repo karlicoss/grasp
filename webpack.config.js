@@ -11,6 +11,20 @@ var webpack = require("webpack"),
 const pkg = require('./package.json');
 const baseManifest = require('./src/manifest.json');
 
+const permissions = [
+    "storage",
+    "notifications",
+    "activeTab",
+    "http://localhost/capture",
+    "https://localhost/capture"
+];
+
+if (env.ANY_HOST) {
+    permissions.push("https://*/capture");
+}
+
+
+
 // load the secrets
 var alias = {};
 
@@ -78,6 +92,7 @@ var options = {
             extend: {
                 version: pkg.version,
                 description: pkg.description,
+                permissions: permissions,
             }
         }
     }),

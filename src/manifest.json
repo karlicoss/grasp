@@ -16,13 +16,6 @@
       "default_popup": "popup.html",
       "default_title": "Capture page, with extra information"
   },
-  "permissions": [
-      "storage",
-      "notifications",
-      "activeTab",
-      "http://localhost/capture",
-      "https://localhost/capture"
-  ],
   "commands": {
     "capture-simple": {
       "description": "Quick capture: url, title and selection",
