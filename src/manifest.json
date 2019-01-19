@@ -1,5 +1,4 @@
 {
-  "name": "Grasp Extension",
   "short_name": "org-grasp",
   "icons": {
       "128": "unicorn.png"
