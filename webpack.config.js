@@ -11,7 +11,7 @@ var webpack = require("webpack"),
 const pkg = require('./package.json');
 const baseManifest = require('./src/manifest.json');
 
-const pkg_name = env.ANY_HOST ? "Grasp extension (any host)" : "Grasp extension";
+const pkg_name = env.ANY_HOST ? "org-grasp (any host)" : "org-grasp";
 
 const permissions = [
     "storage",
