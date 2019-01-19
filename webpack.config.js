@@ -11,6 +11,8 @@ var webpack = require("webpack"),
 const pkg = require('./package.json');
 const baseManifest = require('./src/manifest.json');
 
+const pkg_name = env.ANY_HOST ? "Grasp extension (any host)" : "Grasp extension";
+
 const permissions = [
     "storage",
     "notifications",
@@ -90,6 +92,7 @@ var options = {
         config: {
             base: baseManifest,
             extend: {
+                name: pkg_name,
                 version: pkg.version,
                 description: pkg.description,
                 permissions: permissions,
