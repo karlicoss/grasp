@@ -1,3 +1,4 @@
+* TODO [#A] simple auth for server bit? 
 * TODO [#B] doesn't look like hotkey working unless you manually rebind.. wtf?
 
 * TODO [#C] how to test it? try on different pages?
