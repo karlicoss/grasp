@@ -44,7 +44,7 @@ function makeCaptureRequest(
                 // TODO handle json parsing defensively here
                 const response = JSON.parse(rtext);
                 const path = response.path;
-                console.log(`[background] success: ${response}`);
+                console.log(`[background] success: ${rtext}`);
                 if (options.notification) {
                     showNotification(`OK: captured to ${path}`);
                 }
