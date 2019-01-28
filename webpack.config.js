@@ -11,6 +11,7 @@ var webpack = require("webpack"),
 const pkg = require('./package.json');
 const baseManifest = require('./src/manifest.json');
 
+const target = env.TARGET;
 const pkg_name = env.ANY_HOST ? "org-grasp (any host)" : "org-grasp";
 
 const permissions = [
@@ -25,7 +26,20 @@ if (env.ANY_HOST) {
     permissions.push("https://*/capture");
 }
 
+const manifestExtra = {
+    name: pkg_name,
+    version: pkg.version,
+    description: pkg.description,
+    permissions: permissions,
+};
 
+if (target == 'chrome') {
+    manifestExtra.options_ui = {chrome_style: true};
+}
+if (target == 'firefox') {
+    manifestExtra.options_ui = {browser_style: true};
+    manifestExtra.browser_action = {browser_style: true};
+}
 
 // load the secrets
 var alias = {};
@@ -82,7 +96,7 @@ var options = {
     // clean the build folder
     new CleanWebpackPlugin(["build/*"]),
     new CopyWebpackPlugin([
-        { from: 'src/img/unicorn.png' },
+        { from: 'src/img/*.png', flatten: true },
     ]),
     // expose and write the allowed env vars on the compiled bundle
     new webpack.DefinePlugin({
@@ -91,12 +105,7 @@ var options = {
     new WebpackExtensionManifestPlugin({
         config: {
             base: baseManifest,
-            extend: {
-                name: pkg_name,
-                version: pkg.version,
-                description: pkg.description,
-                permissions: permissions,
-            }
+            extend: manifestExtra,
         }
     }),
     new HtmlWebpackPlugin({

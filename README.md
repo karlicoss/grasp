@@ -1,6 +1,6 @@
 Build status: [![CircleCI](https://circleci.com/gh/karlicoss/grasp.svg?style=svg)](https://circleci.com/gh/karlicoss/grasp)
 
-Grasp is an [extension for Chrome](https://chrome.google.com/webstore/detail/org-grasp/ohhbcfjmnbmgkajljopdjcaokbpgbgfa) (Firefox support is in progress), which adds a button/keybinding to capture current page title and url,
+Grasp is an [extension for Chrome](https://chrome.google.com/webstore/detail/org-grasp/ohhbcfjmnbmgkajljopdjcaokbpgbgfa) and Firefox (publishing to to store in progress), which adds a button/keybinding to capture current page title and url,
 possibly selected text, additional comments or tags and adds it into your [Org Mode](https://orgmode.org/) file.
 
 [Screenshot](https://user-images.githubusercontent.com/291333/51799721-a984eb80-221c-11e9-9612-8eb7f553dc01.png), [short demo](https://www.youtube.com/watch?v=Z8Bk-IazdGo).
@@ -9,6 +9,12 @@ Install from Chrome store:
 
 * [localhost only version](https://chrome.google.com/webstore/detail/org-grasp/ohhbcfjmnbmgkajljopdjcaokbpgbgfa)
 * [any host version](https://chrome.google.com/webstore/detail/org-grasp-any-host/gcfhlnaalomahoampfjhinmgjikkkgep) (the only difference are permissions in manifest)
+
+Install from Firefox store:
+
+* In progress
+
+Install from a zip: [releases](https://github.com/karlicoss/grasp/releases).
 
 # Running
 In the simplest setup, the server runs locally, and you can use 'localhost' version of the extension. If you have to work on a computer where you can't run python scripts,
@@ -57,7 +63,10 @@ You're gonna need `npm` for building extension.
 After that you can find the extension in `build` directory and 'Load unpacked** if necessary. There is also Flow and Eslint set up.
 
 ## building any host version
-If you do need unresticted url permissions, build the extensions like that: `ANY_URL=yes npm run build`.
+If you do need unresticted url permissions, build the extensions like that: `ANY_HOST=yes npm run build`.
+
+## building for Firefox
+Default target is Chrome. use `TARGET=firefox npm run build` to build for firefox. The code is actually same, the only differences are minor appearance adjustments in manifest.
 
 # Permissions used
 * `storage` for settings

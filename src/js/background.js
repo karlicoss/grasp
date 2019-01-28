@@ -30,7 +30,8 @@ function makeCaptureRequest(
     request.timeout = 10 * 1000; // TODO should it be configurable?
     request.open('POST', curl, true);
     request.onreadystatechange = () => {
-        if (request.readyState != 4) {
+        const XHR_DONE = 4;
+        if (request.readyState != XHR_DONE) {
             return;
         }
         const status = request.status;
