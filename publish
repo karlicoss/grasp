@@ -7,10 +7,16 @@ if [[ ! -n $VERSION ]]; then
     >&2 echo "Dirty build!"
     VERSION="$(git rev-parse --short HEAD)"
 fi
-   
 
-OUT="grasp-$VERSION.zip"
 
-npm run build
-zip -r -j "$OUT" build/*
-unzip -l "$OUT"
+function rebuild {
+    local res="$1"
+    npm run build
+    zip -r -j "$res" build/*
+    unzip -l "$res"
+}
+
+for browser in "chrome" "firefox"; do
+    TARGET="$browser"                rebuild "grasp-$VERSION-$browser.zip"
+    TARGET="$browser" ANY_HOST='yes' rebuild "grasp-$VERSION-anyhost-$browser.zip"
+done
