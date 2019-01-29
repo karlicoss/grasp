@@ -1,6 +1,6 @@
 Build status: [![CircleCI](https://circleci.com/gh/karlicoss/grasp.svg?style=svg)](https://circleci.com/gh/karlicoss/grasp)
 
-Grasp is an [extension for Chrome](https://chrome.google.com/webstore/detail/org-grasp/ohhbcfjmnbmgkajljopdjcaokbpgbgfa) and Firefox (publishing to to store in progress), which adds a button/keybinding to capture current page title and url,
+Grasp is a browser extension [Chrome](https://chrome.google.com/webstore/detail/org-grasp/ohhbcfjmnbmgkajljopdjcaokbpgbgfa) and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/org-grasp-for-org-capture/), which adds a button/keybinding to capture current page title and url,
 possibly selected text, additional comments or tags and adds it into your [Org Mode](https://orgmode.org/) file.
 
 [Screenshot](https://user-images.githubusercontent.com/291333/51799721-a984eb80-221c-11e9-9612-8eb7f553dc01.png), [short demo](https://www.youtube.com/watch?v=Z8Bk-IazdGo).
@@ -10,9 +10,9 @@ Install from Chrome store:
 * [localhost only version](https://chrome.google.com/webstore/detail/org-grasp/ohhbcfjmnbmgkajljopdjcaokbpgbgfa)
 * [any host version](https://chrome.google.com/webstore/detail/org-grasp-any-host/gcfhlnaalomahoampfjhinmgjikkkgep) (the only difference are permissions in manifest)
 
-Install from Firefox store:
+Install from addons.mozilla.org:
 
-* In progress
+* [localhost only version](https://addons.mozilla.org/en-US/firefox/addon/org-grasp-for-org-capture/)
 
 Install from a zip: [releases](https://github.com/karlicoss/grasp/releases).
 
