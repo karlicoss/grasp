@@ -8,6 +8,10 @@ const BUTTON_ID = 'button_id';
 const COMMENT_ID = 'comment_id';
 const TAGS_ID = 'tags_id';
 
+
+const background = chrome.extension.getBackgroundPage();
+
+
 function getComment(): HTMLInputElement {
     const comment = ((document.getElementById(COMMENT_ID): any): HTMLInputElement);
     return comment;
@@ -23,17 +27,41 @@ function getButton(): HTMLElement {
     return button;
 }
 
-function submitComment () {
+type State = {
+    comment: string,
+    tag_str: string,
+};
+
+
+function getState(): State {
     const comment_text = getComment().value;
     const tag_str = getTags().value;
-    // TODO focus
-    chrome.runtime.sendMessage({
-        'method': METHOD_CAPTURE_WITH_EXTRAS,
+    return {
         'comment': comment_text,
         'tag_str': tag_str,
+    };
+}
+
+function restoreState(state: ?State) {
+    if (state == null) {
+        // comment just relies on default
+        get_options(opts => {getTags().value = opts.default_tags;});
+    } else {
+        getComment().value = state.comment;
+        getTags().value    = state.tag_str;
+    }
+}
+
+function submitComment () {
+    // TODO focus
+    const state = getState();
+    chrome.runtime.sendMessage({
+        'method': METHOD_CAPTURE_WITH_EXTRAS,
+        ...state,
     }, () => {
         console.log("[popup] captured!");
     });
+    window.submitted = true;
     window.close();
 }
 
@@ -57,18 +85,30 @@ function moveCaretToEnd(el) {
     }
 }
 
-
 function setupPage () {
     const comment = getComment();
     comment.focus();
     comment.addEventListener('keydown', ctrlEnterSubmit);
 
     const tags = getTags();
-    get_options(opts => {tags.value = opts.default_tags;});
     tags.addEventListener('keydown', ctrlEnterSubmit);
     tags.addEventListener('focus', () => moveCaretToEnd(tags)); // to put cursor to the end of tags when tabbed
 
     getButton().addEventListener('click', submitComment);
+
+
+    const old_state = background.grasp_state || null;
+    restoreState(old_state);
+    background.grasp_state = null;
+
+    window.submitted = false;
 }
 
 document.addEventListener('DOMContentLoaded', setupPage);
+
+
+window.addEventListener('unload', () => {
+    if (!window.submitted) {
+        background.grasp_state = getState();
+    }
+}, true);
