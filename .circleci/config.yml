@@ -9,6 +9,19 @@ jobs:
 
     steps:
       - checkout
+
+      # ugh. circleci only got python3.6 on this node package??? and it's unclear how to combine multiple circleci docker configurations...
+      # - run: |
+      #     sudo apt install python3-pip
+      #     sudo python3 -m pip install pylint mypy
+      # - run:
+      #     name: pylint
+      #     command: python3 -m pylint -E server/grasp_server.py
+      # - run:
+      #     name: mypy
+      #     command: python3 -m mypy server/grasp_server.py
+
+
       - run: sudo npm install -g npm
 
       - restore_cache:
