@@ -14,7 +14,7 @@ function default_options(): Options {
     };
 }
 
-export function get_options(cb: (Options) => void)  {
+export function get_options(cb: (Options) => void) {
     chrome.storage.local.get(null, res => {
         res = {...default_options(), ...res};
         cb(res);

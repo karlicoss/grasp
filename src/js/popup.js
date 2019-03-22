@@ -9,8 +9,20 @@ const COMMENT_ID = 'comment_id';
 const TAGS_ID = 'tags_id';
 
 
-const background = chrome.extension.getBackgroundPage();
+type State = {
+    comment: string,
+    tag_str: string,
+};
 
+
+function save_state(state: ?State) {
+    window.localStorage.setItem('state', JSON.stringify(state));
+}
+
+function load_state(): ?State {
+    const sts =  window.localStorage.getItem('state') || null;
+    return JSON.parse(sts);
+}
 
 function getComment(): HTMLInputElement {
     const comment = ((document.getElementById(COMMENT_ID): any): HTMLInputElement);
@@ -26,12 +38,6 @@ function getButton(): HTMLElement {
     const button = ((document.getElementById(BUTTON_ID): any): HTMLElement);
     return button;
 }
-
-type State = {
-    comment: string,
-    tag_str: string,
-};
-
 
 function getState(): State {
     const comment_text = getComment().value;
@@ -96,12 +102,11 @@ function setupPage () {
 
     getButton().addEventListener('click', submitComment);
 
-
-    const old_state = background.grasp_state || null;
-    restoreState(old_state);
-    background.grasp_state = null;
-
     window.submitted = false;
+
+    const state = load_state();
+    restoreState(state);
+    save_state(null); // clean
 }
 
 document.addEventListener('DOMContentLoaded', setupPage);
@@ -109,6 +114,6 @@ document.addEventListener('DOMContentLoaded', setupPage);
 
 window.addEventListener('unload', () => {
     if (!window.submitted) {
-        background.grasp_state = getState();
+        save_state(getState());
     }
 }, true);
