@@ -9,9 +9,6 @@ const COMMENT_ID = 'comment_id';
 const TAGS_ID = 'tags_id';
 
 
-const background = chrome.extension.getBackgroundPage();
-
-
 type State = {
     comment: string,
     tag_str: string,
