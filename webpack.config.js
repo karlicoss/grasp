@@ -12,7 +12,7 @@ const pkg = require('./package.json');
 const baseManifest = require('./src/manifest.json');
 
 const target = env.TARGET;
-const pkg_name = env.ANY_HOST ? "org-grasp (any host)" : "org-grasp";
+const pkg_name = env.ANY_HOST ? "grasp (any host)" : "grasp";
 
 const permissions = [
     "storage",

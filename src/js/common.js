@@ -6,7 +6,7 @@ export const METHOD_CAPTURE_WITH_EXTRAS = 'captureWithExtras';
 export function showNotification(text: string, priority: number=0) {
     chrome.notifications.create({
         'type': "basic",
-        'title': "org-grasp",
+        'title': "grasp",
         'message': text,
         'priority': priority,
         'iconUrl': 'unicorn.png',
