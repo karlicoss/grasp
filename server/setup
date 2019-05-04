@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import argparse
-
+import shlex
 from pathlib import Path
 from subprocess import check_call, run
 
@@ -32,15 +32,15 @@ def setup(args):
 
     server_bin = Path(__file__).parent.joinpath('grasp_server.py').absolute()
 
-    template = args.template.replace('%', '%%') # escape for systemd...
-    extra_args = f'--port {args.port} --path {args.path} --template \"{template}\"'
+    template = args.template.replace('%', '%%').replace('\n', r'\n') # escape for systemd...
+    template = shlex.quote(template)
+    extra_args = f'--port {args.port} --path {args.path} --template {template}'
 
     with out.open('w') as fo:
         fo.write(SYSTEMD_CONFIG.format(
             server=server_bin,
             extra_args=extra_args,
         ))
-
     try:
         systemd('stop' , unit_name, method=run) # ignore errors here if it wasn't running in the first place
         systemd('daemon-reload')

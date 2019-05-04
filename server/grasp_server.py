@@ -113,8 +113,7 @@ class GraspRequestHandler(BaseHTTPRequestHandler):
 
 def run(port: str, capture_path: str, template: str):
     logger = get_logger()
-    if template == repr(DEFAULT_TEMPLATE):
-        template = DEFAULT_TEMPLATE # hack so argparse renders default template with \n characters...
+    logger.info("Using template %s", template)
 
     # not sure if there is a simpler way to communicate with the server...
     os.environ[CAPTURE_PATH_VAR] = capture_path
@@ -126,7 +125,7 @@ def run(port: str, capture_path: str, template: str):
 def setup_parser(p):
     p.add_argument('--port', type=str, default='12212', help='Port for communicating with extension')
     p.add_argument('--path', type=str, default='~/capture.org', help='File to capture into')
-    p.add_argument('--template', type=str, default=repr(DEFAULT_TEMPLATE), help=f"""
+    p.add_argument('--template', type=str, default=DEFAULT_TEMPLATE, help=f"""
     {as_org.__doc__}
     """)
 
