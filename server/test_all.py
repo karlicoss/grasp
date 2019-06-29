@@ -5,7 +5,9 @@ from contextlib import contextmanager
 from tempfile import TemporaryDirectory
 import re
 import json
+import os
 
+import pytest # type: ignore
 from selenium import webdriver # type: ignore
 
 
@@ -13,6 +15,10 @@ from test_grasp import grasp_test_server
 
 
 addon_path = (Path(__file__).parent.parent / 'build').absolute()
+
+
+def skip_if_ci(reason):
+    return pytest.mark.skipif('CI' in os.environ, reason=reason)
 
 
 @contextmanager
@@ -82,6 +88,7 @@ def trigger_grasp():
     pyautogui.hotkey('ctrl', 'alt', 'c')
 
 
+@skip_if_ci('no GUI to run the browser..')
 def test(tmp_path: Path):
     capture_file = tmp_path / 'output.org'
     port = '17777'
