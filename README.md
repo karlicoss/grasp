@@ -75,6 +75,13 @@ If you do need unresticted url permissions, build the extensions like that: `ANY
 ## building for Firefox
 Default target is Chrome. use `TARGET=firefox npm run build` to build for firefox. The code is actually same, the only differences are minor appearance adjustments in manifest.
 
+
+# Development
+Check [CI config](./.circleci/config.yml) to figure out all the checks I'm doing.
+
+The only test(s) that don't run on CI at the moment (e.g. due to lack of X server) are marked with `@skip_if_ci`. You can run them manually though.
+
+
 # Credits
 * Icon made by <a href="https://www.freepik.com/" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" 			    title="Flaticon">www.flaticon.com</a>, licensed by <a href="http://creativecommons.org/licenses/by/3.0/" 			    title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>
 * [Original Org Capture extension](https://github.com/sprig/org-capture-extension)
