@@ -17,18 +17,10 @@
   },
   "commands": {
     "capture-simple": {
-      "description": "Quick capture: url, title and selection",
-      "suggested_key": {
-        "default": "Ctrl+Shift+C",
-        "mac": "Command+Shift+C"
-      }
+      "description": "Quick capture: url, title and selection"
     },
     "_execute_browser_action": {
-      "description": "Capture page, with extra information",
-      "suggested_key": {
-        "default": "Ctrl+Shift+Y",
-        "mac": "Command+Shift+Y"
-      }
+      "description": "Capture page, with extra information"
     }
   },
   "manifest_version": 2,
