@@ -46,11 +46,18 @@ The only downside so far is that it's not as well integrated with emacs as its b
 However, if that's a stopper for you, please let me know, I could come up with something!
 
 # Requirements
-No third party dependencies! Just `python 3.6`.
+No third party dependencies! Just `python3`.
 
 
 # Potentional improvements
 * see [todos](./TODO.org)
+
+# Permissions used
+* `storage` for settings
+* `notifications` for showing error notification
+* `activeTab` for requesting url, title and selected text
+* `http://localhost/capture` for talking with backend
+* `content_security_policy` needed for webpack
 
 # Building extension
 The most up-to-date instructions should be in [CI config](./.circleci/config.yml).
@@ -67,14 +74,6 @@ If you do need unresticted url permissions, build the extensions like that: `ANY
 
 ## building for Firefox
 Default target is Chrome. use `TARGET=firefox npm run build` to build for firefox. The code is actually same, the only differences are minor appearance adjustments in manifest.
-
-# Permissions used
-* `storage` for settings
-* `notifications` for showing error notification
-* `activeTab` for requesting url, title and selected text
-* `http://localhost/capture` for talking with backend
-
-* `content_security_policy` needed for webpack.
 
 # Credits
 * Icon made by <a href="https://www.freepik.com/" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" 			    title="Flaticon">www.flaticon.com</a>, licensed by <a href="http://creativecommons.org/licenses/by/3.0/" 			    title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>

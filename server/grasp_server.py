@@ -58,7 +58,7 @@ def capture(
 
     tags: List[str] = []
     if not empty(tag_str):
-        tags = re.split('[\s,]', tag_str)
+        tags = re.split(r'[\s,]', tag_str)
         tags = [t for t in tags if not empty(t)] # just in case
 
     org = as_org(
