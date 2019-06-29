@@ -26,17 +26,39 @@ if (env.ANY_HOST) {
     permissions.push("https://*/capture");
 }
 
+
+// Firefox wouldn't let you rebind its default shortcuts most of which use Shift
+// On the other hand, Chrome wouldn't let you use Alt
+const modifier = target === 'chrome' ? 'Shift' : 'Alt';
+
+// ugh. declarative formats are shit.
+const commandsExtra = {
+    "capture-simple": {
+        "suggested_key": {
+            "default": `Ctrl+${modifier}+C`,
+            "mac":  `Command+${modifier}+C`
+        }
+    },
+    "_execute_browser_action": {
+        "suggested_key": {
+            "default": `Ctrl+${modifier}+Y`,
+            "mac":  `Command+${modifier}+Y`
+        }
+    },
+};
+
 const manifestExtra = {
     name: pkg_name,
     version: pkg.version,
     description: pkg.description,
     permissions: permissions,
+    commands: commandsExtra,
 };
 
-if (target == 'chrome') {
+if (target === 'chrome') {
     manifestExtra.options_ui = {chrome_style: true};
 }
-if (target == 'firefox') {
+if (target === 'firefox') {
     manifestExtra.options_ui = {browser_style: true};
     manifestExtra.browser_action = {browser_style: true};
 }
