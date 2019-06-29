@@ -23,6 +23,7 @@ jobs:
       - run: npm run build
 
       # TODO ugh. is there a way for a job to inherit a cloned repo after npm run build has ran?? I'd like to separate build and check steps
+      # TODO ok, apparently it's a custom executor? https://circleci.com/docs/2.0/workflows/#using-workspaces-to-share-data-among-jobs
       - run:
           name: js flow
           command: npm run flow
@@ -31,6 +32,21 @@ jobs:
           name: eslint
           command: npm run eslint
           when: always
+
+      - run:
+          # TODO need to do some kind of build matrix over [firefox, chrome] x [anyhost, no_anyhost]
+          # it should be somehow achievable via workspaces, but I've spent 10 minutes and couldn't figure it out...
+          name: pack
+          command: |
+
+            for browser in 'chrome'; do
+                zip -r -j "/tmp/grasp.zip" build/*
+            done
+
+      # TODO ugh, also can't use env variables in artifacts...
+      - store_artifacts:
+          path: "/tmp/grasp.zip"
+          destination: "grasp.zip"
 
 
   server_build_and_check:
