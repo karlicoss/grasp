@@ -1,27 +1,12 @@
 # TODO should I use yarn as in circleci node example??
 version: 2
+
 jobs:
-  build:
+  client_build_and_check:
     docker:
       - image: circleci/node:latest
-
-    working_directory: ~/repo
-
     steps:
       - checkout
-
-      # ugh. circleci only got python3.6 on this node package??? and it's unclear how to combine multiple circleci docker configurations...
-      # - run: |
-      #     sudo apt install python3-pip
-      #     sudo python3 -m pip install pylint mypy
-      # - run:
-      #     name: pylint
-      #     command: python3 -m pylint -E server/grasp_server.py
-      # - run:
-      #     name: mypy
-      #     command: python3 -m mypy server/grasp_server.py
-
-
       - run: sudo npm install -g npm
 
       - restore_cache:
@@ -29,26 +14,66 @@ jobs:
           - dependency-cache-{{ checksum "package.json" }}
           # fallback to using the latest cache if no exact match is found
           - dependency-cache-
-
       - run: npm install
       - save_cache:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - ./node_modules
+
+      - run: npm run build
+
+      # TODO ugh. is there a way for a job to inherit a cloned repo after npm run build has ran?? I'd like to separate build and check steps
       - run:
-          name: build
-          command: npm run build
-      - run:
-          name: flow
+          name: js flow
           command: npm run flow
+          when: always
       - run:
           name: eslint
           command: npm run eslint
-      # - store_artifacts:
-      #     path: test-results.xml
-      #     prefix: tests
-      # - store_artifacts:
-      #     path: coverage
-      #     prefix: coverage
-      # - store_test_results:
-      #     path: test-results.xml
+          when: always
+
+
+  server_build_and_check:
+    docker:
+      - image: circleci/python:latest
+    steps:
+      - checkout
+
+      # TODO preserve apt cache..
+      - run: sudo apt install python3-pip
+      - run: python3 -m pip install --user mypy pylint pytest
+
+      - run:
+          name: pylint
+          command: ci/pylint
+          when: always
+
+      - run:
+          name: mypy
+          command: ci/mypy
+          when: always
+
+      - run:
+          name: pytest
+          command: ci/pytest
+          when: always
+
+workflows:
+  version: 2
+
+  build_and_test:
+    jobs:
+      - client_build_and_check
+      - server_build_and_check
+
+
+#       # ugh. circleci only got python3.6 on this node package??? and it's unclear how to combine multiple circleci docker configurations...
+
+#       # - store_artifacts:
+#       #     path: test-results.xml
+#       #     prefix: tests
+#       # - store_artifacts:
+#       #     path: coverage
+#       #     prefix: coverage
+#       # - store_test_results:
+#       #     path: test-results.xml
