@@ -7,7 +7,9 @@ import re
 import json
 
 from selenium import webdriver # type: ignore
-import pyautogui # type: ignore
+
+
+from test_grasp import grasp_test_server
 
 
 addon_path = (Path(__file__).parent.parent / 'build').absolute()
@@ -17,11 +19,13 @@ addon_path = (Path(__file__).parent.parent / 'build').absolute()
 def get_webdriver():
     with TemporaryDirectory() as td:
         profile = webdriver.FirefoxProfile(td)
+        # use firefox from here to test https://www.mozilla.org/en-GB/firefox/developer/
         driver = webdriver.Firefox(profile, firefox_binary='/L/soft/firefox-dev/firefox/firefox')
-        driver.install_addon(str(addon_path), temporary=True)
-
-        yield driver
-    # TODO close driver?
+        try:
+            driver.install_addon(str(addon_path), temporary=True)
+            yield driver
+        finally:
+            driver.close()
 
 
 def open_options_page(driver):
@@ -74,12 +78,17 @@ def trigger_grasp():
     # pyautogui.locateOnScreen('/L/soft/browser-extensions/grasp/unicorn.png')
 
     print("sending hotkey!")
+    import pyautogui # type: ignore
     pyautogui.hotkey('ctrl', 'alt', 'c')
 
 
-def test():
-    with get_webdriver() as driver:
-        change_port(driver, port='17777')
+def test(tmp_path: Path):
+    capture_file = tmp_path / 'output.org'
+    port = '17777'
+    template = '* [[%:link][%:description]]'
+
+    with grasp_test_server(capture_file=capture_file, template=template, port=port), get_webdriver() as driver:
+        change_port(driver, port=port)
 
         driver.get('https://en.wikipedia.org/wiki/Automation')
 
@@ -87,9 +96,15 @@ def test():
         # TODO select something?
         trigger_grasp()
 
+    sleep(1) # just in case
+    # TODO come up with a better test and involve other template parameters
+    assert capture_file.read_text() == '* [[https://en.wikipedia.org/wiki/Automation][Automation - Wikipedia]]'
+
 
 def main():
-    test()
+    with TemporaryDirectory() as tdir:
+        test(Path(tdir))
+
 
 if __name__ == '__main__':
     main()

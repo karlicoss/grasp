@@ -131,49 +131,6 @@ def setup_parser(p):
     """)
 
 
-def test_server(tmp_path: Path):
-    from subprocess import Popen, check_call
-    from time import sleep
-    from contextlib import contextmanager
-
-    # ugh.
-    @contextmanager
-    def killmepls(*args, **kwargs):
-        with Popen(*args, **kwargs) as p:
-            try:
-                yield p
-            finally:
-                p.kill()
-
-
-    cfile = tmp_path / 'test-capture.org'
-    PORT = '17777'
-
-    def send(url: str, title: str):
-        # TODO eh, not sure if there is anything easier than httpie
-        check_call([
-            'http', '--ignore-stdin', 'POST', f'http://localhost:{PORT}',
-            f'url={url}',
-            f'title={title}',
-            'selection=null',
-            'comment=null',
-            'tag_str=null',
-        ])
-
-
-    with killmepls([
-            __file__, '--port', PORT, '--path', cfile,
-    ]) as s:
-        sleep(0.5) # startup
-
-        send(url='twitter.com', title='Twitter')
-        sleep(0.5)
-
-        assert 'twitter.com' in cfile.read_text()
-        # TODO er... wonder how nulls are converted into Nones..
-        # assert 'null' not in cfile.read_text()
-
-
 def main():
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 
