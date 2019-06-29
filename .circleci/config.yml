@@ -58,6 +58,7 @@ jobs:
       # TODO preserve apt cache..
       - run: sudo apt install python3-pip
       - run: python3 -m pip install --user mypy pylint pytest
+      - run: sudo apt install httpie # only used for tests
 
       - run:
           name: pylint
