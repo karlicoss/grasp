@@ -20,33 +20,42 @@ def get_webdriver():
         driver = webdriver.Firefox(profile, firefox_binary='/L/soft/firefox-dev/firefox/firefox')
         driver.install_addon(str(addon_path), temporary=True)
 
-        # necessary to trigger prefs.js initialisation..
-        driver.get('http://example.com')
-        sleep(1)
-
-        moz_profile = Path(driver.capabilities['moz:profile'])
-        prefs_file = moz_profile / 'prefs.js'
-        addon_id = None
-        print(prefs_file)
-        for line in prefs_file.read_text().splitlines():
-            print(line)
-            # temporary-addon\":\"53104c22-acd0-4d44-904c-22d11d31559a\"}")
-            m = re.search(r'temporary-addon.....([0-9a-z-]+)."', line)
-            if m is None:
-                continue
-            addon_id = m.group(1)
-            print("ADDON " + addon_id)
-        assert addon_id is not None
-
-        options = f'moz-extension://{addon_id}/options.html'
-        print(options)
-        driver.get(options)
-        import ipdb; ipdb.set_trace() 
-
         yield driver
-        # TODO close driver?
+    # TODO close driver?
 
-# TODO need to fix hotkey!
+
+def open_options_page(driver):
+    # necessary to trigger prefs.js initialisation..
+    driver.get('http://example.com')
+    sleep(1)
+
+    moz_profile = Path(driver.capabilities['moz:profile'])
+    prefs_file = moz_profile / 'prefs.js'
+    addon_id = None
+    for line in prefs_file.read_text().splitlines():
+        # temporary-addon\":\"53104c22-acd0-4d44-904c-22d11d31559a\"}")
+        m = re.search(r'temporary-addon.....([0-9a-z-]+)."', line)
+        if m is None:
+            continue
+        addon_id = m.group(1)
+    assert addon_id is not None
+
+    options = f'moz-extension://{addon_id}/options.html'
+    driver.get(options)
+
+# TODO could also check for errors
+
+def change_port(driver, port: str):
+    open_options_page(driver)
+
+    ep = driver.find_element_by_id('endpoint_id')
+    ep.clear()
+    ep.send_keys(f'http://localhost:{port}')
+
+    se = driver.find_element_by_id('save_id')
+    se.click()
+
+    driver.switch_to.alert.accept()
 
 
 def trigger_grasp():
@@ -65,12 +74,13 @@ def trigger_grasp():
     # pyautogui.locateOnScreen('/L/soft/browser-extensions/grasp/unicorn.png')
 
     print("sending hotkey!")
-    import ipdb; ipdb.set_trace() 
     pyautogui.hotkey('ctrl', 'alt', 'c')
 
 
 def test():
     with get_webdriver() as driver:
+        change_port(driver, port='17777')
+
         driver.get('https://en.wikipedia.org/wiki/Automation')
 
         sleep(2) # just in case..
