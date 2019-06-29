@@ -1,27 +1,12 @@
 # TODO should I use yarn as in circleci node example??
 version: 2
+
 jobs:
-  build:
+  client_build:
     docker:
       - image: circleci/node:latest
-
-    working_directory: ~/repo
-
     steps:
       - checkout
-
-      # ugh. circleci only got python3.6 on this node package??? and it's unclear how to combine multiple circleci docker configurations...
-      # - run: |
-      #     sudo apt install python3-pip
-      #     sudo python3 -m pip install pylint mypy
-      # - run:
-      #     name: pylint
-      #     command: python3 -m pylint -E server/grasp_server.py
-      # - run:
-      #     name: mypy
-      #     command: python3 -m mypy server/grasp_server.py
-
-
       - run: sudo npm install -g npm
 
       - restore_cache:
@@ -29,26 +14,99 @@ jobs:
           - dependency-cache-{{ checksum "package.json" }}
           # fallback to using the latest cache if no exact match is found
           - dependency-cache-
-
       - run: npm install
       - save_cache:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - ./node_modules
+
+      - run: npm run build
+
+  client_check:
+    docker:
+      - image: circleci/node:latest
+    steps:
       - run:
-          name: build
-          command: npm run build
-      - run:
-          name: flow
+          name: js flow
           command: npm run flow
+          when: always
       - run:
           name: eslint
           command: npm run eslint
-      # - store_artifacts:
-      #     path: test-results.xml
-      #     prefix: tests
-      # - store_artifacts:
-      #     path: coverage
-      #     prefix: coverage
-      # - store_test_results:
-      #     path: test-results.xml
+          when: always
+
+  check_server:
+    docker:
+      - image: circleci/node:latest
+    steps:
+      - run: 
+
+    
+
+workflows:
+  version: 2
+
+  wf_client_build:
+    jobs:
+      - client_build
+
+  wf_client_check:
+    jobs:
+      - client_check:
+          requires:
+            - client_build
+    
+
+
+# jobs:
+#   build:
+#     docker:
+#       - image: circleci/node:latest
+
+#     working_directory: ~/repo
+
+#     steps:
+#       - checkout
+
+#       # ugh. circleci only got python3.6 on this node package??? and it's unclear how to combine multiple circleci docker configurations...
+#       # - run: |
+#       #     sudo apt install python3-pip
+#       #     sudo python3 -m pip install pylint mypy
+#       # - run:
+#       #     name: pylint
+#       #     command: python3 -m pylint -E server/grasp_server.py
+#       # - run:
+#       #     name: mypy
+#       #     command: python3 -m mypy server/grasp_server.py
+
+
+#       - run: sudo npm install -g npm
+
+#       - restore_cache:
+#           keys:
+#           - dependency-cache-{{ checksum "package.json" }}
+#           # fallback to using the latest cache if no exact match is found
+#           - dependency-cache-
+
+#       - run: npm install
+#       - save_cache:
+#           key: dependency-cache-{{ checksum "package.json" }}
+#           paths:
+#             - ./node_modules
+#       - run:
+#           name: build
+#           command: npm run build
+#       - run:
+#           name: flow
+#           command: npm run flow
+#       - run:
+#           name: eslint
+#           command: npm run eslint
+#       # - store_artifacts:
+#       #     path: test-results.xml
+#       #     prefix: tests
+#       # - store_artifacts:
+#       #     path: coverage
+#       #     prefix: coverage
+#       # - store_test_results:
+#       #     path: test-results.xml
