@@ -1,0 +1,2 @@
+#!/bin/bash
+http post "$1" title=123 url=test selection=null comment=null tag_str=null
