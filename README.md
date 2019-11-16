@@ -12,7 +12,7 @@ Install from Chrome store:
 
 Install from addons.mozilla.org:
 
-* [localhost only version](https://addons.mozilla.org/en-US/firefox/addon/org-grasp-for-org-capture/)
+* [localhost only version](https://addons.mozilla.org/en-US/firefox/addon/grasp)
 
 Install from a zip: [releases](https://github.com/karlicoss/grasp/releases).
 
