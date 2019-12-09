@@ -1,7 +1,7 @@
 /* @flow */
 // TODO do I really need to annotate all files with @flow??
 
-import {COMMAND_CAPTURE_SIMPLE, METHOD_CAPTURE_WITH_EXTRAS, showNotification} from './common';
+import {COMMAND_CAPTURE_SIMPLE, METHOD_CAPTURE_WITH_EXTRAS, showNotification, ensurePermissions} from './common';
 import {get_options} from './options';
 
 type Params = {
@@ -74,6 +74,8 @@ function makeCaptureRequest(
     request.send(data);
 }
 
+
+// TODO FIXME ugh. need defensive error handling on the very top...
 function capture(comment: ?string = null, tag_str: ?string = null) {
     chrome.tabs.query({currentWindow: true, active: true }, tabs => {
         const tab = tabs[0];
@@ -106,7 +108,7 @@ function capture(comment: ?string = null, tag_str: ?string = null) {
 
 chrome.commands.onCommand.addListener(command => {
     if (command === COMMAND_CAPTURE_SIMPLE) {
-        capture(null, null);
+        ensurePermissions(() => capture(null, null));
     }
 });
 
