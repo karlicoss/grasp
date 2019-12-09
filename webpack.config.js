@@ -79,6 +79,11 @@ const build_path = path.join(__dirname, "dist"); // TODO target??
 
 var options = {
   mode: 'production',
+  optimization: {
+    // https://webpack.js.org/configuration/optimization
+    // don't thing minimize worth it for suck a tiny extension
+    minimize: false
+  },
   entry: {
     popup     : path.join(__dirname, "src", "js", "popup.js"),
     options   : path.join(__dirname, "src", "js", "options_page.js"),
