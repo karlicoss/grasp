@@ -79,7 +79,7 @@ The only test(s) that don't run on CI at the moment (e.g. due to lack of X serve
 
 Extra tests (not integrated in CI yet):
 
-- `(cd dist && web-ext lint)`
+- `./build --lint`
 - `scripts/test_with_browser.py`
 
 
