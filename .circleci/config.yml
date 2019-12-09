@@ -7,7 +7,7 @@ jobs:
       - image: circleci/node:latest
     steps:
       - checkout
-      - run: sudo npm install -g npm
+      - run: sudo npm install -g npm web-ext
 
       - restore_cache:
           keys:
@@ -20,7 +20,7 @@ jobs:
           paths:
             - ./node_modules
 
-      - run: npm run build
+      - run: ./build --chrome --lint
 
       # TODO ugh. is there a way for a job to inherit a cloned repo after npm run build has ran?? I'd like to separate build and check steps
       # TODO ok, apparently it's a custom executor? https://circleci.com/docs/2.0/workflows/#using-workspaces-to-share-data-among-jobs
@@ -40,7 +40,7 @@ jobs:
           command: |
 
             for browser in 'chrome'; do
-                zip -r -j "/tmp/grasp.zip" build/*
+                zip -r -j "/tmp/grasp.zip" dist/*
             done
 
       # TODO ugh, also can't use env variables in artifacts...

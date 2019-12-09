@@ -14,7 +14,7 @@ from selenium import webdriver # type: ignore
 from test_grasp import grasp_test_server
 
 
-addon_path = (Path(__file__).parent.parent / 'build').absolute()
+addon_path = (Path(__file__).parent.parent / 'dist').absolute()
 
 
 def skip_if_ci(reason):
@@ -91,7 +91,7 @@ def trigger_grasp():
 @skip_if_ci('no GUI to run the browser..')
 def test(tmp_path: Path):
     capture_file = tmp_path / 'output.org'
-    port = '17777'
+    port = '17890'
     template = '* [[%:link][%:description]]'
 
     with grasp_test_server(capture_file=capture_file, template=template, port=port), get_webdriver() as driver:

@@ -26,7 +26,7 @@ def grasp_test_server(capture_file: Path, port: str, template=None):
 
 def test_server(tmp_path: Path):
     cfile = tmp_path / 'test-capture.org'
-    PORT = '17777'
+    PORT = '17890'
 
     def send(url: str, title: str):
         # TODO eh, not sure if there is anything easier than httpie

@@ -33,6 +33,8 @@ def main():
             *args,
         ], **kwargs)
 
+    # TODO do I need that back for dev manifest??
+    # "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
     maybe_release = {'NODE_ENV': 'production'} if args.release else {}
     env = {
         'TARGET': target,
