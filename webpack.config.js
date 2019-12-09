@@ -12,7 +12,9 @@ const pkg = require('./package.json');
 const baseManifest = require('./src/manifest.json');
 
 const target = env.TARGET;
-const pkg_name = env.ANY_HOST ? "grasp (any host)" : "grasp";
+const dev = env.NODE_ENV === "development";
+
+const pkg_name = (env.ANY_HOST ? "grasp (any host)" : "grasp") + (dev ? ' [dev]' : '');
 
 // TODO make permissions literate
 const permissions = [
@@ -55,6 +57,10 @@ const manifestExtra = {
     permissions: permissions,
     commands: commandsExtra,
 };
+
+if (dev) {
+    manifestExtra.content_security_policy = "script-src 'self' 'unsafe-eval'; object-src 'self'";
+}
 
 if (target === 'chrome') {
     manifestExtra.options_ui = {chrome_style: true};
