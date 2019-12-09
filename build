@@ -61,6 +61,8 @@ def main():
 
         from firefox_dev_secrets import API_KEY, API_SECRET
         webext(
+            # TODO use UUID? https://addons.mozilla.org/en-GB/developers/addon/grasp/edit
+            # TODO right, wouldn't work because it's listed..
             '--artifacts-dir', str(dist_dir),
             '--api-key'   , API_KEY,
             '--api-secret', API_SECRET,

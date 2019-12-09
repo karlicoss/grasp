@@ -59,7 +59,7 @@ No third party dependencies! Just `python3`.
 * `http://localhost/capture` for talking with backend
 * `content_security_policy` needed for webpack
 
-# Building extension
+# Building & developing
 The most up-to-date instructions should be in [CI config](./.circleci/config.yml).
 
 You're gonna need `npm` for building extension.
@@ -72,7 +72,7 @@ After that you can find the extension in `dist` directory and 'Load unpacked** i
 ## building any host version
 If you do need unresticted url permissions, build the extensions like that: `ANY_HOST=yes ./build`.
 
-## Development
+## testing and linting
 Check [CI config](./.circleci/config.yml) to figure out all the checks I'm doing.
 
 The only test(s) that don't run on CI at the moment (e.g. due to lack of X server) are marked with `@skip_if_ci`. You can run them manually though.
@@ -80,6 +80,10 @@ The only test(s) that don't run on CI at the moment (e.g. due to lack of X serve
 Extra tests (not integrated in CI yet):
 
 - `scripts/test_with_browser.py`
+
+## publishing
+
+- firefox: `./build --firefox --release --lint && web-ext -s dist build`, then upload on [AMO](https://addons.mozilla.org/en-GB/developers/addon/grasp/versions)
 
 
 # Credits
