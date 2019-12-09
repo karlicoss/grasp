@@ -25,3 +25,12 @@ export function set_options(opts: Options, cb: () => void) {
     console.log('Saving %s', JSON.stringify(opts));
     chrome.storage.local.set(opts, cb);
 }
+
+
+
+export function getOptions(): Promise<Options> {
+    return new Promise((resolve) => {
+        // TODO FIXME reject?
+        get_options(resolve);
+    });
+}

@@ -12,3 +12,27 @@ export function showNotification(text: string, priority: number=0) {
         'iconUrl': 'unicorn.png',
     });
 }
+
+// $FlowFixMe
+export function awrap(fn, ...args: Array<any>): Promise<any> {
+    return new Promise((resolve, reject) => {
+        const cbb = (...xxx) => {
+            const err = chrome.runtime.lastError;
+            if (err) {
+                reject(err);
+            }
+            resolve(...xxx);
+        };
+        // ugh. can't pass proper typed args down to chrome interfaces?
+        // $FlowFixMe
+        fn(...args, cbb);
+    });
+}
+
+export function chromePermissionsRequest(params: any) {
+    return awrap(chrome.permissions.request, params);
+}
+
+export function chromePermissionsContains(params: any) {
+    return awrap(chrome.permissions.contains, params);
+}
