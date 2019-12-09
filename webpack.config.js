@@ -56,6 +56,10 @@ const manifestExtra = {
     description: pkg.description,
     permissions: permissions,
     commands: commandsExtra,
+    optional_permissions: [
+        "http://*/capture",
+        "https://*/capture",
+    ],
 };
 
 if (dev) {
