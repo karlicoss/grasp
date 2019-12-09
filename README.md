@@ -65,21 +65,22 @@ The most up-to-date instructions should be in [CI config](./.circleci/config.yml
 You're gonna need `npm` for building extension.
 
     npm install
-    npm run build
+    ./build --target <browser> # e.g. ./build --target chrome or ./build --target firefox
     
-After that you can find the extension in `build` directory and 'Load unpacked** if necessary. There is also Flow and Eslint set up.
+After that you can find the extension in `dist` directory and 'Load unpacked** if necessary. There is also Flow and Eslint set up.
 
 ## building any host version
-If you do need unresticted url permissions, build the extensions like that: `ANY_HOST=yes npm run build`.
+If you do need unresticted url permissions, build the extensions like that: `ANY_HOST=yes ./build`.
 
-## building for Firefox
-Default target is Chrome. use `TARGET=firefox npm run build` to build for firefox. The code is actually same, the only differences are minor appearance adjustments in manifest.
-
-
-# Development
+## Development
 Check [CI config](./.circleci/config.yml) to figure out all the checks I'm doing.
 
 The only test(s) that don't run on CI at the moment (e.g. due to lack of X server) are marked with `@skip_if_ci`. You can run them manually though.
+
+Extra tests (not integrated in CI yet):
+
+- `(cd dist && web-ext lint)`
+- `scripts/test_with_browser.py`
 
 
 # Credits
