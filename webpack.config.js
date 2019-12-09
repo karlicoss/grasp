@@ -14,6 +14,7 @@ const baseManifest = require('./src/manifest.json');
 const target = env.TARGET;
 const pkg_name = env.ANY_HOST ? "grasp (any host)" : "grasp";
 
+// TODO make permissions literate
 const permissions = [
     "storage",
     "notifications",
@@ -74,16 +75,19 @@ if (fileSystem.existsSync(secretsPath)) {
   alias["secrets"] = secretsPath;
 }
 
+const build_path = path.join(__dirname, "dist"); // TODO target??
+
 var options = {
-  mode: 'development',
+  mode: 'production',
   entry: {
-    popup: path.join(__dirname, "src", "js", "popup.js"),
-    options: path.join(__dirname, "src", "js", "options_page.js"),
+    popup     : path.join(__dirname, "src", "js", "popup.js"),
+    options   : path.join(__dirname, "src", "js", "options_page.js"),
     background: path.join(__dirname, "src", "js", "background.js")
   },
   output: {
-    path: path.join(__dirname, "build"),
-    filename: "[name].bundle.js"
+      path: build_path,
+      // TODO why bundle???
+      filename: "[name].bundle.js",
   },
   module: {
     rules: [
@@ -116,7 +120,7 @@ var options = {
   },
   plugins: [
     // clean the build folder
-    new CleanWebpackPlugin(["build/*"]),
+    new CleanWebpackPlugin([build_path + "/*"]),
     new CopyWebpackPlugin([
         { from: 'src/img/*.png', flatten: true },
     ]),
@@ -149,6 +153,7 @@ var options = {
   ]
 };
 
+// TODO https://webpack.js.org/configuration/devtool
 if (env.NODE_ENV === "development") {
   options.devtool = "cheap-module-eval-source-map";
 }

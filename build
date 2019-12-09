@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+import argparse
+import os
+from subprocess import check_call
+from pathlib import Path
+
+
+TARGETS = ['chrome', 'firefox']
+# TODO FIXME copypaste from promnesia
+# TODO FIXME use it in ci script
+def main():
+    p = argparse.ArgumentParser()
+    # TODO rename to --production??
+    p.add_argument('--release', action='store_true')
+    p.add_argument('--sign', action='store_true')
+    # TODO --lint?
+
+    tg = p.add_mutually_exclusive_group()
+    tg.add_argument('--target', type=str, choices=TARGETS)
+    for b in TARGETS:
+        tg.add_argument('--' + b, action='store_const', const=b, dest='target')
+    args = p.parse_args()
+    target = args.target
+
+    assert target is not None
+
+    maybe_release = {'NODE_ENV': 'production'} if args.release else {}
+
+    env = {
+        'TARGET': target,
+        **maybe_release,
+        **os.environ,
+    }
+    check_call([
+        'npm', 'run', 'build',
+    ], env=env, cwd=str(Path(__file__).absolute().parent))
+
+    if args.sign:
+        assert args.release
+        if target not in ['firefox', 'firefox-mobile']:
+            raise RuntimeError("{target} is not supported for signing yet".format(target=target))
+
+
+        dist_dir = Path(__file__).absolute().parent / 'dist'
+        src_dir = dist_dir / target
+
+        from firefox_dev_secrets import API_KEY, API_SECRET
+        check_call([
+            'web-ext',
+            '--source-dir'   , str(src_dir),
+            '--artifacts-dir', str(dist_dir),
+            '--api-key'      , API_KEY,
+            '--api-secret'   , API_SECRET,
+            'sign',
+        ])
+
+if __name__ == '__main__':
+    main()
