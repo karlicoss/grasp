@@ -1,4 +1,6 @@
 /* @flow */
+import {getOptions} from './options';
+
 export const COMMAND_CAPTURE_SIMPLE = 'capture-simple';
 
 export const METHOD_CAPTURE_WITH_EXTRAS = 'captureWithExtras';
@@ -37,35 +39,38 @@ export function chromePermissionsContains(params: any) {
     return awrap(chrome.permissions.contains, params);
 }
 
-// TODO ugh. use promises already...
+
 // TODO fuck. doesn't seem to work for Firefox at all...
 // just getting  Error: "An unexpected error occurred" background.bundle.js
 // seems like this bug https://bugzilla.mozilla.org/show_bug.cgi?id=1382953
 export function ensurePermissions(cb: () => void) {
-    const needs_check = false; // TODO FIXME
-    if (!needs_check) {
-        cb();
-        return;
-    }
-
     const back = chrome.extension.getBackgroundPage().console;
-    function onResponse(response) {
-        const err = chrome.runtime.lastError;
-        console.error("ERROR!", err);
-        if (response) {
+
+    getOptions().then(opts => {
+        const endpoint = opts.endpoint;
+        // that's capable of handling default (localhost), so shouldn't prompt
+        const perms = {
+            origins: [
+                endpoint,
+            ],
+        };
+        return chromePermissionsContains(perms).then(has => {
+            if (has) {
+                // no need to do anything
+                return true;
+            } else {
+                return chromePermissionsRequest(perms);
+            }
+        });
+    }).then(granted => {
+        if (granted) {
             back.info("Permission was granted");
             cb();
         } else {
-            showNotification(`ERROR: Permission was refused`);
+            const err = chrome.runtime.lastError;
+            const msg = err ? String(err) : 'Permission was refused';
+            showNotification(`ERROR: ${msg}`);
         }
-    }
-    const perms = {
-        // TODO FIXME only if it's not localhost?
-        origins: ["https://*/capture"],
-    };
+    });
     // TODO improve message somehow???
-    chrome.permissions.request(perms, onResponse);
-    // browser.permissions.request(perms).then(onResponse, error => {
-    //     back.error("ERROR!!!!", error);
-    // });
 }
