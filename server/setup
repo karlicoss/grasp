@@ -26,8 +26,12 @@ def systemd(*args, method=check_call):
     ])
 
 def setup(args):
+    base_path = '~/.config/systemd/user'
+    if not Path(base_path).expanduser().is_dir():
+        Path(base_path).expanduser().mkdir(parents=True, exist_ok=True)
+
     unit_name = args.unit_name
-    out = Path(f'~/.config/systemd/user/{unit_name}').expanduser()
+    out = Path(f'{base_path}/{unit_name}').expanduser()
     print(f"Writing systemd config to {out}:")
 
     server_bin = Path(__file__).parent.joinpath('grasp_server.py').absolute()
