@@ -1,5 +1,6 @@
 /* @flow */
 import {get_options, set_options} from './options';
+import {ensurePermissions} from './permissions';
 
 const ENDPOINT_ID = 'endpoint_id';
 const NOTIFICATION_ID = 'notification_id';
@@ -34,8 +35,13 @@ function restoreOptions() {
 }
 
 function saveOptions() {
+    // TODO could also check for permissions and display message?
+
+    const endpoint = getEndpoint().value;
+    ensurePermissions(endpoint);
+
     const opts = {
-        endpoint: getEndpoint().value, // TODO validate??
+        endpoint: endpoint,
         default_tags: getDefaultTags().value,
         notification: getEnableNotification().checked,
     };

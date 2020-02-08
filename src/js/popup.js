@@ -1,6 +1,6 @@
 /* @flow */
 
-import {METHOD_CAPTURE_WITH_EXTRAS, ensurePermissions} from './common';
+import {METHOD_CAPTURE_WITH_EXTRAS} from './common';
 import {get_options} from './options';
 
 // TODO template it in html too?
@@ -62,16 +62,14 @@ function submitComment () {
     // TODO focus
     const state = getState();
 
-    ensurePermissions(() => {
-        chrome.runtime.sendMessage({
-            'method': METHOD_CAPTURE_WITH_EXTRAS,
-            ...state,
-        }, () => {
-            console.log("[popup] captured!");
-        });
-        window.submitted = true;
-        window.close();
+    chrome.runtime.sendMessage({
+        'method': METHOD_CAPTURE_WITH_EXTRAS,
+        ...state,
+    }, () => {
+        console.log("[popup] captured!");
     });
+    window.submitted = true;
+    window.close();
 }
 
 // $FlowFixMe
