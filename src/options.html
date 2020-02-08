@@ -3,10 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <title></title>
+  <style>
+   input:invalid {
+       background-color: red;
+   }
+  </style>
 </head>
 <body>
     <label for="endpoint_id">Endpoint</label>
-    <div><input type="text" id="endpoint_id"/></div>
+    <div><input type="URL" id="endpoint_id"/></div>
     <label for="notification_id">Notification after capturing</label>
         <div><input type="checkbox"  id="notification_id"/></div>
     <label for="default_tags_id">Default tags</label>
