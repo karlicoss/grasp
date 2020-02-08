@@ -25,44 +25,64 @@ or your target capture file is just not there, you can selfhost the server part 
     Or alternatively, just run it directly if you don't want to autostart it: `server/grasp_server.py --path /path/to/your/capture.org [--port <custom_port>] [--template <custom org-capture template>]`.
 2. Install chrome extension and configure hotkeys
 
-That's it! If you're using custom port make sure it's same as in the extension settings (default is `12212`).
+That's it! If you're using custom port make sure it's the same as in the extension settings (default is `12212`).
 
 # Motivation
-Why use org-capture? Well, it's hard to explain, maybe some other time... However if you do know you want to use it instead/alongside your browser bookmarks, by default
-you don't have much choice and have to copy everything manually. For an experienced enough Org Mode user it's a torture. 
+Why use org-capture? Well, it's hard to explain, maybe some other time... However, if you do know you want to use it instead of/alongside your browser bookmarks, by default
+you don't have much choice and have to copy everything manually. For an experienced enough org-mode user it's no less than a torture. 
 
-For a while, I used [the only](https://github.com/sprig/org-capture-extension) Chrome extension for that (as for January 2019). However, it relies on setting up MIME
-handler which is quite flaky for many people (me included). What is more, capturing via org template requires always running emacs daemon, which might be too much for some people.
-But the worst thing is if capturing fails, you have to way of knowing about it. After losing few days of captured stuff due to MIME handler mysteriously not working,
-I got fed up and figured it's time to implement something more reliable. 
+This tool:
 
-My approach still requires a running server, but it's a simple python script which simply appends a text entry to a text file. The backend always responds back and in case anything
-fails, you get a notification.
-There is a collateral benefit though is that you can potentially use anything as a backend and storage file, e.g. you might be more of a Markdown or Todo.txt fan (let me know if you are interested in that!).
+- \+ shows a notification when capturing fails/succeeds, so you won't lose your notes
+- \+ doesn't require always running Emacs, simply appends an org-mode text entry to a file
+- \+ can capture things that org-protocol can't handle (e.g. extra comment or tags)
+- \+ can potentially use any plaintext format as a storage.
 
-Main feature of this extension is that you can also add a comment and tags to the information you are capturing.
+     E.g. you might be more of a Markdown or Todo.txt fan (let me know if you are interested in that!).
+- \- doesn't talk to Emacs, so can't benefit from Emacs capture templates
+    
+     E.g. currently you can't point at a specific header in an org file, it would just append at the end.
 
-The only downside so far is that it's not as well integrated with emacs as its builtin capture templates. E.g. currently you can't point at a specific header in org file, it would just append at the end.
-However, if that's a stopper for you, please let me know, I could come up with something!
+- \- requires running a small HTTP server
+     
+     However, there are no dependencies apart from python3, so in many ways, it's even more portable than Emacs.
+
+Comparison with similar tools:
+
+## [org-capture-extension](https://github.com/sprig/org-capture-extension)
+
+- \- relies on [org-protocol](https://orgmode.org/worg/org-contrib/org-protocol.html) and MIME handler: flaky for many people and has no feedback whether capture failed or succeeded
+     
+     Losing few days of captured stuff due to MIME handler mysteriously not working was the main motivator for me to develop grasp.
+
+- \- requires always running Emacs, which might not be the case for some people
+- \+ relies on org-protocol, so can potentially be better integrated with Emacs and your org-mode files
+
+## [org-protocol-capture-html](https://github.com/alphapapa/org-protocol-capture-html)
+
+Same pros/cons as `org-capture-extension` as it's relying on org-protocol.
+
+In addition:
+
+- \+ using a bookmarklet, hence browser-agnostic
+- \+ capable of on the fly HTML to org-mode markup conversion
 
 # Requirements
 No third party dependencies! Just `python3`.
 
-
-# Potentional improvements
+# Potential improvements
 * see [todos](./TODO.org)
 
 # Permissions used
+* `http://localhost/capture` for talking with the backend
 * `storage` for settings
 * `notifications` for showing error notification
 * `activeTab` for requesting url, title and selected text
-* `http://localhost/capture` for talking with backend
-* `content_security_policy` needed for webpack
 
 # Building & developing
 The most up-to-date instructions should be in [CI config](./.circleci/config.yml).
 
-You're gonna need `npm` for building extension.
+You need `npm` for building the extension.
 
     npm install
     ./build --target <browser> # e.g. ./build --target chrome or ./build --target firefox
