@@ -88,6 +88,12 @@ def trigger_grasp():
     pyautogui.hotkey('ctrl', 'alt', 'c')
 
 
+def confirm(what: str):
+    # pylint: disable=import-error
+    import click # type: ignore
+    click.confirm(what, abort=True)
+
+
 @skip_if_ci('no GUI to run the browser..')
 def test(tmp_path: Path):
     capture_file = tmp_path / 'output.org'
@@ -102,8 +108,10 @@ def test(tmp_path: Path):
         sleep(2) # just in case..
         # TODO select something?
         trigger_grasp()
+        confirm('ready to continue?')
 
     sleep(1) # just in case
+
     # TODO come up with a better test and involve other template parameters
     assert capture_file.read_text() == '* [[https://en.wikipedia.org/wiki/Automation][Automation - Wikipedia]]'
 
