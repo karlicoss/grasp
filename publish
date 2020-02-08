@@ -11,11 +11,12 @@ fi
 
 function rebuild {
     local res="$1"
-    npm run build
-    zip -r -j "$res" build/*
+    local browser="$2"
+    ./build --target "$browser" --release --lint
+    zip -r -j "$res" dist/*
     unzip -l "$res"
 }
 
 for browser in "chrome" "firefox"; do
-    TARGET="$browser" rebuild "grasp-$VERSION-$browser.zip"
+    rebuild "grasp-$VERSION-$browser.zip" "$browser"
 done
