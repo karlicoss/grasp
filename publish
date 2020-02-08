@@ -17,6 +17,5 @@ function rebuild {
 }
 
 for browser in "chrome" "firefox"; do
-    TARGET="$browser"                rebuild "grasp-$VERSION-$browser.zip"
-    TARGET="$browser" ANY_HOST='yes' rebuild "grasp-$VERSION-anyhost-$browser.zip"
+    TARGET="$browser" rebuild "grasp-$VERSION-$browser.zip"
 done

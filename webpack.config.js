@@ -14,7 +14,7 @@ const baseManifest = require('./src/manifest.json');
 const target = env.TARGET;
 const dev = env.NODE_ENV === "development";
 
-const pkg_name = (env.ANY_HOST ? "grasp (any host)" : "grasp") + (dev ? ' [dev]' : '');
+const pkg_name = "grasp" + (dev ? ' [dev]' : '');
 
 // TODO make permissions literate
 const permissions = [
@@ -24,11 +24,6 @@ const permissions = [
     "http://localhost/capture",
     "https://localhost/capture"
 ];
-
-if (env.ANY_HOST) {
-    permissions.push("https://*/capture");
-}
-
 
 // Firefox wouldn't let you rebind its default shortcuts most of which use Shift
 // On the other hand, Chrome wouldn't let you use Alt

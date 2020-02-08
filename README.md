@@ -75,9 +75,12 @@ No third party dependencies! Just `python3`.
 
 # Permissions used
 * `http://localhost/capture` for talking with the backend
+  
+   If you want to use an external URL as an endpoint, you will be prompted for a permission dynamically.
+  
 * `storage` for settings
-* `notifications` for showing error notification
-* `activeTab` for requesting url, title and selected text
+* `notifications` for showing notification
+* `activeTab` for requesting page info
 
 # Building & developing
 The most up-to-date instructions should be in [CI config](./.circleci/config.yml).
@@ -88,9 +91,6 @@ You need `npm` for building the extension.
     ./build --target <browser> # e.g. ./build --target chrome or ./build --target firefox
     
 After that you can find the extension in `dist` directory and 'Load unpacked** if necessary. There is also Flow and Eslint set up.
-
-## building any host version
-If you do need unresticted url permissions, build the extensions like that: `ANY_HOST=yes ./build`.
 
 ## testing and linting
 Check [CI config](./.circleci/config.yml) to figure out all the checks I'm doing.
