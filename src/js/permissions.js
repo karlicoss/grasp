@@ -23,6 +23,14 @@ function urlForPermissionsCheck(url: string): string {
     return u.toString();
 }
 
+export function hasPermissions(endpoint: string) {
+    const perms = {
+        origins: [
+            urlForPermissionsCheck(endpoint),
+        ],
+    };
+    return chromePermissionsContains(perms);
+}
 
 export function ensurePermissions(endpoint: string) {
     const perms = {

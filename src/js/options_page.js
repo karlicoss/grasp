@@ -1,10 +1,11 @@
 /* @flow */
 import {get_options, set_options} from './options';
-import {ensurePermissions} from './permissions';
+import {ensurePermissions, hasPermissions} from './permissions';
 
-const ENDPOINT_ID = 'endpoint_id';
-const NOTIFICATION_ID = 'notification_id';
-const DEFAULT_TAGS_ID = 'default_tags_id';
+const ENDPOINT_ID       = 'endpoint_id';
+const HAS_PERMISSION_ID = 'has_permission_id';
+const NOTIFICATION_ID   = 'notification_id';
+const DEFAULT_TAGS_ID   = 'default_tags_id';
 // TODO specify capture path here?
 
 const SAVE_ID = 'save_id';
@@ -26,11 +27,26 @@ function getSaveButton(): HTMLInputElement {
     return ((document.getElementById(SAVE_ID): any): HTMLInputElement);
 }
 
+function getHasPermission(): HTMLElement {
+    return ((document.getElementById(HAS_PERMISSION_ID): any): HTMLElement);
+}
+
 function restoreOptions() {
     get_options(opts => {
-        getEndpoint().value = opts.endpoint;
+        const ep = opts.endpoint;
+        getEndpoint().value = ep;
         getDefaultTags().value = opts.default_tags;
         getEnableNotification().checked = opts.notification;
+
+        hasPermissions(ep).then(has => {
+            if (has) {
+                console.debug('Got permisssions already, nothing to worry about.');
+                return;
+            }
+            console.debug('Whoops, no permissions to access %s', ep);
+            // TODO maybe just show button? but then it would need to be reactive..
+            getHasPermission().style.display = 'block';
+        });
     });
 }
 
