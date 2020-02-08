@@ -31,22 +31,28 @@ function getHasPermission(): HTMLElement {
     return ((document.getElementById(HAS_PERMISSION_ID): any): HTMLElement);
 }
 
+// ugh. needs a better name..
+function refreshPermissionValidation(endpoint: string) {
+    hasPermissions(endpoint).then(has => {
+        const pstyle = getHasPermission().style;
+        if (has) {
+            console.debug('Got permisssions, nothing to worry about.');
+            pstyle.display = 'none';
+            return;
+        }
+        console.debug('Whoops, no permissions to access %s', endpoint);
+        // TODO maybe just show button? but then it would need to be reactive..
+        pstyle.display = 'block';
+    });
+}
+
 function restoreOptions() {
     get_options(opts => {
         const ep = opts.endpoint;
         getEndpoint().value = ep;
         getDefaultTags().value = opts.default_tags;
         getEnableNotification().checked = opts.notification;
-
-        hasPermissions(ep).then(has => {
-            if (has) {
-                console.debug('Got permisssions already, nothing to worry about.');
-                return;
-            }
-            console.debug('Whoops, no permissions to access %s', ep);
-            // TODO maybe just show button? but then it would need to be reactive..
-            getHasPermission().style.display = 'block';
-        });
+        refreshPermissionValidation(ep);
     });
 }
 
@@ -54,7 +60,9 @@ function saveOptions() {
     // TODO could also check for permissions and display message?
 
     const endpoint = getEndpoint().value;
-    ensurePermissions(endpoint);
+    ensurePermissions(endpoint).finally(() => {
+        refreshPermissionValidation(endpoint);
+    });
 
     const opts = {
         endpoint: endpoint,
