@@ -39,7 +39,7 @@ export function ensurePermissions(endpoint: string) {
         ],
     };
     // shouldn't prompt if we already have the permission
-    chromePermissionsRequest(perms);
+    return chromePermissionsRequest(perms);
 }
 
 // just keeping the old one for the reference...
