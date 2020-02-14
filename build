@@ -5,12 +5,11 @@ from subprocess import check_call
 from pathlib import Path
 
 
-TARGETS = ['chrome', 'firefox']
 # TODO FIXME copypaste from promnesia
 # TODO FIXME use it in ci script
+TARGETS = ['chrome', 'firefox']
 def main():
     p = argparse.ArgumentParser()
-    # TODO rename to --production??
     p.add_argument('--release', action='store_true')
     p.add_argument('--sign', action='store_true')
     p.add_argument('--lint', action='store_true')
@@ -22,6 +21,7 @@ def main():
     args = p.parse_args()
     target = args.target
 
+    assert target is not None
 
     dist_dir = Path(__file__).absolute().parent / 'dist'
     def webext(*args, **kwargs):
@@ -33,10 +33,9 @@ def main():
             *args,
         ], **kwargs)
 
-    maybe_release = {'NODE_ENV': 'production'} if args.release else {}
     env = {
         'TARGET': target,
-        **maybe_release,
+        'RELEASE': 'YES' if args.release else 'NO',
         **os.environ,
     }
     check_call([
@@ -56,11 +55,12 @@ def main():
         if target not in ['firefox', 'firefox-mobile']:
             raise RuntimeError("{target} is not supported for signing yet".format(target=target))
 
+        dist_dir = Path(__file__).absolute().parent / 'dist'
+        src_dir = dist_dir / target
 
         from firefox_dev_secrets import API_KEY, API_SECRET
         webext(
-            # TODO use UUID? https://addons.mozilla.org/en-GB/developers/addon/grasp/edit
-            # TODO right, wouldn't work because it's listed..
+            '--source-dir'   , str(src_dir),
             '--artifacts-dir', str(dist_dir),
             '--api-key'   , API_KEY,
             '--api-secret', API_SECRET,
@@ -69,3 +69,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+# TODO use UUID? https://addons.mozilla.org/en-GB/developers/addon/grasp/edit
+# TODO right, wouldn't work because it's listed..

@@ -31,6 +31,7 @@ def get_webdriver():
             driver.install_addon(str(addon_path), temporary=True)
             yield driver
         finally:
+            # confirm('ready to continue?')
             driver.close()
 
 

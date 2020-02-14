@@ -47,6 +47,7 @@ function refreshPermissionValidation(endpoint: string) {
 }
 
 function restoreOptions() {
+    getSaveButton().addEventListener('click', saveOptions);
     get_options(opts => {
         const ep = opts.endpoint;
         getEndpoint().value = ep;
@@ -74,4 +75,3 @@ function saveOptions() {
 
 
 document.addEventListener('DOMContentLoaded', restoreOptions);
-getSaveButton().addEventListener('click', saveOptions);

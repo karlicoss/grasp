@@ -1,33 +1,32 @@
-var webpack = require("webpack"),
-    path = require("path"),
-    fileSystem = require("fs"),
-    env = require("./utils/env"),
-    CleanWebpackPlugin = require("clean-webpack-plugin"),
-    CopyWebpackPlugin = require("copy-webpack-plugin"),
-    HtmlWebpackPlugin = require("html-webpack-plugin"),
-    WriteFilePlugin = require("write-file-webpack-plugin"),
-    WebpackExtensionManifestPlugin = require("webpack-extension-manifest-plugin");
+const webpack = require('webpack'),
+      path = require('path'),
+      CleanWebpackPlugin = require('clean-webpack-plugin'),
+      CopyWebpackPlugin = require('copy-webpack-plugin'),
+      WebpackExtensionManifestPlugin = require('webpack-extension-manifest-plugin');
+// TODO remove plugins from package.json
+
+const T = {
+    CHROME  : 'chrome',
+    FIREFOX: 'firefox',
+};
+
+const env = {
+    TARGET : process.env.TARGET, // TODO assert not null?
+    RELEASE: process.env.RELEASE,
+};
 
 const pkg = require('./package.json');
 const baseManifest = require('./src/manifest.json');
 
+const release = env.RELEASE == 'YES' ? true : false;
+const dev = !release; // meh. maybe make up my mind?
 const target = env.TARGET;
-const dev = env.NODE_ENV === "development";
 
-const pkg_name = "grasp" + (dev ? ' [dev]' : '');
-
-// TODO make permissions literate
-const permissions = [
-    "storage",
-    "notifications",
-    "activeTab",
-    "http://localhost/capture",
-    "https://localhost/capture"
-];
+const name = "grasp" + (dev ? ' [dev]' : '');
 
 // Firefox wouldn't let you rebind its default shortcuts most of which use Shift
 // On the other hand, Chrome wouldn't let you use Alt
-const modifier = target === 'chrome' ? 'Shift' : 'Alt';
+const modifier = target === T.CHROME ? 'Shift' : 'Alt';
 
 // ugh. declarative formats are shit.
 const commandsExtra = {
@@ -45,8 +44,18 @@ const commandsExtra = {
     },
 };
 
+// TODO make permissions literate
+const permissions = [
+    "storage",
+    "notifications",
+    "activeTab",
+    "http://localhost/capture",
+    "https://localhost/capture"
+];
+
+
 const manifestExtra = {
-    name: pkg_name,
+    name: name,
     version: pkg.version,
     description: pkg.description,
     permissions: permissions,
@@ -61,43 +70,31 @@ if (dev) {
     manifestExtra.content_security_policy = "script-src 'self' 'unsafe-eval'; object-src 'self'";
 }
 
-if (target === 'chrome') {
+if (target === T.CHROME) {
     manifestExtra.options_ui = {chrome_style: true};
 }
-if (target === 'firefox') {
+if (target === T.FIREFOX) {
     manifestExtra.options_ui = {browser_style: true};
     manifestExtra.browser_action = {browser_style: true};
 }
 
-// load the secrets
-var alias = {};
-
-var secretsPath = path.join(__dirname, ("secrets." + env.NODE_ENV + ".js"));
-
-var fileExtensions = ["jpg", "jpeg", "png", "gif", "eot", "otf", "svg", "ttf", "woff", "woff2"];
-
-if (fileSystem.existsSync(secretsPath)) {
-  alias["secrets"] = secretsPath;
-}
-
 const build_path = path.join(__dirname, "dist"); // TODO target??
 
-var options = {
-  mode: 'production',
+const options = {
+  mode: dev ? 'development' : 'production', // TODO map directly from MODE env var?
   optimization: {
     // https://webpack.js.org/configuration/optimization
-    // don't thing minimize worth it for suck a tiny extension
+    // don't think minimize worth it for such a tiny extension
     minimize: false
   },
   entry: {
-    popup     : path.join(__dirname, "src", "js", "popup.js"),
-    options   : path.join(__dirname, "src", "js", "options_page.js"),
-    background: path.join(__dirname, "src", "js", "background.js")
+    background  : path.join(__dirname, "src", "js", "background"),
+    popup       : path.join(__dirname, "src", "js", "popup"),
+    options_page: path.join(__dirname, "src", "js", "options_page"),
   },
   output: {
       path: build_path,
-      // TODO why bundle???
-      filename: "[name].bundle.js",
+      filename: "[name].js",
   },
   module: {
     rules: [
@@ -110,12 +107,7 @@ var options = {
       },
       {
         test: /\.css$/,
-        loader: "style-loader!css-loader",
-        exclude: /node_modules/
-      },
-      {
-        test: new RegExp('\.(' + fileExtensions.join('|') + ')$'),
-        loader: "file-loader?name=[name].[ext]",
+        loader: "style-loader!css-loader", // TODO different from promnesia??
         exclude: /node_modules/
       },
       {
@@ -125,46 +117,23 @@ var options = {
       }
     ]
   },
-  resolve: {
-    alias: alias
-  },
   plugins: [
-    // clean the build folder
     new CleanWebpackPlugin([build_path + "/*"]),
     new CopyWebpackPlugin([
         { from: 'src/img/*.png', flatten: true },
+        { from: 'src/*.html'   , flatten: true },
     ]),
-    // expose and write the allowed env vars on the compiled bundle
-    new webpack.DefinePlugin({
-      "process.env.NODE_ENV": JSON.stringify(env.NODE_ENV)
-    }),
     new WebpackExtensionManifestPlugin({
         config: {
             base: baseManifest,
             extend: manifestExtra,
         }
     }),
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "popup.html"),
-      filename: "popup.html",
-        chunks: ["popup"],
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "options.html"),
-      filename: "options.html",
-      chunks: ["options"]
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "background.html"),
-      filename: "background.html",
-      chunks: ["background"]
-    }),
-    new WriteFilePlugin()
   ]
 };
 
 // TODO https://webpack.js.org/configuration/devtool
-if (env.NODE_ENV === "development") {
+if (dev) {
   options.devtool = "cheap-module-eval-source-map";
 }
 
