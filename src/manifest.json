@@ -1,13 +1,12 @@
 {
-  "icons": {
-      "128": "unicorn.png"
+  "name": "<webpack managed>",
+  "version": "<webpack managed>",
+  "background": {
+      "scripts": ["background.js"],
+      "persistent": false
   },
   "options_ui": {
       "page": "options.html"
-  },
-
-  "background": {
-    "page": "background.html"
   },
   "browser_action": {
       "default_icon": "unicorn.png",
@@ -21,6 +20,9 @@
     "_execute_browser_action": {
       "description": "Capture page, with extra information"
     }
+  },
+  "icons": {
+      "128": "unicorn.png"
   },
   "manifest_version": 2
 }

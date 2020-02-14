@@ -2,8 +2,7 @@ const webpack = require('webpack'),
       path = require('path'),
       CleanWebpackPlugin = require('clean-webpack-plugin'),
       CopyWebpackPlugin = require('copy-webpack-plugin'),
-      WebpackExtensionManifestPlugin = require('webpack-extension-manifest-plugin'),
-      HtmlWebpackPlugin = require('html-webpack-plugin');
+      WebpackExtensionManifestPlugin = require('webpack-extension-manifest-plugin');
 // TODO remove plugins from package.json
 
 const T = {
@@ -79,26 +78,23 @@ if (target === T.FIREFOX) {
     manifestExtra.browser_action = {browser_style: true};
 }
 
-var fileExtensions = ["jpg", "jpeg", "png", "gif", "eot", "otf", "svg", "ttf", "woff", "woff2"];
-
 const build_path = path.join(__dirname, "dist"); // TODO target??
 
-var options = {
-  mode: 'production', // TODO eh??
+const options = {
+  mode: dev ? 'development' : 'production', // TODO map directly from MODE env var?
   optimization: {
     // https://webpack.js.org/configuration/optimization
     // don't think minimize worth it for such a tiny extension
     minimize: false
   },
   entry: {
-    popup     : path.join(__dirname, "src", "js", "popup.js"),
-    options   : path.join(__dirname, "src", "js", "options_page.js"),
-    background: path.join(__dirname, "src", "js", "background.js")
+    background  : path.join(__dirname, "src", "js", "background"),
+    popup       : path.join(__dirname, "src", "js", "popup"),
+    options_page: path.join(__dirname, "src", "js", "options_page"),
   },
   output: {
       path: build_path,
-      // TODO why bundle???
-      filename: "[name].bundle.js",
+      filename: "[name].js",
   },
   module: {
     rules: [
@@ -111,12 +107,7 @@ var options = {
       },
       {
         test: /\.css$/,
-        loader: "style-loader!css-loader",
-        exclude: /node_modules/
-      },
-      {
-        test: new RegExp('\.(' + fileExtensions.join('|') + ')$'),
-        loader: "file-loader?name=[name].[ext]",
+        loader: "style-loader!css-loader", // TODO different from promnesia??
         exclude: /node_modules/
       },
       {
@@ -130,31 +121,13 @@ var options = {
     new CleanWebpackPlugin([build_path + "/*"]),
     new CopyWebpackPlugin([
         { from: 'src/img/*.png', flatten: true },
+        { from: 'src/*.html'   , flatten: true },
     ]),
-    // expose and write the allowed env vars on the compiled bundle
-    new webpack.DefinePlugin({
-      "process.env.NODE_ENV": JSON.stringify(env.NODE_ENV)
-    }),
     new WebpackExtensionManifestPlugin({
         config: {
             base: baseManifest,
             extend: manifestExtra,
         }
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "popup.html"),
-      filename: "popup.html",
-        chunks: ["popup"],
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "options.html"),
-      filename: "options.html",
-      chunks: ["options"]
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "background.html"),
-      filename: "background.html",
-      chunks: ["background"]
     }),
   ]
 };
