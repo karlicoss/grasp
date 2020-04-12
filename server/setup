@@ -41,6 +41,7 @@ def setup(args):
         '--port', args.port,
         '--path', args.path,
         '--template', template,
+        *([] if args.config is None else ['--config'  , args.config]),
     ]
     extra_args = ' '.join(map(shlex.quote, args))
 

@@ -6,16 +6,18 @@ import os
 import logging
 from pathlib import Path
 import re
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 from org_tools import as_org, empty, DEFAULT_TEMPLATE, Config
 
-CAPTURE_PATH_VAR = 'GRASP_CAPTURE_PATH'
+CAPTURE_PATH_VAR     = 'GRASP_CAPTURE_PATH'
 CAPTURE_TEMPLATE_VAR = 'GRASP_CAPTURE_TEMPLATE'
+CAPTURE_CONFIG_VAR   = 'GRASP_CAPTURE_CONFIG'
 
 
 def get_logger():
     return logging.getLogger('grasp-server')
+
 
 def append_org(
         path: Path,
@@ -30,6 +32,19 @@ def append_org(
         logger.warning("writing out %s might be non-atomic", org)
     with path.open('a') as fo:
         fo.write(org)
+
+
+from functools import lru_cache
+@lru_cache(1)
+def capture_config() -> Optional[Config]:
+    cvar = os.environ.get(CAPTURE_CONFIG_VAR)
+    if cvar is None:
+        return None
+
+    globs: Dict[str, Any] = {}
+    exec(Path(cvar).read_text(), globs)
+    ConfigClass = globs['Config']
+    return ConfigClass()
 
 
 def capture(
@@ -48,6 +63,7 @@ def capture(
             return s
     capture_path = Path(os.environ[CAPTURE_PATH_VAR]).expanduser()
     org_template = os.environ[CAPTURE_TEMPLATE_VAR]
+    config = capture_config()
     logger.info('capturing %s to %s', (url, title, selection, comment, tag_str), capture_path)
 
     url = safe(url)
@@ -68,6 +84,7 @@ def capture(
         comment=comment,
         tags=tags,
         org_template=org_template,
+        config=config,
     )
     append_org(
         path=capture_path,
@@ -111,13 +128,15 @@ class GraspRequestHandler(BaseHTTPRequestHandler):
             self.respond_error(message=str(e))
 
 
-def run(port: str, capture_path: str, template: str):
+def run(port: str, capture_path: str, template: str, config: Optional[Path]):
     logger = get_logger()
     logger.info("Using template %s", template)
 
     # not sure if there is a simpler way to communicate with the server...
     os.environ[CAPTURE_PATH_VAR] = capture_path
     os.environ[CAPTURE_TEMPLATE_VAR] = template
+    if config is not None:
+        os.environ[CAPTURE_CONFIG_VAR] = str(config)
     httpd = HTTPServer(('', int(port)), GraspRequestHandler)
     logger.info(f"Starting httpd on port {port}")
     httpd.serve_forever()
@@ -129,6 +148,8 @@ def setup_parser(p):
     p.add_argument('--template', type=str, default=DEFAULT_TEMPLATE, help=f"""
     {as_org.__doc__}
     """)
+    abspath = lambda p: str(Path(p).absolute())
+    p.add_argument('--config', type=abspath, required=False, help='Optional dynamic config')
 
 
 def main():
@@ -137,7 +158,7 @@ def main():
     p = argparse.ArgumentParser('grasp server', formatter_class=lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog, width=100)) # type: ignore
     setup_parser(p)
     args = p.parse_args()
-    run(args.port, args.path, args.template)
+    run(args.port, args.path, args.template, args.config)
 
 if __name__ == '__main__':
     main()

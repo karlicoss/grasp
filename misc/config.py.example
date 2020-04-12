@@ -1,0 +1,20 @@
+from typing import List
+
+class Config:
+    @staticmethod
+    def format_selection(selection: str) -> List[str]:
+        return [
+            '#+begin_quote',
+            selection,
+            '#+end_quote',
+        ]
+
+    @staticmethod
+    def format_comment(comment: str) -> List[str]:
+        return [
+            '- comment:'
+        ] + [
+            # colon is a quck way to define blocks of code/preformatted stuff: https://orgmode.org/manual/Literal-Examples.html
+            ' : ' + s
+            for s in comment.splitlines()
+        ]
