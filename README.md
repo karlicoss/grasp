@@ -20,6 +20,13 @@ or your target capture file is just not there, you can selfhost the server part 
 
 That's it! If you're using custom port make sure it's the same as in the extension settings (default is `12212`).
 
+## Configuration
+
+[Here](https://github.com/karlicoss/grasp/blob/af24c991579986cec73695daa8318e7831049305/server/org_tools.py#L91-L109) you can find some references for the `--template` syntax.
+
+If you are looking for more flexible formatting that's not supported by template syntax, see [config.py.example](misc/config.py.example).
+You can modify it to your liking and pass as `--config` to `grasp_server/setup` scripts.
+
 # Motivation
 Why use org-capture? Well, it's hard to explain, maybe some other time... However, if you do know you want to use it instead of/alongside your browser bookmarks, by default
 you don't have much choice and have to copy everything manually. For an experienced enough org-mode user it's no less than a torture. 
