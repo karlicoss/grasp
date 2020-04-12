@@ -37,8 +37,12 @@ def setup(args):
     server_bin = Path(__file__).parent.joinpath('grasp_server.py').absolute()
 
     template = args.template.replace('%', '%%').replace('\n', r'\n') # escape for systemd...
-    template = shlex.quote(template)
-    extra_args = f'--port {args.port} --path {args.path} --template {template}'
+    args = [
+        '--port', args.port,
+        '--path', args.path,
+        '--template', template,
+    ]
+    extra_args = ' '.join(map(shlex.quote, args))
 
     with out.open('w') as fo:
         fo.write(SYSTEMD_CONFIG.format(
