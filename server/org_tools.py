@@ -4,6 +4,7 @@ from typing import List, Optional
 
 DEFAULT_TEMPLATE = "* %U %:description %:tags\n%:link\n%:initial\n"
 
+# TODO reuse inorganic/orgparse??
 def date2org(t: datetime) -> str:
     return t.strftime("%Y-%m-%d %a")
 
@@ -18,6 +19,35 @@ def empty(s) -> bool:
     return s is None or len(s.strip()) == 0
 
 
+# TODO protocol??
+# TODO put template in config??
+class Config:
+    @staticmethod
+    def format_selection(selection: str) -> List[str]:
+        ...
+
+    @staticmethod
+    def format_comment(comment: str) -> List[str]:
+        ...
+
+
+class DefaultConfig(Config):
+    @staticmethod
+    def format_selection(selection: str) -> List[str]:
+        return [
+            'Selection:',
+            selection,
+        ]
+
+
+    @staticmethod
+    def format_comment(comment: str) -> List[str]:
+        return [
+            'Comment:',
+            comment
+        ]
+
+
 def as_org(
         url: str,
         title: str,
@@ -25,6 +55,7 @@ def as_org(
         comment: str,
         tags: List[str],
         org_template: str,
+        config: Optional[Config] = None,
 ):
     """
 Formats captured results according to org template. Supports all sensible (e.g. non-interactive) template expansions from https://orgmode.org/manual/Template-expansion.html#Template-expansion.
@@ -41,19 +72,16 @@ You can look at `test_templates` for some specific examples.
 
     tags_s = '' if len(tags) == 0 else (':' + ':'.join(tags) + ':')
 
+    if config is None:
+        config = DefaultConfig()
+
     # TODO tabulate selection and comments?
     # TODO not sure, maybe add as org quote?
     parts = []
     if not empty(selection):
-        parts.extend([
-            'Selection:',
-            selection,
-        ])
+        parts.extend(config.format_selection(selection))
     if not empty(comment):
-        parts.extend([
-            'Comment:',
-            comment
-        ])
+        parts.extend(config.format_comment(comment))
     initial = '\n'.join(parts)
 
     res = py_template.format(
