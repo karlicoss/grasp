@@ -65,7 +65,7 @@ Additionally, supports :selection, :comment and :tags expansions.
 You can look at `test_templates` for some specific examples.
     """
     # py_template = re.sub(r'%[:]?([?\w]+)', r'{\1}', org_template)
-    py_template = re.sub(r'[^\\]%[:]?([?\w]+)', r'{\1}', org_template)
+    py_template = re.sub(r'[^\\]%[:]?([?\w]+)', r'{\1}', org_template).replace('\\%', '%')
 
     NOW = datetime.now()
     org_date = date2org(NOW)
