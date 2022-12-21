@@ -66,7 +66,9 @@ Additionally, supports :selection, :comment and :tags expansions.
 
 You can look at `test_templates` for some specific examples.
     """
-    py_template = re.sub(r'%[:]?([?\w]+)', r'{\1}', org_template)
+    py_template = re.sub(r'([^\\])%[:]?([?\w]+)', r'\1{\2}', org_template)
+    # replace all escaped % with regular %, safe to do after substitution
+    py_template = py_template.replace(r'\%', '%')
 
     NOW = datetime.now() if _now is None else _now
     org_date = date2org(NOW)
@@ -116,6 +118,7 @@ def test_templates() -> None:
     comment = 'fafewfewf'
     tags = ['aba', 'caba']
 
+    vimzettel_template = r'zettel \%title [%:description] testing'
     # https://orgmode.org/guide/Capture-templates.html
     org_templates = [
         DEFAULT_TEMPLATE,
@@ -135,6 +138,7 @@ def test_templates() -> None:
 %:selection
 #+END_QUOTE
         """,
+        vimzettel_template,
     ]
     # check they aren't crashing
     for org_template in org_templates:
@@ -170,3 +174,13 @@ Comment:
 fafewfewf
 '''.lstrip()
     assert res == expected
+
+    res = as_org(
+        url,
+        title,
+        selection,
+        comment,
+        tags,
+        org_template=vimzettel_template,
+    )
+    assert res == 'zettel %title [hello] testing'
