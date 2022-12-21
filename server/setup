@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 import argparse
-import shlex
+import os
 from pathlib import Path
-from subprocess import check_call, run
+import platform
+import shlex
+from subprocess import check_call, run, DEVNULL
 
 from grasp_server import setup_parser
 
-SYSTEMD_CONFIG = """
+
+SYSTEM = platform.system()
+
+
+SYSTEMD_TEMPLATE = """
 [Unit]
 Description=Grasp extension server conterpart
 
@@ -17,7 +23,29 @@ WantedBy=default.target
 ExecStart={server} {extra_args}
 Type=simple
 Restart=always
-"""
+""".lstrip()
+
+
+LAUNCHD_TEMPLATE = '''
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>{service_name}</string>
+
+    <key>ProgramArguments</key>
+    <array>
+{arguments}
+    </array>
+
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+</dict>
+</plist>
+'''.lstrip()
 
 
 def systemd(*args, method=check_call):
@@ -25,31 +53,36 @@ def systemd(*args, method=check_call):
         'systemctl', '--user', *args,
     ])
 
-def setup(args):
+
+def get_command(args) -> list[str]:
+    return [
+        '--port', args.port,
+        '--path', args.path,
+        '--template', args.template,
+        *([] if args.config is None else ['--config'  , args.config]),
+    ]
+
+
+def setup_systemd(args) -> None:
+    args.template = args.template.replace('%', '%%').replace('\n', r'\n') # escape for systemd...
+    args.unit_name = args.unit_name.removesuffix('.service')  # legacy unit_name default had .service
+
     base_path = '~/.config/systemd/user'
     if not Path(base_path).expanduser().is_dir():
         Path(base_path).expanduser().mkdir(parents=True, exist_ok=True)
 
     unit_name = args.unit_name
-    out = Path(f'{base_path}/{unit_name}').expanduser()
-    print(f"Writing systemd config to {out}:")
+    out = Path(f'{base_path}/{unit_name}.service').expanduser()
+    print(f"Writing unit file to {out}")
 
     server_bin = Path(__file__).parent.joinpath('grasp_server.py').absolute()
+    command = get_command(args)
+    extra_args = ' '.join(map(shlex.quote, command))
 
-    template = args.template.replace('%', '%%').replace('\n', r'\n') # escape for systemd...
-    args = [
-        '--port', args.port,
-        '--path', args.path,
-        '--template', template,
-        *([] if args.config is None else ['--config'  , args.config]),
-    ]
-    extra_args = ' '.join(map(shlex.quote, args))
-
-    with out.open('w') as fo:
-        fo.write(SYSTEMD_CONFIG.format(
+    out.write_text(SYSTEMD_TEMPLATE.format(
             server=server_bin,
             extra_args=extra_args,
-        ))
+    ))
     try:
         systemd('stop' , unit_name, method=run) # ignore errors here if it wasn't running in the first place
         systemd('daemon-reload')
@@ -60,12 +93,48 @@ def setup(args):
         print(f"Something has gone wrong... you might want to use 'journalctl --user -u {unit_name}' to debug")
         raise e
 
-def main():
+
+def setup_launchd(args) -> None:
+    # launchd keep everything as xml and treats whitespace literally
+    args.template = args.template.replace(r'\n', '\n')
+
+    base_path = Path('~/Library/LaunchAgents')
+
+    unit_name = args.unit_name
+    out = Path(f'{base_path}/{unit_name}.plist').expanduser()
+    print(f"Writing unit file to {out}")
+
+    server_bin = Path(__file__).parent.joinpath('grasp_server.py').absolute()
+    command = get_command(args)
+
+
+    command = [str(server_bin)] + command
+    arguments = '\n'.join(f'<string>{a}</string>' for a in command)
+
+    out.write_text(LAUNCHD_TEMPLATE.format(
+        service_name=unit_name,
+        arguments=arguments,
+    ))
+
+    DOMAIN = f'gui/{os.getuid()}'
+    # defensive since might not have been running
+    run(['launchctl', 'bootout', DOMAIN + '/' + unit_name], stdout=DEVNULL, stderr=DEVNULL)
+    check_call(['launchctl', 'bootstrap', DOMAIN, out])
+
+
+def main() -> None:
+    default_unit_name = 'grasp' if SYSTEM == 'Linux' else 'com.github.karlicoss.grasp'
+
     p = argparse.ArgumentParser('grasp server setup', formatter_class=lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog, width=100)) # type: ignore
-    p.add_argument('--unit-name', type=str, default='grasp.service', help='Systemd unit name')
+    p.add_argument('--unit-name', type=str, default=default_unit_name, help='systemd/launchd unit name')
     setup_parser(p)
     args = p.parse_args()
-    setup(args)
+    if SYSTEM == 'Linux':
+        setup_systemd(args)
+    else:  # assume macos
+        setup_launchd(args)
+
+
 
 if __name__ == '__main__':
     main()
