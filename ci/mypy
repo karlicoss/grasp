@@ -1,8 +1,0 @@
-#!/bin/bash
-set -eux
-
-# TODO ugh. doesn't work from circleci...
-# cd "$(git rev-parse --show-toplevel)"
-
-# TODO use strict?
-python3 -m mypy --check-untyped-defs "$@" server/*.py server/setup

@@ -1,7 +1,0 @@
-#!/bin/bash
-set -eux
-
-# TODO ugh. doesn't work from circleci...
-# cd "$(git rev-parse --show-toplevel)"
-
-python3 -m pylint -E "$@" server/*.py server/setup
