@@ -23,11 +23,11 @@ def empty(s) -> bool:
 # TODO put template in config??
 class Config:
     @staticmethod
-    def format_selection(selection: str) -> List[str]:
+    def format_selection(selection: str) -> List[str]:  # type: ignore[empty-body]
         ...
 
     @staticmethod
-    def format_comment(comment: str) -> List[str]:
+    def format_comment(comment: str) -> List[str]:  # type: ignore[empty-body]
         ...
 
 

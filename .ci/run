@@ -1,0 +1,40 @@
+#!/bin/bash
+set -eu
+
+cd "$(dirname "$0")"
+cd .. # git root
+
+if ! command -v sudo; then
+    # CI or Docker sometimes doesn't have it, so useful to have a dummy
+    function sudo {
+        "$@"
+    }
+fi
+
+if [ -n "${CI-}" ]; then
+    # install OS specific stuff here
+    case "$OSTYPE" in
+    darwin*) 
+        # macos
+        :
+        ;;
+    cygwin* | msys* | win*)
+        # windows
+        :
+        ;;
+    *)
+        # must be linux?
+        :
+        ;;
+    esac
+fi
+
+
+PY_BIN="python3"
+# some systems might have python pointing to python3
+if ! command -v python3 &> /dev/null; then
+    PY_BIN="python"
+fi
+
+"$PY_BIN" -m pip install --user tox
+"$PY_BIN" -m tox
