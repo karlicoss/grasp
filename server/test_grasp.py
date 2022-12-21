@@ -4,16 +4,10 @@ from subprocess import Popen, check_call
 from time import sleep
 
 
-# ugh.
+import requests
+
+
 @contextmanager
-def killmepls(*args, **kwargs):
-    with Popen(*args, **kwargs) as p:
-        try:
-            yield p
-        finally:
-            p.kill()
-
-
 def grasp_test_server(capture_file: Path, port: str, template=None):
     server = str((Path(__file__).parent / 'grasp_server.py').absolute())
     cmdline = [
@@ -21,23 +15,29 @@ def grasp_test_server(capture_file: Path, port: str, template=None):
     ]
     if template is not None:
         cmdline.extend(['--template', template])
-    return killmepls(cmdline)
+    with Popen(cmdline) as p:
+        try:
+            yield p
+        finally:
+            p.kill()
 
 
-def test_server(tmp_path: Path):
+def test_server(tmp_path: Path) -> None:
     cfile = tmp_path / 'test-capture.org'
     PORT = '17890'
 
     def send(url: str, title: str):
-        # TODO eh, not sure if there is anything easier than httpie
-        check_call([
-            'http', '--ignore-stdin', 'POST', f'http://localhost:{PORT}',
-            f'url={url}',
-            f'title={title}',
-            'selection=null',
-            'comment=null',
-            'tag_str=null',
-        ])
+        r = requests.post(
+            f'http://localhost:{PORT}',
+            json = {
+                'url': url,
+                'title': title,
+                'selection': None,
+                'comment': None,
+                'tag_str': None,
+            },
+        )
+        assert r.status_code == 200, r
 
 
     with grasp_test_server(capture_file=cfile, port=PORT):
