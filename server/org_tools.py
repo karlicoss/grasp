@@ -56,6 +56,8 @@ def as_org(
         tags: List[str],
         org_template: str,
         config: Optional[Config] = None,
+        *,
+        _now=None,
 ):
     """
 Formats captured results according to org template. Supports all sensible (e.g. non-interactive) template expansions from https://orgmode.org/manual/Template-expansion.html#Template-expansion.
@@ -66,7 +68,7 @@ You can look at `test_templates` for some specific examples.
     """
     py_template = re.sub(r'%[:]?([?\w]+)', r'{\1}', org_template)
 
-    NOW = datetime.now()
+    NOW = datetime.now() if _now is None else _now
     org_date = date2org(NOW)
     org_datetime = datetime2org(NOW)
 
@@ -103,9 +105,8 @@ You can look at `test_templates` for some specific examples.
     )
     return res
 
-# TODO escaping?
-# just checks it's not crashing for now
-def test_templates():
+
+def test_templates() -> None:
     url = 'https://whatever'
     title = 'hello'
     selection = """some
@@ -135,6 +136,7 @@ def test_templates():
 #+END_QUOTE
         """,
     ]
+    # check they aren't crashing
     for org_template in org_templates:
         res = as_org(
             url,
@@ -147,3 +149,24 @@ def test_templates():
         )
         print()
         print(res)
+    res = as_org(
+        url,
+        title,
+        selection,
+        comment,
+        tags,
+        org_template=DEFAULT_TEMPLATE,
+        _now=datetime(1111, 11, 11),
+    )
+    expected = '''
+* [1111-11-11 Sat 00:00] hello :aba:caba:
+https://whatever
+Selection:
+some
+    selected
+       text
+    
+Comment:
+fafewfewf
+'''.lstrip()
+    assert res == expected
