@@ -1,9 +1,8 @@
 const webpack = require('webpack'),
       path = require('path'),
-      CleanWebpackPlugin = require('clean-webpack-plugin'),
+      {CleanWebpackPlugin} = require('clean-webpack-plugin'),
       CopyWebpackPlugin = require('copy-webpack-plugin'),
       WebpackExtensionManifestPlugin = require('webpack-extension-manifest-plugin');
-// TODO remove plugins from package.json
 
 const T = {
     CHROME  : 'chrome',
@@ -114,9 +113,8 @@ const options = {
         }
       },
       {
-        test: /\.css$/,
-        loader: "style-loader!css-loader", // TODO different from promnesia??
-        exclude: /node_modules/
+          test: /\.css$/i,
+          use: ['style-loader', 'css-loader'],
       },
       {
         test: /\.html$/,
@@ -126,11 +124,13 @@ const options = {
     ]
   },
   plugins: [
-    new CleanWebpackPlugin([buildPath + "/*"]),
-    new CopyWebpackPlugin([
-        { from: 'src/img/*.png', flatten: true },
-        { from: 'src/*.html'   , flatten: true },
-    ]),
+    new CleanWebpackPlugin(), // ok, respects symlinks
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: 'src/*.html'   , to: '[name][ext]'},
+        { from: 'src/img/*.png', to: '[name][ext]'},
+      ]
+    }),
     new WebpackExtensionManifestPlugin({
         config: {
             base: baseManifest,
@@ -142,7 +142,8 @@ const options = {
 
 // TODO https://webpack.js.org/configuration/devtool
 if (dev) {
-  options.devtool = "cheap-module-eval-source-map";
+  // ??? don't remember what it was for, but webpack complains about it now
+  // options.devtool = "cheap-module-eval-source-map";
 }
 
 module.exports = options;
