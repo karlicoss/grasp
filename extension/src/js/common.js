@@ -9,7 +9,7 @@ export function showNotification(text: string, priority: number=0) {
         'title': "grasp",
         'message': text,
         'priority': priority,
-        'iconUrl': 'unicorn.png',
+        'iconUrl': 'img/unicorn.png',
     });
 }
 
