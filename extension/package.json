@@ -1,15 +1,30 @@
 {
   "name": "grasp",
   "version": "0.6.6",
+  "version_name": "released on TODO",
   "description": "Reliably capture links and webpage content in a plaintext file (org-mode/markdown)",
   "main": "dist/background.js",
   "scripts": {
-    "build": "webpack --progress --profile --colors",
-    "watch": "webpack --watch --progress --colors",
+    "test": "jest",
+    "build": "webpack --progress --profile",
+    "watch": "webpack --watch --progress",
     "dev": "npm run watch",
     "eslint": "eslint src",
-    "flow": "flow"
+    "flow": "flow",
+    "web-ext": "web-ext",
+    "release:cws": "webstore",
+    "release:amo": "web-ext-submit"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/karlicoss/grasp.git"
+  },
+  "author": "Dmitrii Gerasimov <karlicoss@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/karlicoss/grasp/issues"
+  },
+  "homepage": "https://github.com/karlicoss/grasp#readme",
   "devDependencies": {
     "@babel/core": "^7.2.2",
     "@babel/preset-env": "^7.2.3",
@@ -24,10 +39,17 @@
     "eslint-plugin-flowtype": "^3.2.0",
     "flow-bin": "^0.89.0",
     "flow-interfaces-chrome": "^0.5.3",
+    "jest": "^28.1.0",
+    "jest-environment-jsdom": "^28.1.0",
+    "jest-fetch-mock": "^3.0.3",
+    "node-fetch": "^2.6.1",
     "style-loader": "^1.0.0",
+    "web-ext": "^6.8.0",
+    "web-ext-submit": "^6.8.0",
     "webpack": "^4.28.3",
     "webpack-cli": "^3.2.0",
     "webpack-dev-server": "^3.1.14",
     "webpack-extension-manifest-plugin": "^0.4.3"
-  }
+  },
+  "private": "true"
 }

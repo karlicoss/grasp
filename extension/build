@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+import argparse
+import os
+from subprocess import check_call
+from pathlib import Path
+
+# right, specifying id in manifest doesn't seem to work
+# AMO responds with: Server response: Duplicate add-on ID found. (status: 400)
+IDS = {
+    'firefox'       : 'FIXME',
+    'chrome'        : 'FIXME',
+}
+
+
+TARGETS = [
+    'chrome',
+    'firefox',
+]
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument('--release', action='store_true', help="Use release flavor of build")
+    p.add_argument('--lint'   , action='store_true')
+    p.add_argument('--publish', action='store_true', help="Publish on chrome web store/addons.mozilla.org")
+
+    tg = p.add_mutually_exclusive_group(required=True)
+    tg.add_argument('--target', type=str, choices=TARGETS)
+    for b in TARGETS:
+        tg.add_argument('--' + b, action='store_const', const=b, dest='target')
+    args = p.parse_args()
+    target = args.target
+
+    assert target is not None
+
+    base_ext_dir = Path(__file__).absolute().parent / 'dist'
+    ext_dir = (base_ext_dir / target).resolve() # webext can't into symlinks
+    # sadly no way to specify zip name in the regex..
+    artifacts_dir = (base_ext_dir / 'artifacts' / target).resolve()
+    def webext(*args, **kwargs):
+        check_call([
+            'npm', 'run', 'web-ext',
+            '--',
+            '--source-dir'   , ext_dir,
+            '--artifacts-dir', artifacts_dir,
+            *args,
+        ], **kwargs)
+
+    env = {
+        'TARGET': target,
+        'RELEASE': 'YES' if args.release else 'NO',
+        'PUBLISH': 'YES' if args.publish else 'NO',
+        **os.environ,
+    }
+    check_call([
+        'npm', 'run', 'build',
+    ], env=env, cwd=str(Path(__file__).absolute().parent))
+
+    if args.lint:
+        # TODO --self-hosted
+        # TODO warnings as errors??
+        webext('lint')
+
+        # TODO move somewhere more appropriate..
+        webext('build', '-o') # -o overwrites existing artifact
+
+
+    if args.release:
+        assert args.lint # TODO not sure..
+
+    def firefox_release_args():
+        from firefox_dev_secrets import API_KEY, API_SECRET
+        return [
+            '--artifacts-dir', str(artifacts_dir),
+            '--api-key'      , API_KEY,
+            '--api-secret'   , API_SECRET,
+            '--id'           , IDS[target],
+        ]
+
+    if args.publish:
+        assert args.release
+        if 'firefox' in target:
+            check_call([
+                'npm', 'run', 'release:amo',
+                '--',
+                '--channel', 'listed',
+                '--source-dir', str(ext_dir),
+                *firefox_release_args(),
+            ])
+        elif target == 'chrome':
+            from chrome_dev_secrets import CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN
+            check_call([
+                'npm', 'run', 'release:cws',
+                '--',
+                'upload',
+                # '--auto-publish',
+                '--source'        , str(ext_dir),
+                '--client-id'     , CLIENT_ID,
+                '--client-secret' , CLIENT_SECRET,
+                '--refresh--token', REFRESH_TOKEN,
+                '--extension-id'  , IDS[target],
+                # TODO trusted testers?
+            ])
+        else:
+            raise RuntimeError("{target} is not supported for publishing yet".format(target=target))
+
+if __name__ == '__main__':
+    main()
