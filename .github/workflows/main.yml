@@ -70,7 +70,7 @@ jobs:
     # TODO for fuck's sake... why does it end up named as .zip.zip ????
     - uses: actions/upload-artifact@v2
       with:
-        name: '${ env.name }}-chrome-debug-latest.zip'
+        name: '${{ env.name }}-chrome-debug-latest.zip'
         path: 'extension/dist/artifacts/chrome/${{ env.name }}_dev_-*.zip'
     - uses: actions/upload-artifact@v2
       with:

@@ -9,10 +9,10 @@ const COMMENT_ID = 'comment_id';
 const TAGS_ID = 'tags_id';
 
 
-type State = {
+type State = {|
     comment: string,
     tag_str: string,
-};
+|};
 
 
 function save_state(state: ?State) {
@@ -72,8 +72,8 @@ function submitComment () {
     window.close();
 }
 
-// $FlowFixMe
-function ctrlEnterSubmit(e) {
+// todo not sure if can define const here??
+var ctrlEnterSubmit: KeyboardEventListener = (e) => {
     if (e.ctrlKey && e.key === 'Enter') {
         submitComment();
     }

@@ -1,5 +1,5 @@
 module.exports = {
-    "parser": "babel-eslint",
+    "parser": "@babel/eslint-parser",
     "plugins": [
         "flowtype"
     ],
@@ -27,12 +27,12 @@ module.exports = {
         "indent": "off",
         "comma-dangle": "off",
         "no-console": "off",
+        "no-inner-declarations": "off",
+        "flowtype/space-before-type-colon": "off",
+        "no-unused-vars": ["error", {
+            "argsIgnorePattern": "^_",
+            "varsIgnorePattern": "^_"
+        }],
     }
     // TODO use flow?
 };
-//module.exports = {
-//    // "extends": "google",
-//    'extends': [
-//        "plugin:react/recommended",
-//    ],
-//};
