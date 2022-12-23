@@ -13,12 +13,14 @@ const T = {
 const env = {
     TARGET : process.env.TARGET, // TODO assert not null?
     RELEASE: process.env.RELEASE,
+    PUBLISH: process.env.PUBLISH,
 };
 
 const pkg = require('./package.json');
 const baseManifest = require('./src/manifest.json');
 
 const release = env.RELEASE == 'YES' ? true : false;
+const publish = env.PUBLISH == 'YES' ? true : false;
 const dev = !release; // meh. maybe make up my mind?
 const target = env.TARGET;
 
@@ -78,14 +80,14 @@ if (target === T.FIREFOX) {
     manifestExtra.browser_action = {browser_style: true};
 }
 
-const build_path = path.join(__dirname, "dist"); // TODO target??
+const buildPath = path.join(__dirname, 'dist', target);
 
 const options = {
   mode: dev ? 'development' : 'production', // TODO map directly from MODE env var?
-  optimization: {
-    // https://webpack.js.org/configuration/optimization
-    // don't think minimize worth it for such a tiny extension
-    minimize: false
+  node: {
+    // no idea what does it mean... https://github.com/webpack/webpack/issues/5627#issuecomment-394290231
+    // but it does get rid of some Function() which webpacka apparently generates
+    global: false,
   },
   entry: {
     background  : path.join(__dirname, "src", "js", "background"),
@@ -93,8 +95,14 @@ const options = {
     options_page: path.join(__dirname, "src", "js", "options_page"),
   },
   output: {
-      path: build_path,
+      publicPath: '', // https://stackoverflow.com/a/64715069
+      path: buildPath,
       filename: "[name].js",
+  },
+  optimization: {
+    // https://webpack.js.org/configuration/optimization
+    // don't think minimize worth it for such a tiny extension
+    minimize: false
   },
   module: {
     rules: [
@@ -118,7 +126,7 @@ const options = {
     ]
   },
   plugins: [
-    new CleanWebpackPlugin([build_path + "/*"]),
+    new CleanWebpackPlugin([buildPath + "/*"]),
     new CopyWebpackPlugin([
         { from: 'src/img/*.png', flatten: true },
         { from: 'src/*.html'   , flatten: true },
