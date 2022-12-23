@@ -1,6 +1,6 @@
 /* @flow */
 
-type Options = {
+export type Options = {
     endpoint: string;
     default_tags: string;
     notification: boolean;

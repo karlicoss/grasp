@@ -81,9 +81,10 @@ var ctrlEnterSubmit: KeyboardEventListener = (e) => {
 
 
 // https://stackoverflow.com/a/6003829/706389
-function moveCaretToEnd(el) {
+function moveCaretToEnd(el: HTMLInputElement) {
     if (typeof el.selectionStart == "number") {
         el.selectionStart = el.selectionEnd = el.value.length;
+    // $FlowFixMe https://github.com/facebook/flow/issues/8705
     } else if (typeof el.createTextRange != "undefined") {
         el.focus();
         var range = el.createTextRange();

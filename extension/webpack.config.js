@@ -94,9 +94,7 @@ const options = {
     options_page: path.join(__dirname, "src", "js", "options_page"),
   },
   output: {
-      publicPath: '', // https://stackoverflow.com/a/64715069
       path: buildPath,
-      filename: "[name].js",
   },
   optimization: {
     // https://webpack.js.org/configuration/optimization
@@ -107,28 +105,29 @@ const options = {
     rules: [
       {
         test: /\.js$/,
+        loader: 'babel-loader',
         exclude: /node_modules/,
-        use: {
-            loader: 'babel-loader',
-        }
       },
       {
-          test: /\.css$/i,
-          use: ['style-loader', 'css-loader'],
+        test: /\.css$/,
+        use: 'style-loader!css-loader',
+        exclude: /node_modules/,
       },
       {
         test: /\.html$/,
-        loader: "html-loader",
+        loader: 'html-loader',
         exclude: /node_modules/
       }
     ]
   },
   plugins: [
     new CleanWebpackPlugin(), // ok, respects symlinks
+
+    // without copy pluging, webpack only bundles js/json files
     new CopyWebpackPlugin({
       patterns: [
-        { from: 'src/*.html'   , to: '[name][ext]'},
-        { from: 'src/img/*.png', to: '[name][ext]'},
+        { context: 'src', from: '**/*.html' },
+        { context: 'src', from: '**/*.png'  },
       ]
     }),
     new WebpackExtensionManifestPlugin({

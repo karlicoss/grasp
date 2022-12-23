@@ -16,6 +16,7 @@ export function showNotification(text: string, priority: number=0) {
 // $FlowFixMe
 export function awrap(fn, ...args: Array<any>): Promise<any> {
     return new Promise((resolve, reject) => {
+        // $FlowFixMe
         const cbb = (...xxx) => {
             const err = chrome.runtime.lastError;
             if (err) {
