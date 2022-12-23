@@ -74,7 +74,9 @@ function submitComment () {
 
 // todo not sure if can define const here??
 var ctrlEnterSubmit: KeyboardEventListener = (e) => {
-    if (e.ctrlKey && e.key === 'Enter') {
+    // note: there is also e.metaKey which triggers on mac when cmd is pressed
+    // but it doesn't seem to allow chords like cmd+Enter
+    if ((e.ctrlKey || e.shiftKey) && e.key === 'Enter') {
         submitComment();
     }
 }
