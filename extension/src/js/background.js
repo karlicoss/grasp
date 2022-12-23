@@ -1,8 +1,10 @@
 /* @flow */
 // TODO do I really need to annotate all files with @flow??
 
-import {COMMAND_CAPTURE_SIMPLE, METHOD_CAPTURE_WITH_EXTRAS, showNotification} from './common';
-import {get_options} from './options';
+import {COMMAND_CAPTURE_SIMPLE, METHOD_CAPTURE_WITH_EXTRAS, showNotification} from './common'
+import {get_options} from './options'
+import type {Options} from './options'
+
 
 type Params = {
     url: string,
@@ -15,7 +17,7 @@ type Params = {
 
 function makeCaptureRequest(
     params: Params,
-    options,
+    options: Options,
 ) {
     if (params.tag_str == null) {
         params.tag_str = options.default_tags;

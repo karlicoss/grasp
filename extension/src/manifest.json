@@ -9,7 +9,7 @@
       "page": "options.html"
   },
   "browser_action": {
-      "default_icon": "unicorn.png",
+      "default_icon": "img/unicorn.png",
       "default_popup": "popup.html",
       "default_title": "Capture page, with extra information"
   },
@@ -22,7 +22,7 @@
     }
   },
   "icons": {
-      "128": "unicorn.png"
+      "128": "img/unicorn.png"
   },
   "manifest_version": 2
 }

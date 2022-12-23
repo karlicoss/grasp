@@ -3,11 +3,11 @@ import {showNotification, awrap} from './common';
 import {getOptions} from './options';
 
 
-export function chromePermissionsRequest(params: any) {
+export function chromePermissionsRequest(params: any): Promise<any> {
     return awrap(chrome.permissions.request, params);
 }
 
-export function chromePermissionsContains(params: any) {
+export function chromePermissionsContains(params: any): Promise<any> {
     return awrap(chrome.permissions.contains, params);
 }
 
@@ -23,7 +23,7 @@ function urlForPermissionsCheck(url: string): string {
     return u.toString();
 }
 
-export function hasPermissions(endpoint: string) {
+export function hasPermissions(endpoint: string): Promise<any> {
     const perms = {
         origins: [
             urlForPermissionsCheck(endpoint),
@@ -32,7 +32,7 @@ export function hasPermissions(endpoint: string) {
     return chromePermissionsContains(perms);
 }
 
-export function ensurePermissions(endpoint: string) {
+export function ensurePermissions(endpoint: string): Promise<any> {
     const perms = {
         origins: [
             urlForPermissionsCheck(endpoint),
