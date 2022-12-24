@@ -65,31 +65,49 @@ async function makeCaptureRequest(
 // TODO FIXME ugh. need defensive error handling on the very top...
 function capture(comment: ?string = null, tag_str: ?string = null) {
     chrome.tabs.query({currentWindow: true, active: true }, tabs => {
-        const tab = tabs[0];
+        const tab = tabs[0]
         if (tab.url == null) {
-            showNotification('ERROR: trying to capture null');
-            return;
+            showNotification('ERROR: trying to capture null')
+            return
         }
-        const url: string = tab.url;
-        const title: ?string = tab.title;
+        const url: string = tab.url
+        const title: ?string = tab.title
+
+
+        const payload = (selection: ?string) => {
+            return {
+                url: url,
+                title: title,
+                selection: selection,
+                comment: comment,
+                tag_str: tag_str,
+            }
+        }
+
+        // TODO await properly and handle errors
+        const has_scripting = 'scripting' in chrome
 
         get_options(opts => {
-            // console.log('action!');
-            // ugh.. https://stackoverflow.com/a/19165930/706389
-            chrome.tabs.executeScript( {
-                code: "window.getSelection().toString();"
-            }, selections => {
-                const selection = selections == null ? null : selections[0];
-                makeCaptureRequest({
-                    url: url,
-                    title: title,
-                    selection: selection,
-                    comment: comment,
-                    tag_str: tag_str,
-                }, opts);
-            });
-        });
-    });
+            if (has_scripting) {
+                // $FlowFixMe
+                chrome.scripting.executeScript({
+                    target: {tabId: tab.id},
+                    func: () => window.getSelection().toString()
+                }, results => {
+                    const [res] = results // should only inject in one frame, so just one result
+                    const selection = res.result
+                    makeCaptureRequest(payload(selection), opts)
+                })
+            } else {
+                chrome.tabs.executeScript( {
+                    code: "window.getSelection().toString();"
+                }, selections => {
+                    const selection = selections == null ? null : selections[0]
+                    makeCaptureRequest(payload(selection), opts)
+                })
+            }
+        })
+    })
 }
 
 

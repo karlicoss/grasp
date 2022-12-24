@@ -8,19 +8,6 @@
   "options_ui": {
       "page": "options.html"
   },
-  "browser_action": {
-      "default_icon": "img/unicorn.png",
-      "default_popup": "popup.html",
-      "default_title": "Capture page, with extra information"
-  },
-  "commands": {
-    "capture-simple": {
-      "description": "Quick capture: url, title and selection"
-    },
-    "_execute_browser_action": {
-      "description": "Capture page, with extra information"
-    }
-  },
   "icons": {
       "128": "img/unicorn.png"
   },
