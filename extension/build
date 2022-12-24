@@ -7,8 +7,8 @@ from pathlib import Path
 # right, specifying id in manifest doesn't seem to work
 # AMO responds with: Server response: Duplicate add-on ID found. (status: 400)
 IDS = {
-    'firefox'       : 'FIXME',
-    'chrome'        : 'FIXME',
+    'firefox'       : '{37e42980-a7c9-473c-96d5-13f18e0efc74}',
+    'chrome'        : 'ohhbcfjmnbmgkajljopdjcaokbpgbgfa',
 }
 
 
