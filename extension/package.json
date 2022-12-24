@@ -12,7 +12,7 @@
     "eslint": "eslint src",
     "flow": "flow",
     "web-ext": "web-ext",
-    "release:cws": "webstore",
+    "release:cws": "chrome-webstore-upload",
     "release:amo": "web-ext-submit"
   },
   "repository": {
