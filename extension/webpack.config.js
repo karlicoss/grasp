@@ -25,34 +25,74 @@ const target = env.TARGET;
 
 const name = "grasp" + (dev ? ' [dev]' : '');
 
-// Firefox wouldn't let you rebind its default shortcuts most of which use Shift
-// On the other hand, Chrome wouldn't let you use Alt
-const modifier = target === T.CHROME ? 'Shift' : 'Alt';
 
 // ugh. declarative formats are shit.
-const commandsExtra = {
+
+// Firefox wouldn't let you rebind its default shortcuts most of which use Shift
+// On the other hand, Chrome wouldn't let you use Alt
+const modifier = target === T.CHROME ? 'Shift' : 'Alt'
+
+const action_name = 'browser_action'
+
+const commands = {
     "capture-simple": {
+        "description": "Quick capture: url, title and selection",
         "suggested_key": {
             "default": `Ctrl+${modifier}+C`,
-            "mac":  `Command+${modifier}+C`
-        }
-    },
-    "_execute_browser_action": {
+            "mac":  `Command+${modifier}+C`,
+        },
+    }
+}
+
+commands[`_execute_${action_name}`] = {
+        "description": "Capture page, with extra information",
         "suggested_key": {
             "default": `Ctrl+${modifier}+Y`,
-            "mac":  `Command+${modifier}+Y`
-        }
-    },
-};
+            "mac":  `Command+${modifier}+Y`,
+        },
+}
+
+
+const action = {
+    "default_icon": "img/unicorn.png",
+    "default_popup": "popup.html",
+    "default_title": "Capture page, with extra information",
+}
+if (target == T.FIREFOX) {
+     action['browser_style'] = true
+}
+
+
+// prepare for manifest v3
+const host_permissions = [
+    "http://localhost/capture",
+    "https://localhost/capture",
+]
+
+
+const optional_permissions = [
+    "http://*/capture",
+    "https://*/capture",
+]
+
 
 // TODO make permissions literate
 const permissions = [
     "storage",
     "notifications",
-    "activeTab",
-    "http://localhost/capture",
-    "https://localhost/capture"
-];
+
+    // need to query active tab and get its url/title
+    "activeTab",  
+
+    ...host_permissions,
+]
+
+if (target === T.FIREFOX) {
+    // chrome v2 doesn't support scripting api
+    // code has a fallback just for that
+    // need to get selected text
+    permissions.push("scripting")
+}
 
 
 const manifestExtra = {
@@ -60,12 +100,11 @@ const manifestExtra = {
     version: pkg.version,
     description: pkg.description,
     permissions: permissions,
-    commands: commandsExtra,
-    optional_permissions: [
-        "http://*/capture",
-        "https://*/capture",
-    ],
-};
+    commands: commands,
+    optional_permissions: optional_permissions,
+}
+manifestExtra[action_name] = action
+
 
 if (dev) {
     manifestExtra.content_security_policy = "script-src 'self' 'unsafe-eval'; object-src 'self'";
@@ -76,7 +115,6 @@ if (target === T.CHROME) {
 }
 if (target === T.FIREFOX) {
     manifestExtra.options_ui = {browser_style: true};
-    manifestExtra.browser_action = {browser_style: true};
 }
 
 const buildPath = path.join(__dirname, 'dist', target);
