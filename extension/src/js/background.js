@@ -15,65 +15,50 @@ type Params = {
 }
 
 
-function makeCaptureRequest(
+async function makeCaptureRequest(
     params: Params,
     options: Options,
 ) {
     if (params.tag_str == null) {
-        params.tag_str = options.default_tags;
+        params.tag_str = options.default_tags
     }
 
-    const data = JSON.stringify(params);
-    console.log(`[background] capturing ${data}`);
+    const endpoint = options.endpoint
 
-    var request = new XMLHttpRequest();
-    const curl = options.endpoint;
+    const data = JSON.stringify(params)
+    console.log(`capturing ${data} via ${endpoint}`)
 
-    request.timeout = 10 * 1000; // TODO should it be configurable?
-    request.open('POST', curl, true);
-    request.onreadystatechange = () => {
-        const XHR_DONE = 4;
-        if (request.readyState != XHR_DONE) {
-            return;
+
+    // TODO maybe handle catch first and then again?
+
+    await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: data,
+    }).catch((err: Error) => {
+        // fetch only rejects when host is unavailable
+        console.error(err)
+        throw new Error(`${endpoint} unavailable, check if server is running`)
+    }).then(async response => {
+        if (!response.ok) { // http error
+            throw new Error(`${endpoint}: HTTP ${response.status} ${response.statusText}`)
         }
-        const status = request.status;
-        const rtext = request.responseText;
-        var had_error = false;
-        var error_message = `status ${status}, response ${rtext}`;
-        console.log(`[background] status: ${status}, response: ${rtext}`);
-        if (status >= 200 && status < 400) { // success
-            try {
-                // TODO handle json parsing defensively here
-                const response = JSON.parse(rtext);
-                const path = response.path;
-                console.log(`[background] success: ${rtext}`);
-                if (options.notification) {
-                    showNotification(`OK: captured to ${path}`);
-                }
-            } catch (err) {
-                had_error = true;
-                error_message = error_message.concat(String(err));
-                console.error(err);
-            }
-        } else {
-            had_error = true;
-            if (status == 0) {
-                error_message = error_message.concat(` ${curl} must be unavailable `);
-            }
+        const jres = await response.json()
+        const path = jres.path
+        console.log(`success: ${jres}`);
+        if (options.notification) {
+            showNotification(`OK: captured to ${path}`);
         }
-
-        if (had_error) {
-            console.error(`[background] ERROR: ${error_message}`);
-            showNotification(`ERROR: ${error_message}`, 1);
-            // TODO crap, doesn't really seem to respect urgency...
-        }
-    };
-    request.onerror = () => {
-        console.error(request);
-    };
-
-    request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    request.send(data);
+    }).catch((err: Error) => {
+        console.error(err)
+        // todo make sure we catch errors from then clause too?
+        const error_message = `ERROR: ${err.toString()}`
+        console.error(error_message);
+        showNotification(error_message, 1);
+        // TODO crap, doesn't really seem to respect urgency...
+    })
 }
 
 
