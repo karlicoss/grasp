@@ -118,6 +118,9 @@ chrome.commands.onCommand.addListener(command => {
 });
 
 chrome.runtime.onMessage.addListener((message: any, sender: chrome$MessageSender, sendResponse) => {  // eslint-disable-line no-unused-vars
+    if (message.method === 'logging') {
+        console.error("[%s] %o", message.source, message.data)
+    }
     if (message.method === METHOD_CAPTURE_WITH_EXTRAS) {
         const comment = message.comment;
         const tag_str = message.tag_str;

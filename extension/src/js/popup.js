@@ -9,37 +9,61 @@ const COMMENT_ID = 'comment_id';
 const TAGS_ID = 'tags_id';
 
 
+/*
+ *  normal popup logging is pretty annoying because chrome closes devtools
+ */
+/* eslint-disable no-unused-vars */
+function logbg(msg: any) {
+    console.error('%o', msg)
+    chrome.runtime.sendMessage({
+        method: 'logging',
+        source: 'popup.js',
+        data: msg,
+    })
+}
+
+
 type State = {|
     comment: string,
     tag_str: string,
-|};
+|}
 
 
-function save_state(state: ?State) {
-    window.localStorage.setItem('state', JSON.stringify(state));
+function saveState(state: ?State) {
+    window.localStorage.setItem('state', JSON.stringify(state))
 }
 
-function load_state(): ?State {
-    const sts =  window.localStorage.getItem('state') || null;
-    return JSON.parse(sts);
+
+function clearState() {
+    saveState(null)
 }
+
+
+function loadState(): ?State {
+    const sts =  window.localStorage.getItem('state') || null
+    return JSON.parse(sts)
+}
+
 
 function getComment(): HTMLInputElement {
     const comment = ((document.getElementById(COMMENT_ID): any): HTMLInputElement);
     return comment;
 }
 
+
 function getTags(): HTMLInputElement {
     const tags = ((document.getElementById(TAGS_ID): any): HTMLInputElement);
     return tags;
 }
+
 
 function getButton(): HTMLElement {
     const button = ((document.getElementById(BUTTON_ID): any): HTMLElement);
     return button;
 }
 
-function getState(): State {
+
+function getUiState(): State {
     const comment_text = getComment().value;
     const tag_str = getTags().value;
     return {
@@ -48,7 +72,9 @@ function getState(): State {
     };
 }
 
+
 function restoreState(state: ?State) {
+    window.justSubmitted = false
     if (state == null) {
         // comment just relies on default
         get_options(opts => {getTags().value = opts.default_tags;});
@@ -58,26 +84,31 @@ function restoreState(state: ?State) {
     }
 }
 
-function submitComment () {
-    // TODO focus
-    const state = getState();
+
+function submitCapture () {
+    const state = getUiState()
 
     chrome.runtime.sendMessage({
         'method': METHOD_CAPTURE_WITH_EXTRAS,
         ...state,
     }, () => {
+        window.justSubmitted = true
+        clearState()
+
+        // TODO not sure about this?
+        window.close()
         console.log("[popup] captured!");
-    });
-    window.submitted = true;
-    window.close();
+    })
+
 }
+
 
 // todo not sure if can define const here??
 var ctrlEnterSubmit: KeyboardEventListener = (e) => {
     // note: there is also e.metaKey which triggers on mac when cmd is pressed
     // but it doesn't seem to allow chords like cmd+Enter
     if ((e.ctrlKey || e.shiftKey) && e.key === 'Enter') {
-        submitComment();
+        submitCapture()
     }
 }
 
@@ -95,6 +126,7 @@ function moveCaretToEnd(el: HTMLInputElement) {
     }
 }
 
+
 function setupPage () {
     const comment = getComment();
     comment.focus();
@@ -104,20 +136,24 @@ function setupPage () {
     tags.addEventListener('keydown', ctrlEnterSubmit);
     tags.addEventListener('focus', () => moveCaretToEnd(tags)); // to put cursor to the end of tags when tabbed
 
-    getButton().addEventListener('click', submitComment);
+    getButton().addEventListener('click', submitCapture)
 
-    window.submitted = false;
-
-    const state = load_state();
-    restoreState(state);
-    save_state(null); // clean
+    const state = loadState()
+    restoreState(state)
 }
 
-document.addEventListener('DOMContentLoaded', setupPage);
 
-
-window.addEventListener('unload', () => {
-    if (!window.submitted) {
-        save_state(getState());
+// hmm interesting that on chrome we can use visibilitychange for both
+// on firefox dev edition however 'visible' doesn't fire, only 'hidden' :shrug:
+document.addEventListener('DOMContentLoaded', setupPage)
+window.addEventListener('visibilitychange', (_: Event) => {
+    // event doesn't contain visibility status
+    // docs recomment to use this instead of unload
+    const visible = document.visibilityState === 'visible'
+    if (!visible) {
+        // if we just sent, no need to save anything
+        if (!window.justSubmitted) {
+            saveState(getUiState())
+        }
     }
-}, true);
+})
