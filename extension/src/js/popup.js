@@ -1,7 +1,8 @@
 /* @flow */
 
-import {METHOD_CAPTURE_WITH_EXTRAS} from './common';
-import {get_options} from './options';
+
+import {METHOD_CAPTURE_WITH_EXTRAS} from './common'
+import {getOptions} from './options'
 
 // TODO template it in html too?
 const BUTTON_ID = 'button_id';
@@ -73,14 +74,15 @@ function getUiState(): State {
 }
 
 
-function restoreState(state: ?State) {
+async function restoreState(state: ?State) {
     window.justSubmitted = false
     if (state == null) {
         // comment just relies on default
-        get_options(opts => {getTags().value = opts.default_tags;});
+        const opts = await getOptions()
+        getTags().value = opts.default_tags
     } else {
-        getComment().value = state.comment;
-        getTags().value    = state.tag_str;
+        getComment().value = state.comment
+        getTags().value    = state.tag_str
     }
 }
 

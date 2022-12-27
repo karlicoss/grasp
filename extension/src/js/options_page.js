@@ -1,14 +1,14 @@
 /* @flow */
-import {get_options, set_options} from './options';
-import {ensurePermissions, hasPermissions} from './permissions';
+import {getOptions, setOptions} from './options'
+import {ensurePermissions, hasPermissions} from './permissions'
+
 
 const ENDPOINT_ID       = 'endpoint_id';
 const HAS_PERMISSION_ID = 'has_permission_id';
 const NOTIFICATION_ID   = 'notification_id';
 const DEFAULT_TAGS_ID   = 'default_tags_id';
-// TODO specify capture path here?
-
 const SAVE_ID = 'save_id';
+
 
 function getEndpoint(): HTMLInputElement {
     return ((document.getElementById(ENDPOINT_ID): any): HTMLInputElement);
@@ -31,47 +31,50 @@ function getHasPermission(): HTMLElement {
     return ((document.getElementById(HAS_PERMISSION_ID): any): HTMLElement);
 }
 
+
 // ugh. needs a better name..
-function refreshPermissionValidation(endpoint: string) {
-    hasPermissions(endpoint).then(has => {
-        const pstyle = getHasPermission().style;
-        if (has) {
-            console.debug('Got permisssions, nothing to worry about.');
-            pstyle.display = 'none';
-            return;
-        }
-        console.debug('Whoops, no permissions to access %s', endpoint);
-        // TODO maybe just show button? but then it would need to be reactive..
-        pstyle.display = 'block';
-    });
+async function refreshPermissionValidation(endpoint: string) {
+    const has = await hasPermissions(endpoint)
+    const pstyle = getHasPermission().style
+    if (has) {
+        console.debug('Got permisssions, nothing to worry about.')
+        pstyle.display = 'none'
+        return
+    }
+    console.debug('Whoops, no permissions to access %s', endpoint)
+    // TODO maybe just show button? but then it would need to be reactive..
+    pstyle.display = 'block'
 }
 
-function restoreOptions() {
-    getSaveButton().addEventListener('click', saveOptions);
-    get_options(opts => {
-        const ep = opts.endpoint;
-        getEndpoint().value = ep;
-        getDefaultTags().value = opts.default_tags;
-        getEnableNotification().checked = opts.notification;
-        refreshPermissionValidation(ep);
-    });
+
+async function restoreOptions() {
+    getSaveButton().addEventListener('click', saveOptions)
+
+    const opts = await getOptions()
+    getEndpoint().value = opts.endpoint
+    getDefaultTags().value = opts.default_tags
+    getEnableNotification().checked = opts.notification
+    await refreshPermissionValidation(opts.endpoint)
 }
 
-function saveOptions() {
+
+async function saveOptions() {
     // TODO could also check for permissions and display message?
 
-    const endpoint = getEndpoint().value;
-    ensurePermissions(endpoint).finally(() => {
-        refreshPermissionValidation(endpoint);
-    });
+    const endpoint = getEndpoint().value
+    await ensurePermissions(endpoint)
+    refreshPermissionValidation(endpoint)
 
     const opts = {
         endpoint: endpoint,
         default_tags: getDefaultTags().value,
         notification: getEnableNotification().checked,
-    };
-    set_options(opts, () => { alert('Saved!'); });
+    }
+    await setOptions(opts)
+
+    // hmm seems that regular alert() doesn't work in chrome anymore
+    chrome.extension.getBackgroundPage().alert('Saved!')
 }
 
 
-document.addEventListener('DOMContentLoaded', restoreOptions);
+document.addEventListener('DOMContentLoaded', restoreOptions)

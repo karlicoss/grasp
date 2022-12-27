@@ -5,6 +5,7 @@
 
 [libs]
 node_modules/flow-interfaces-chrome/interfaces/
+src/js/browser_types.js
 
 [lints]
 

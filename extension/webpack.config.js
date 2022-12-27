@@ -166,6 +166,7 @@ const options = {
       patterns: [
         { context: 'src', from: '**/*.html' },
         { context: 'src', from: '**/*.png'  },
+        { from: 'node_modules/webextension-polyfill/dist/browser-polyfill.js'},
       ]
     }),
     new WebpackExtensionManifestPlugin({
