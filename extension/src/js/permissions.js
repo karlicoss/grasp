@@ -1,16 +1,4 @@
 /* @flow */
-import {showNotification, awrap} from './common';
-import {getOptions} from './options';
-
-
-export function chromePermissionsRequest(params: any): Promise<any> {
-    return awrap(chrome.permissions.request, params);
-}
-
-export function chromePermissionsContains(params: any): Promise<any> {
-    return awrap(chrome.permissions.contains, params);
-}
-
 
 function urlForPermissionsCheck(url: string): string {
     var u = new URL(url);
@@ -23,23 +11,24 @@ function urlForPermissionsCheck(url: string): string {
     return u.toString();
 }
 
-export function hasPermissions(endpoint: string): Promise<any> {
+export async function hasPermissions(endpoint: string): Promise<boolean> {
     const perms = {
         origins: [
             urlForPermissionsCheck(endpoint),
         ],
-    };
-    return chromePermissionsContains(perms);
+    }
+    return browser.permissions.contains(perms)
 }
 
-export function ensurePermissions(endpoint: string): Promise<any> {
+
+export function ensurePermissions(endpoint: string): Promise<boolean> {
     const perms = {
         origins: [
             urlForPermissionsCheck(endpoint),
         ],
-    };
+    }
     // shouldn't prompt if we already have the permission
-    return chromePermissionsRequest(perms);
+    return browser.permissions.request(perms)
 }
 
 // just keeping the old one for the reference...
@@ -47,6 +36,7 @@ export function ensurePermissions(endpoint: string): Promise<any> {
 // TODO fuck. doesn't seem to work for Firefox at all...
 // just getting  Error: "An unexpected error occurred" background.bundle.js
 // seems like this bug https://bugzilla.mozilla.org/show_bug.cgi?id=1382953
+/*
 function ensurePermissions_old(cb: () => void) { // eslint-disable-line no-unused-vars
     const back = chrome.extension.getBackgroundPage().console;
 
@@ -82,3 +72,4 @@ function ensurePermissions_old(cb: () => void) { // eslint-disable-line no-unuse
     });
     // TODO improve message somehow???
 }
+*/
