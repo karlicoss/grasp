@@ -20,6 +20,18 @@ type browser$storage = {
 }
 
 
+type browser$Permissions = {
+  origins?: Array<string>,
+  permissions?: Array<string>,
+}
+
+
+type browser$permissions = {
+  contains: (permissions: browser$Permissions) => Promise<boolean> /*result*/,
+  request : (permissions: browser$Permissions) => Promise<boolean> /*granted*/,
+}
+
 declare var browser: {
   storage: browser$storage,
+  permissions: browser$permissions,
 }
