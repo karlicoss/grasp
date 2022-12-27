@@ -1,8 +1,9 @@
 /* @flow */
 // TODO do I really need to annotate all files with @flow??
 
+
 import {COMMAND_CAPTURE_SIMPLE, METHOD_CAPTURE_WITH_EXTRAS, showNotification} from './common'
-import {get_options} from './options'
+import {getOptions} from './options'
 import type {Options} from './options'
 
 
@@ -87,7 +88,7 @@ function capture(comment: ?string = null, tag_str: ?string = null) {
         // TODO await properly and handle errors
         const has_scripting = 'scripting' in chrome
 
-        get_options(opts => {
+        getOptions().then(opts => {
             if (has_scripting) {
                 // $FlowFixMe
                 chrome.scripting.executeScript({
