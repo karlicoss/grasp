@@ -9,7 +9,8 @@
       "persistent": false
   },
   "options_ui": {
-      "page": "options.html"
+    "page": "options.html",
+    "open_in_tab": false
   },
   "icons": {
       "128": "img/unicorn.png"
