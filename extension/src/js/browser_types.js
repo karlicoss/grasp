@@ -20,18 +20,60 @@ type browser$storage = {
 }
 
 
-type browser$Permissions = {
-  origins?: Array<string>,
-  permissions?: Array<string>,
-}
+type result = boolean
+type granted = boolean
 
 
 type browser$permissions = {
-  contains: (permissions: browser$Permissions) => Promise<boolean> /*result*/,
-  request : (permissions: browser$Permissions) => Promise<boolean> /*granted*/,
+  contains: (permissions: chrome$Permissions) => Promise<result>,
+  request : (permissions: chrome$Permissions) => Promise<granted>,
 }
+
+
+type browser$tabs = {
+  query(queryInfo: {
+    active?: boolean,
+    audible?: boolean,
+    currentWindow?: boolean,
+    highlighted?: boolean,
+    index?: number,
+    lastFocusedWindow?: boolean,
+    muted?: boolean,
+    pinned?: boolean,
+    status?: chrome$TabStatus,
+    title?: string,
+    url?: string | Array<string>,
+    windowId?: number,
+    windowType?: chrome$WindowType
+  }): Promise<Array<chrome$Tab>>,
+  executeScript: (
+    ((
+      tabId?: number,
+      details: {
+        allFrames?: boolean,
+        code?: string,
+        file?: string,
+        frameId?: number,
+        matchAboutBlank?: boolean,
+        runAt?: chrome$RunAt
+      },
+    ) => Promise<void>) &
+    ((
+      details: {
+        allFrames?: boolean,
+        code?: string,
+        file?: string,
+        frameId?: number,
+        matchAboutBlank?: boolean,
+        runAt?: chrome$RunAt
+      },
+    ) => Promise<void>)
+  ),
+}
+
 
 declare var browser: {
   storage: browser$storage,
   permissions: browser$permissions,
+  tabs: browser$tabs,
 }

@@ -63,60 +63,61 @@ async function makeCaptureRequest(
 }
 
 
-// TODO FIXME ugh. need defensive error handling on the very top...
-function capture(comment: ?string = null, tag_str: ?string = null) {
-    chrome.tabs.query({currentWindow: true, active: true }, tabs => {
-        const tab = tabs[0]
-        if (tab.url == null) {
-            showNotification('ERROR: trying to capture null')
-            return
+// TODO ugh. need defensive error handling on the very top...
+async function capture(comment: ?string = null, tag_str: ?string = null) {
+    const tabs = await browser.tabs.query({currentWindow: true, active: true})
+    const tab = tabs[0]
+    if (tab.url == null) {
+        // todo await?
+        showNotification('ERROR: trying to capture null')
+        return
+    }
+    const url: string = tab.url
+    const title: ?string = tab.title
+
+
+    const payload = (selection: ?string) => {
+        return {
+            url: url,
+            title: title,
+            selection: selection,
+            comment: comment,
+            tag_str: tag_str,
         }
-        const url: string = tab.url
-        const title: ?string = tab.title
+    }
 
+    const opts = await getOptions()
 
-        const payload = (selection: ?string) => {
-            return {
-                url: url,
-                title: title,
-                selection: selection,
-                comment: comment,
-                tag_str: tag_str,
-            }
-        }
-
-        // TODO await properly and handle errors
-        const has_scripting = 'scripting' in chrome
-
-        getOptions().then(opts => {
-            if (has_scripting) {
-                // $FlowFixMe
-                chrome.scripting.executeScript({
-                    target: {tabId: tab.id},
-                    func: () => window.getSelection().toString()
-                }, results => {
-                    const [res] = results // should only inject in one frame, so just one result
-                    const selection = res.result
-                    makeCaptureRequest(payload(selection), opts)
-                })
-            } else {
-                chrome.tabs.executeScript( {
-                    code: "window.getSelection().toString();"
-                }, selections => {
-                    const selection = selections == null ? null : selections[0]
-                    makeCaptureRequest(payload(selection), opts)
-                })
-            }
+    const has_scripting = 'scripting' in chrome
+    if (has_scripting) {
+        // TODO switch to polyfill and add flow types
+        // scripting is already promise based so it should be oly change to types
+        // $FlowFixMe
+        chrome.scripting.executeScript({
+            target: {tabId: tab.id},
+            func: () => window.getSelection().toString()
+        }, results => {
+            const [res] = results // should only inject in one frame, so just one result
+            const selection = res.result
+            makeCaptureRequest(payload(selection), opts)
         })
-    })
+    } else {
+        const selections = await browser.tabs.executeScript({
+            code: "window.getSelection().toString();"
+        })
+        const selection = selections == null ? null : selections[0]
+        await makeCaptureRequest(payload(selection), opts)
+    }
 }
 
 
 chrome.commands.onCommand.addListener(command => {
     if (command === COMMAND_CAPTURE_SIMPLE) {
-        capture(null, null);
+        // todo await
+        capture(null, null)
     }
-});
+})
+
 
 chrome.runtime.onMessage.addListener((message: any, sender: chrome$MessageSender, sendResponse) => {  // eslint-disable-line no-unused-vars
     if (message.method === 'logging') {
@@ -125,9 +126,10 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome$MessageSender
     if (message.method === METHOD_CAPTURE_WITH_EXTRAS) {
         const comment = message.comment;
         const tag_str = message.tag_str;
-        capture(comment, tag_str);
+        // todo await
+        capture(comment, tag_str)
     }
-});
+})
 
 // TODO handle cannot access chrome:// url??
 
