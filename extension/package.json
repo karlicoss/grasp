@@ -1,6 +1,6 @@
 {
   "name": "grasp",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "version_name": "released on 2022.12.28",
   "description": "Reliably capture links and webpage content in a plaintext file (org-mode/markdown)",
   "main": "dist/background.js",
