@@ -1,5 +1,3 @@
-Build status: [![CircleCI](https://circleci.com/gh/karlicoss/grasp.svg?style=svg)](https://circleci.com/gh/karlicoss/grasp)
-
 Grasp is a browser extension for [Chrome](https://chrome.google.com/webstore/detail/org-grasp/ohhbcfjmnbmgkajljopdjcaokbpgbgfa) and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/grasp), which adds a button/keybinding to capture current page title and url,
 possibly selected text, additional comments or tags and adds it into your [Org Mode](https://orgmode.org/) file.
 
