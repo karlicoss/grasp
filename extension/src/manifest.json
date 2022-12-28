@@ -1,19 +1,11 @@
 {
   "name": "<webpack managed>",
   "version": "<webpack managed>",
-  "background": {
-      "scripts": [
-        "browser-polyfill.js",
-        "background.js"
-      ],
-      "persistent": false
-  },
   "options_ui": {
     "page": "options.html",
     "open_in_tab": false
   },
   "icons": {
       "128": "img/unicorn.png"
-  },
-  "manifest_version": 2
+  }
 }

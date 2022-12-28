@@ -9,6 +9,10 @@ const T = {
     FIREFOX: 'firefox',
 };
 
+
+// TODO will be conditional on T.CHROME at some point
+const v3 = false
+
 const env = {
     TARGET : process.env.TARGET, // TODO assert not null?
     RELEASE: process.env.RELEASE,
@@ -32,7 +36,7 @@ const name = "grasp" + (dev ? ' [dev]' : '');
 // On the other hand, Chrome wouldn't let you use Alt
 const modifier = target === T.CHROME ? 'Shift' : 'Alt'
 
-const action_name = 'browser_action'
+const action_name = v3 ? 'action' : 'browser_action'
 
 const commands = {
     "capture-simple": {
@@ -69,12 +73,10 @@ const host_permissions = [
     "https://localhost/capture",
 ]
 
-
-const optional_permissions = [
+const optional_host_permissions = [
     "http://*/capture",
     "https://*/capture",
 ]
-
 
 // TODO make permissions literate
 const permissions = [
@@ -83,9 +85,11 @@ const permissions = [
 
     // need to query active tab and get its url/title
     "activeTab",  
-
-    ...host_permissions,
 ]
+
+
+const optional_permissions = []
+
 
 if (target === T.FIREFOX) {
     // chrome v2 doesn't support scripting api
@@ -102,17 +106,34 @@ const manifestExtra = {
     permissions: permissions,
     commands: commands,
     optional_permissions: optional_permissions,
+    manifest_version: v3 ? 3 : 2,
+    background: (v3 ? {
+      service_worker: 'background.js',
+      type: "module",
+    } : {
+      scripts: [
+        'browser-polyfill.js',
+        'background.js',
+      ],
+      persistent: false,
+    }),
 }
 manifestExtra[action_name] = action
+
+if (v3) {
+  manifestExtra['host_permissions'] = host_permissions
+  manifestExtra['optional_host_permissions'] = optional_host_permissions
+  manifestExtra.permissions.push("scripting")
+} else {
+  manifestExtra.permissions.push(...host_permissions)
+  manifestExtra.optional_permissions.push(...optional_host_permissions)
+}
 
 
 if (dev) {
     manifestExtra.content_security_policy = "script-src 'self' 'unsafe-eval'; object-src 'self'";
 }
 
-if (target === T.CHROME) {
-    manifestExtra.options_ui = {chrome_style: true};
-}
 if (target === T.FIREFOX) {
     manifestExtra.options_ui = {browser_style: true};
 }
