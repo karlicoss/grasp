@@ -72,8 +72,22 @@ type browser$tabs = {
 }
 
 
+type ExecuteResult = {
+  result: any,
+}
+
+
+type browser$scripting = {
+  executeScript: ({
+    target: {tabId?: number},
+    func: () => void,
+  }) => Promise<Array<ExecuteResult>>,
+}
+
+
 declare var browser: {
   storage: browser$storage,
   permissions: browser$permissions,
   tabs: browser$tabs,
+  scripting: browser$scripting,
 }
