@@ -106,25 +106,23 @@ async function capture(comment: ?string = null, tag_str: ?string = null) {
     const opts = await getOptions()
 
     const has_scripting = 'scripting' in chrome
+    let selection
     if (has_scripting) {
         // TODO switch to polyfill and add flow types
         // scripting is already promise based so it should be oly change to types
-        // $FlowFixMe
-        chrome.scripting.executeScript({
+        const results = await browser.scripting.executeScript({
             target: {tabId: tab.id},
             func: () => window.getSelection().toString()
-        }, results => {
-            const [res] = results // should only inject in one frame, so just one result
-            const selection = res.result
-            makeCaptureRequest(payload(selection), opts)
         })
+        const [res] = results // should only inject in one frame, so just one result
+        selection = res.result
     } else {
         const selections = await browser.tabs.executeScript({
             code: "window.getSelection().toString();"
         })
-        const selection = selections == null ? null : selections[0]
-        await makeCaptureRequest(payload(selection), opts)
+        selection = selections == null ? null : selections[0]
     }
+    await makeCaptureRequest(payload(selection), opts)
 }
 
 
