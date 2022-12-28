@@ -72,8 +72,12 @@ async function saveOptions() {
     }
     await setOptions(opts)
 
-    // hmm seems that regular alert() doesn't work in chrome anymore
-    chrome.extension.getBackgroundPage().alert('Saved!')
+    // NOTE: seems that alert() only works here when we use open_in_tab: true for settings page
+    // when open_in_tab: false, then
+    // in chrome browser.extension.getBackgroundPage().alert works
+    // in firefox that doesn't work, seems that it refuses to alert from bg page
+    // so it seems easier to just always use opne_in_tab: true for setgings page
+    alert('Saved!')
 }
 
 
