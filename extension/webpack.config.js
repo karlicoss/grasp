@@ -67,16 +67,16 @@ if (target == T.FIREFOX) {
 }
 
 
-// prepare for manifest v3
-const host_permissions = [
-    "http://localhost/capture",
-    "https://localhost/capture",
+const endpoints = (domain) => [
+  "http://"  + domain + "/capture",
+  "https://" + domain + "/capture",
 ]
 
-const optional_host_permissions = [
-    "http://*/capture",
-    "https://*/capture",
-]
+    
+// prepare for manifest v3
+const host_permissions = endpoints('localhost')
+const optional_host_permissions = endpoints('*')
+
 
 // TODO make permissions literate
 const permissions = [
@@ -99,6 +99,15 @@ if (target === T.FIREFOX) {
 }
 
 
+const content_security_policy = [
+  "default-src 'self'",
+  "connect-src " + endpoints('*:*').join(' '),
+
+  // FFS, otherwise <style> directives on extension's pages not working??
+  "style-src 'unsafe-inline'",
+].join('; ')
+
+
 const manifestExtra = {
     name: name,
     version: pkg.version,
@@ -109,7 +118,6 @@ const manifestExtra = {
     manifest_version: v3 ? 3 : 2,
     background: (v3 ? {
       service_worker: 'background.js',
-      type: "module",
     } : {
       scripts: [
         'browser-polyfill.js',
@@ -117,6 +125,9 @@ const manifestExtra = {
       ],
       persistent: false,
     }),
+    content_security_policy: v3 ? {
+      extension_pages: content_security_policy,
+    } : content_security_policy,
 }
 manifestExtra[action_name] = action
 
@@ -129,10 +140,6 @@ if (v3) {
   manifestExtra.optional_permissions.push(...optional_host_permissions)
 }
 
-
-if (dev) {
-    manifestExtra.content_security_policy = "script-src 'self' 'unsafe-eval'; object-src 'self'";
-}
 
 if (target === T.FIREFOX) {
     manifestExtra.options_ui = {browser_style: true};
@@ -196,13 +203,10 @@ const options = {
             extend: manifestExtra,
         }
     }),
-  ]
-};
-
-// TODO https://webpack.js.org/configuration/devtool
-if (dev) {
-  // ??? don't remember what it was for, but webpack complains about it now
-  // options.devtool = "cheap-module-eval-source-map";
+  ],
+  // docs claim it's the slowest but pretty fast anyway
+  devtool: 'source-map',
 }
+
 
 module.exports = options;
