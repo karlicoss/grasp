@@ -3,25 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <script type="text/javascript" src="webextension-polyfill.js"></script>
-  <script type="text/javascript" src="options_page.js"/></script>
-  <style>
-   input:invalid {
-       background-color: red;
-   }
-  </style>
+  <script type="text/javascript" src="svelte.js"></script>
+  <script type="text/javascript" src="svelte-loader.js"></script>
+  <script type="text/javascript" src="svelte-hmr.js"></script>
 </head>
 <body>
-    <fieldset>
-        <legend>Endpoint</legend>
-        <input type='URL' id='endpoint_id'/>
-        <div id='has_permission_id' style="display: none; color: red">
-            No permission to access the endpoint. Will request when you press "Save".
-        </div>
-    </fieldset>
-    <label for="notification_id">Notification after capture</label>
-        <div><input type="checkbox"  id="notification_id"/></div>
-    <label for="default_tags_id">Default tags</label>
-        <div><input type="text" id="default_tags_id" /></div>
-        <div><button id="save_id">Save</button></div>
+  <!-- ugh. kinda annoying that we need a separate snippet of code
+       just to inject Svelte component...
+       but seems that it's the only way for manifest v3 -->
+  <script type="text/javascript" src="options_page.js"/></script>
 </body>
 </html>

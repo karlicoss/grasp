@@ -2,7 +2,8 @@ const webpack = require('webpack'),
       path = require('path'),
       {CleanWebpackPlugin} = require('clean-webpack-plugin'),
       CopyWebpackPlugin = require('copy-webpack-plugin'),
-      WebpackExtensionManifestPlugin = require('webpack-extension-manifest-plugin');
+      WebpackExtensionManifestPlugin = require('webpack-extension-manifest-plugin'),
+      sveltePreprocess = require('svelte-preprocess')
 
 const T = {
     CHROME  : 'chrome',
@@ -206,14 +207,37 @@ const options = {
       },
       {
         test: /\.css$/,
-        use: 'style-loader!css-loader',
+        use: ['style-loader', 'css-loader'],
         exclude: /node_modules/,
       },
       {
         test: /\.html$/,
         loader: 'html-loader',
         exclude: /node_modules/
-      }
+      },
+      {
+        test: /\.svelte$/,
+        use: {
+          loader: 'svelte-loader',
+          options: {
+            compilerOptions: {
+              dev: dev,
+            },
+            emitCss: !dev,
+            hotReload: dev,
+            preprocess: sveltePreprocess({
+              sourceMap: dev,
+            }),
+          },
+        },
+      },
+      {
+        // required to prevent errors from Svelte on Webpack 5+
+        test: /node_modules\/svelte\/.*\.mjs$/,
+        resolve: {
+          fullySpecified: false
+        },
+      },
     ]
   },
   plugins: [

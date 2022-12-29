@@ -1,8 +1,13 @@
 module.exports = {
     "parser": "@babel/eslint-parser",
     "plugins": [
-        "flowtype"
+        "flowtype",
+        "svelte3",
     ],
+    "overrides": [{
+        files: ['*.svelte'],
+        processor: 'svelte3/svelte3',
+    }],
     'extends': [
         // "google",
         "eslint:recommended",
