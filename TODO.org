@@ -1,27 +1,43 @@
 * TODO [#A] simple auth for server bit? 
-* TODO [#B] doesn't look like hotkey working unless you manually rebind.. wtf?
-
 * TODO [#C] how to test it? try on different pages?
   https://www.blazemeter.com/blog/6-easy-steps-testing-your-chrome-extension-selenium
   looks tricky...
 * TODO [#C] some sort of delayed append logic? e.g. don't dump immediately and add as subitems?
 * TODO [#C] or, add menu to extension?
-
 * TODO [#C] hmm. if template is specified on client site, it's easier to dispatch todo vs non-todo etc?..
-* TODO [#D] do not minfy for dev
-* TODO [#D] make manifest templated so we don't have to hardcode actions
+* CNCL not sure, maybe extension press should be default? control it via option?
+:LOGBOOK:
+- State "CNCL"       from "TODO"       [2022-12-29 Thu 17:41]
+:END:
 
-* TODO [#D] production build?
-## Packing
-After the development of your extension run the command
+* DONE [#B] doesn't look like hotkey working unless you manually rebind.. wtf?
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2022-12-29 Thu 17:41]
+:END:
 
-```
-$ NODE_ENV=production npm run build
-```
-Now, the content of `build` folder will be the extension ready to be submitted to the Chrome Web Store. Just take a look at the [official guide](https://developer.chrome.com/webstore/publish) to more infos about publishing.
+* DONE [#D] do not minfy for dev
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2022-12-29 Thu 17:40]
+:END:
+
+* DONE [#D] make manifest templated so we don't have to hardcode actions
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2022-12-29 Thu 17:40]
+:END:
+
+* DONE [#D] production build?
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2022-12-29 Thu 17:40]
+:END:
+: ## Packing
+: After the development of your extension run the command
+:
+: ```
+: $ NODE_ENV=production npm run build
+: ```
+: Now, the content of `build` folder will be the extension ready to be submitted to the Chrome Web Store. Just take a look at the [official guide](https://developer.chrome.com/webstore/publish) to more infos about publishing.
 
 
-* TODO not sure, maybe extension press should be default? control it via option?
 * DONE [#A] adjust permissions... I guess gonna have to make it include /capture endpoint?
   CLOSED: [2019-01-06 Sun 23:57]
 
@@ -35,7 +51,11 @@ Now, the content of `build` folder will be the extension ready to be submitted t
   CLOSED: [2019-01-13 Sun 13:01]
 * DONE [#B] release somewhere? not sure if necessary
   CLOSED: [2019-01-07 Mon 23:57]
-** TODO [#C] post on reddit? 
+** DONE [#C] post on reddit?
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2022-12-29 Thu 17:40]
+:END:
+
 * DONE [#B] get rid of kython, run ci for python too?
   CLOSED: [2019-01-07 Mon 23:57]
  
