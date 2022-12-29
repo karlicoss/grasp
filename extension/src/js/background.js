@@ -134,7 +134,7 @@ chrome.commands.onCommand.addListener(command => {
 })
 
 
-chrome.runtime.onMessage.addListener((message: any, sender: chrome$MessageSender, sendResponse) => {  // eslint-disable-line no-unused-vars
+chrome.runtime.onMessage.addListener((message: any, sender: chrome$MessageSender, sendResponse) => {
     if (message.method === 'logging') {
         console.error("[%s] %o", message.source, message.data)
     }
@@ -143,6 +143,7 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome$MessageSender
         const tag_str = message.tag_str;
         // todo await
         capture(comment, tag_str)
+        sendResponse()
     }
 })
 
