@@ -1,4 +1,6 @@
 /* @flow */
+import browser from "webextension-polyfill"
+
 
 function urlForPermissionsCheck(url: string): string {
     var u = new URL(url);

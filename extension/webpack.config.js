@@ -118,9 +118,10 @@ const manifestExtra = {
     manifest_version: v3 ? 3 : 2,
     background: (v3 ? {
       service_worker: 'background.js',
+      type: 'module',
     } : {
       scripts: [
-        'browser-polyfill.js',
+        'webextension-polyfill.js',
         'background.js',
       ],
       persistent: false,
@@ -165,7 +166,28 @@ const options = {
   optimization: {
     // https://webpack.js.org/configuration/optimization
     // don't think minimize worth it for such a tiny extension
-    minimize: false
+    minimize: false,
+
+    // split chunks is so vendors split out into separate js files
+    // to prevent bloating individual source files
+    // seems that at the moment we need to manually load the chunks in the corresponding
+    // html files or manifest
+    // split chunks doc recommend using webpack html plugin??
+    splitChunks: {
+      // seems necessary, otherwise doesn't split out polyfill??
+      chunks: 'all',
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name(module) {
+            const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+            return packageName
+          },
+          // create chunk regardless size etc
+          enforce: true,
+        },
+      },
+    },
   },
   module: {
     rules: [
@@ -194,7 +216,6 @@ const options = {
       patterns: [
         { context: 'src', from: '**/*.html' },
         { context: 'src', from: '**/*.png'  },
-        { from: 'node_modules/webextension-polyfill/dist/browser-polyfill.js'},
       ]
     }),
     new WebpackExtensionManifestPlugin({
