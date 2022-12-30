@@ -1,6 +1,7 @@
 const webpack = require('webpack'),
       path = require('path'),
       {CleanWebpackPlugin} = require('clean-webpack-plugin'),
+      TerserPlugin = require('terser-webpack-plugin'),
       CopyWebpackPlugin = require('copy-webpack-plugin'),
       WebpackExtensionManifestPlugin = require('webpack-extension-manifest-plugin'),
       sveltePreprocess = require('svelte-preprocess')
@@ -174,8 +175,19 @@ const options = {
   },
   optimization: {
     // https://webpack.js.org/configuration/optimization
-    // don't think minimize worth it for such a tiny extension
-    minimize: false,
+    minimize: true,
+
+    minimizer: [
+      new TerserPlugin({
+        // don't think minimize worth it for such a tiny extension for user code
+        include: [
+          // for svelte monimizing seems necessary because it has some innnerHTML accesses in dead code
+          /svelte.*js/,
+
+          /webextension-polyfill.js/,
+        ],
+      }),
+    ],
 
     // split chunks is so vendors split out into separate js files
     // to prevent bloating individual source files
@@ -190,6 +202,12 @@ const options = {
           test: /[\\/]node_modules[\\/]/,
           name(module) {
             const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+            if (packageName.match(/svelte/)) {
+              // ugh. svelte emits multiple chunkls
+              // and in production mode some of them are removed???
+              // even regardless optimization
+              return 'svelte'
+            }
             return packageName
           },
           // create chunk regardless size etc
@@ -223,7 +241,9 @@ const options = {
             compilerOptions: {
               dev: dev,
             },
-            emitCss: !dev,
+            // ugh, if I set it to true, it starts emitting css-loader/style-loader separately
+            // I don't understand this :(
+            emitCss: false,
             hotReload: dev,
             preprocess: sveltePreprocess({
               sourceMap: dev,
