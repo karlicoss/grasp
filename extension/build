@@ -47,9 +47,10 @@ def main():
         ], **kwargs)
 
     env = {
-        'TARGET': target,
+        'TARGET' : target,
         'RELEASE': 'YES' if args.release else 'NO',
         'PUBLISH': 'YES' if args.publish else 'NO',
+        'EXT_ID' : IDS[target],
         **os.environ,
     }
 

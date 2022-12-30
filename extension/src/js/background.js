@@ -6,7 +6,8 @@
 // I assume this is only processed with webpack
 // import * as browser from "./browser-polyfill"
 
-// this works with v3 if you need to
+// this works with v3 but NOT if type: module
+// also unclear how to make it work with webpack??
 // const manifestVersion = chrome.runtime.getManifest().manifest_version
 // if (manifestVersion == 3) {
 //     // for v3 it's provided via manifest
@@ -18,6 +19,14 @@
 //     }
 // }
 
+
+// this works for v2 both in chrome and firefox
+// for v3
+// - in chrome it works if type: module, but somehow NOT if we define chunks??
+//   without type: module this isn't working
+// - in firefox it just works :shrug:
+//   but firefox foesn't allow type: module??
+// could it be bug in chrome??
 import * as browser from "webextension-polyfill"
 
 

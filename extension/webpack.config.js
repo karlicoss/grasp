@@ -14,10 +14,11 @@ const T = {
 const v3 = false
 
 const env = {
-    TARGET : process.env.TARGET, // TODO assert not null?
-    RELEASE: process.env.RELEASE,
-    PUBLISH: process.env.PUBLISH,
-};
+  TARGET : process.env.TARGET,
+  RELEASE: process.env.RELEASE,
+  PUBLISH: process.env.PUBLISH,
+}
+const ext_id = process.env.EXT_ID
 
 const pkg = require('./package.json');
 const baseManifest = require('./src/manifest.json');
@@ -90,12 +91,11 @@ const permissions = [
 
 const optional_permissions = []
 
-
-if (target === T.FIREFOX) {
-    // chrome v2 doesn't support scripting api
-    // code has a fallback just for that
-    // need to get selected text
-    permissions.push("scripting")
+if (target === T.FIREFOX || v3) {
+  // chrome v2 doesn't support scripting api
+  // code has a fallback just for that
+  // (needed to get selected text)
+  permissions.push("scripting")
 }
 
 
@@ -118,7 +118,9 @@ const manifestExtra = {
     manifest_version: v3 ? 3 : 2,
     background: (v3 ? {
       service_worker: 'background.js',
-      type: 'module',
+      // wtf -- firefox doesn't support module??
+      // it just fails to load manifest in this case atm
+      ...(target === T.FIREFOX? {} : {type: 'module'}),
     } : {
       scripts: [
         'webextension-polyfill.js',
@@ -135,7 +137,13 @@ manifestExtra[action_name] = action
 if (v3) {
   manifestExtra['host_permissions'] = host_permissions
   manifestExtra['optional_host_permissions'] = optional_host_permissions
-  manifestExtra.permissions.push("scripting")
+  if (target === T.FIREFOX) {
+    manifestExtra['browser_specific_settings'] = {
+      "gecko": {
+        "id": ext_id,
+      },
+    }
+  }
 } else {
   manifestExtra.permissions.push(...host_permissions)
   manifestExtra.optional_permissions.push(...optional_host_permissions)
