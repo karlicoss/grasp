@@ -91,3 +91,11 @@ declare var browser: {
   tabs: browser$tabs,
   scripting: browser$scripting,
 }
+
+
+declare module "webextension-polyfill" {
+  declare var storage: browser$storage;
+  declare var permissions: browser$permissions;
+  declare var tabs: browser$tabs;
+  declare var scripting: browser$scripting;
+}

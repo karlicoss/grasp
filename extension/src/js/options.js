@@ -1,4 +1,6 @@
 /* @flow */
+import browser from "webextension-polyfill"
+
 
 export type Options = {
     endpoint: string;

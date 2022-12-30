@@ -1,5 +1,4 @@
 /* @flow */
-// TODO do I really need to annotate all files with @flow??
 
 
 // hmm this works if you declare type: module in manifest
@@ -7,16 +6,19 @@
 // I assume this is only processed with webpack
 // import * as browser from "./browser-polyfill"
 
-const manifestVersion = chrome.runtime.getManifest().manifest_version
-if (manifestVersion == 3) {
-    // for v3 it's provided via manifest
-    try {
-        /* eslint-disable no-undef */
-        importScripts('./browser-polyfill.js')
-    } catch (e) {
-        console.error(e)
-    }
-}
+// this works with v3 if you need to
+// const manifestVersion = chrome.runtime.getManifest().manifest_version
+// if (manifestVersion == 3) {
+//     // for v3 it's provided via manifest
+//     try {
+//         /* eslint-disable no-undef */
+//         importScripts('./browser-polyfill.js')
+//     } catch (e) {
+//         console.error(e)
+//     }
+// }
+
+import * as browser from "webextension-polyfill"
 
 
 import {COMMAND_CAPTURE_SIMPLE, METHOD_CAPTURE_WITH_EXTRAS, showNotification} from './common'
