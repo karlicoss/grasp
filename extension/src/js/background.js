@@ -149,7 +149,7 @@ chrome.commands.onCommand.addListener(command => {
 })
 
 
-chrome.runtime.onMessage.addListener((message: any, sender: chrome$MessageSender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message: any, sender: chrome$MessageSender, sendResponse: () => void) => {
     if (message.method === 'logging') {
         console.error("[%s] %o", message.source, message.data)
     }
