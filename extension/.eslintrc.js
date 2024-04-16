@@ -1,12 +1,12 @@
 module.exports = {
     "parser": "@babel/eslint-parser",
     "plugins": [
-        "flowtype"
+        "ft-flow"
     ],
     'extends': [
         // "google",
         "eslint:recommended",
-        "plugin:flowtype/recommended",
+        "plugin:ft-flow/recommended",
     ],
     'env': {
         'browser': true,
@@ -28,7 +28,6 @@ module.exports = {
         "comma-dangle": "off",
         "no-console": "off",
         "no-inner-declarations": "off",
-        "flowtype/space-before-type-colon": "off",
         "no-unused-vars": ["error", {
             "argsIgnorePattern": "^_",
             "varsIgnorePattern": "^_"
