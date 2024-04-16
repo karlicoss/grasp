@@ -90,6 +90,9 @@ async function restoreState(state: ?State) {
 function submitCapture () {
     const state = getUiState()
 
+    // ugh, not sure what it doesn't like
+    // tbh it's such a fucking mess with chrome flow annotations not receiving update anymore and manifest v3
+    // $FlowFixMe
     chrome.runtime.sendMessage({
         'method': METHOD_CAPTURE_WITH_EXTRAS,
         ...state,
