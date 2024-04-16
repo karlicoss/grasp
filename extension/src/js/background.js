@@ -57,37 +57,31 @@ async function makeCaptureRequest(
     const data = JSON.stringify(params)
     console.log(`capturing ${data} via ${endpoint}`)
 
-
-    // TODO maybe handle catch first and then again?
-
-    await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: data,
-    }).catch((err: Error) => {
-        // fetch only rejects when host is unavailable
+    var response: Response
+    try {
+        response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: data,
+        })
+    } catch (err) {
         console.error(err)
+        // fetch only throws when host is unavailable
         throw new Error(`${endpoint} unavailable, check if server is running`)
-    }).then(async response => {
-        if (!response.ok) { // http error
-            throw new Error(`${endpoint}: HTTP ${response.status} ${response.statusText}`)
-        }
-        const jres = await response.json()
-        const path = jres.path
-        console.log(`success: ${jres}`);
-        if (options.notification) {
-            showNotification(`OK: captured to ${path}`);
-        }
-    }).catch((err: Error) => {
-        console.error(err)
-        // todo make sure we catch errors from then clause too?
-        const error_message = `ERROR: ${err.toString()}`
-        console.error(error_message);
-        showNotification(error_message, 1);
-        // TODO crap, doesn't really seem to respect urgency...
-    })
+    }
+
+    if (!response.ok) { // http error
+        throw new Error(`${endpoint}: HTTP ${response.status} ${response.statusText}`)
+    }
+
+    const jres = await response.json()
+    const path = jres.path
+    console.log(`success: ${JSON.stringify(jres)}`)
+    if (options.notification) {
+        showNotification(`OK: captured to ${path}`)
+    }
 }
 
 
@@ -133,7 +127,17 @@ async function capture(comment: ?string = null, tag_str: ?string = null) {
         })
         selection = selections == null ? null : selections[0]
     }
-    await makeCaptureRequest(payload(selection), opts)
+
+    try {
+        await makeCaptureRequest(payload(selection), opts)
+    } catch (err) {
+        console.error(err)
+        // todo make sure we catch errors from then clause too?
+        const error_message = `ERROR: ${err.toString()}`
+        console.error(error_message)
+        showNotification(error_message, 1)
+        // TODO crap, doesn't really seem to respect urgency...
+    }
 }
 
 
