@@ -3,9 +3,9 @@ import browser from "webextension-polyfill"
 
 
 export type Options = {
-    endpoint: string;
-    default_tags: string;
-    notification: boolean;
+    endpoint: string
+    default_tags: string
+    notification: boolean
 }
 
 
