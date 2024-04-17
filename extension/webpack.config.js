@@ -10,14 +10,16 @@ const T = {
 };
 
 
-// TODO will be conditional on T.CHROME at some point
-const v3 = false
-
 const env = {
   TARGET : process.env.TARGET,
   RELEASE: process.env.RELEASE,
   PUBLISH: process.env.PUBLISH,
+  MANIFEST: process.env.MANIFEST,
 }
+
+// TODO will be conditional on T.CHROME at some point
+const v3 = process.env.MANIFEST === '3'
+
 const ext_id = process.env.EXT_ID
 
 const pkg = require('./package.json');
@@ -63,9 +65,6 @@ const action = {
     "default_popup": "popup.html",
     "default_title": "Capture page, with extra information",
 }
-if (target == T.FIREFOX) {
-     action['browser_style'] = true
-}
 
 
 const endpoints = (domain) => [
@@ -108,6 +107,29 @@ const content_security_policy = [
 ].join('; ')
 
 
+const background = {}
+
+if (v3) {
+  if (target === T.CHROME) {
+    background['service_worker'] = 'background.js'
+    // see header of background.js, this was for some experiments
+    // NOTE: not working in firefox? just fails to load the manifest
+    // background['type'] = 'module'
+  } else {
+    background['scripts'] = [
+      'webextension-polyfill.js',
+      'background.js',
+    ]
+  }
+} else {
+  background['scripts'] = [
+    'webextension-polyfill.js',
+    'background.js',
+  ]
+  background['persistent'] = false
+}
+
+
 const manifestExtra = {
     name: name,
     version: pkg.version,
@@ -116,18 +138,7 @@ const manifestExtra = {
     commands: commands,
     optional_permissions: optional_permissions,
     manifest_version: v3 ? 3 : 2,
-    background: (v3 ? {
-      service_worker: 'background.js',
-      // wtf -- firefox doesn't support module??
-      // it just fails to load manifest in this case atm
-      ...(target === T.FIREFOX? {} : {type: 'module'}),
-    } : {
-      scripts: [
-        'webextension-polyfill.js',
-        'background.js',
-      ],
-      persistent: false,
-    }),
+    background: background,
     content_security_policy: v3 ? {
       extension_pages: content_security_policy,
     } : content_security_policy,
@@ -136,6 +147,9 @@ manifestExtra[action_name] = action
 
 if (v3) {
   manifestExtra['host_permissions'] = host_permissions
+
+  // FIXME not sure if firefox supports this??
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1766026
   manifestExtra['optional_host_permissions'] = optional_host_permissions
   if (target === T.FIREFOX) {
     manifestExtra['browser_specific_settings'] = {
@@ -150,11 +164,25 @@ if (v3) {
 }
 
 
-if (target === T.FIREFOX) {
-    manifestExtra.options_ui = {browser_style: true};
+const buildPath = path.join(__dirname, 'dist', target);
+
+
+const splitChunks = {
+  // seems necessary, otherwise doesn't split out polyfill??
+  chunks: 'all',
+  cacheGroups: {
+    vendor: {
+      test: /[\\/]node_modules[\\/]/,
+      name(module) {
+        const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+        return packageName
+      },
+      // create chunk regardless size etc
+      enforce: true,
+    },
+  },
 }
 
-const buildPath = path.join(__dirname, 'dist', target);
 
 const options = {
   mode: dev ? 'development' : 'production', // TODO map directly from MODE env var?
@@ -176,26 +204,13 @@ const options = {
     // don't think minimize worth it for such a tiny extension
     minimize: false,
 
+    // ugh. for some reason with chunks it's not working
+    splitChunks: (v3 && target === T.CHROME) ? false : splitChunks,
     // split chunks is so vendors split out into separate js files
     // to prevent bloating individual source files
     // seems that at the moment we need to manually load the chunks in the corresponding
     // html files or manifest
     // split chunks doc recommend using webpack html plugin??
-    splitChunks: {
-      // seems necessary, otherwise doesn't split out polyfill??
-      chunks: 'all',
-      cacheGroups: {
-        vendor: {
-          test: /[\\/]node_modules[\\/]/,
-          name(module) {
-            const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
-            return packageName
-          },
-          // create chunk regardless size etc
-          enforce: true,
-        },
-      },
-    },
   },
   module: {
     rules: [

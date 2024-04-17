@@ -23,6 +23,8 @@ def main():
     p.add_argument('--watch'  , action='store_true')
     p.add_argument('--lint'   , action='store_true')
     p.add_argument('--publish', action='store_true', help="Publish on chrome web store/addons.mozilla.org")
+    p.add_argument('--v3', action='store_const', const='3', dest='manifest')
+    p.add_argument('--v2', action='store_const', const='2', dest='manifest')
 
     tg = p.add_mutually_exclusive_group(required=True)
     tg.add_argument('--target', type=str, choices=TARGETS)
@@ -50,6 +52,7 @@ def main():
         'TARGET' : target,
         'RELEASE': 'YES' if args.release else 'NO',
         'PUBLISH': 'YES' if args.publish else 'NO',
+        'MANIFEST': args.manifest or '2',  # TODO 2 is default for now, but make required later?
         'EXT_ID' : IDS[target],
         **os.environ,
     }
