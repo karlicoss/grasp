@@ -1,34 +1,33 @@
-/* @flow */
 import {getOptions, setOptions} from './options'
 import {ensurePermissions, hasPermissions} from './permissions'
 
 
-const ENDPOINT_ID       = 'endpoint_id';
-const HAS_PERMISSION_ID = 'has_permission_id';
-const NOTIFICATION_ID   = 'notification_id';
-const DEFAULT_TAGS_ID   = 'default_tags_id';
-const SAVE_ID = 'save_id';
+const ENDPOINT_ID       = 'endpoint_id'
+const HAS_PERMISSION_ID = 'has_permission_id'
+const NOTIFICATION_ID   = 'notification_id'
+const DEFAULT_TAGS_ID   = 'default_tags_id'
+const SAVE_ID = 'save_id'
 
 
 function getEndpoint(): HTMLInputElement {
-    return ((document.getElementById(ENDPOINT_ID): any): HTMLInputElement);
+    return document.getElementById(ENDPOINT_ID) as HTMLInputElement
 }
 
 function getDefaultTags(): HTMLInputElement {
-    return ((document.getElementById(DEFAULT_TAGS_ID): any): HTMLInputElement);
+    return document.getElementById(DEFAULT_TAGS_ID) as HTMLInputElement
     //  TODO if empty, return null?
 }
 
 function getEnableNotification(): HTMLInputElement {
-    return ((document.getElementById(NOTIFICATION_ID): any): HTMLInputElement);
+    return document.getElementById(NOTIFICATION_ID) as HTMLInputElement
 }
 
 function getSaveButton(): HTMLInputElement {
-    return ((document.getElementById(SAVE_ID): any): HTMLInputElement);
+    return document.getElementById(SAVE_ID) as HTMLInputElement
 }
 
 function getHasPermission(): HTMLElement {
-    return ((document.getElementById(HAS_PERMISSION_ID): any): HTMLElement);
+    return document.getElementById(HAS_PERMISSION_ID)!
 }
 
 

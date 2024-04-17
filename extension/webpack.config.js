@@ -194,7 +194,7 @@ const options = {
   entry: {
     background  : path.join(__dirname, "src", "js", "background"),
     popup       : path.join(__dirname, "src", "js", "popup"),
-    options_page: path.join(__dirname, "src", "js", "options_page"),
+    options_page: path.join(__dirname, "src", "options_page.ts"),
   },
   output: {
       path: buildPath,
@@ -205,7 +205,8 @@ const options = {
     minimize: false,
 
     // ugh. for some reason with chunks it's not working
-    splitChunks: (v3 && target === T.CHROME) ? false : splitChunks,
+    // splitChunks: (v3 && target === T.CHROME) ? false : splitChunks,
+    splitChunks: false,
     // split chunks is so vendors split out into separate js files
     // to prevent bloating individual source files
     // seems that at the moment we need to manually load the chunks in the corresponding
@@ -220,6 +221,11 @@ const options = {
         exclude: /node_modules/,
       },
       {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
+      {
         test: /\.css$/,
         use: 'style-loader!css-loader',
         exclude: /node_modules/,
@@ -230,6 +236,10 @@ const options = {
         exclude: /node_modules/
       }
     ]
+  },
+  resolve: {
+    // this is necessary to import .ts files
+    extensions: ['.tsx', '.ts', '.js'],
   },
   plugins: [
     new CleanWebpackPlugin(), // ok, respects symlinks

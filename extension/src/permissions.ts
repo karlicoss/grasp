@@ -1,16 +1,15 @@
-/* @flow */
 import browser from "webextension-polyfill"
 
 
 function urlForPermissionsCheck(url: string): string {
-    var u = new URL(url);
+    var u = new URL(url)
 
-    u.port = '';
+    u.port = ''
     // firefox doesn't like port numbers
     // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Match_patterns#Invalid_match_patterns
 
     // also toString adds a trailing slash, otherwise Firefox is also confused
-    return u.toString();
+    return u.toString()
 }
 
 export async function hasPermissions(endpoint: string): Promise<boolean> {
