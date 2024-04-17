@@ -57,7 +57,7 @@ async function makeCaptureRequest(
     const data = JSON.stringify(params)
     console.log(`capturing ${data} via ${endpoint}`)
 
-    var response: Response
+    let response: Response
     try {
         response = await fetch(endpoint, {
                 method: 'POST',
@@ -110,7 +110,7 @@ async function capture(comment: string | null = null, tag_str: string | null = n
 
     const opts = await getOptions()
 
-    // @ts-ignore
+    // @ts-expect-error
     const has_scripting = 'scripting' in chrome
     let selection
     if (has_scripting) {

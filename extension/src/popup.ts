@@ -12,7 +12,7 @@ const TAGS_ID = 'tags_id'
 /*
  *  normal popup logging is pretty annoying because chrome closes devtools when the popup is closed
  */
-/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 function logbg(msg: any) {
     console.error('%o', msg)
     browser.runtime.sendMessage({
@@ -71,7 +71,7 @@ function getUiState(): State {
 
 
 async function restoreState(state: State | null) {
-    // @ts-ignore
+    // @ts-expect-error
     window.justSubmitted = false
     if (state == null) {
         // comment just relies on default
@@ -93,7 +93,7 @@ function submitCapture () {
     }
 
     browser.runtime.sendMessage(message).then((_: any) => {
-        // @ts-ignore
+        // @ts-expect-error
         window.justSubmitted = true
         clearState()
 
@@ -118,11 +118,11 @@ const ctrlEnterSubmit = (e: KeyboardEvent) => {
 function moveCaretToEnd(el: HTMLInputElement) {
     if (typeof el.selectionStart == "number") {
         el.selectionStart = el.selectionEnd = el.value.length
-    // @ts-ignore
+    // @ts-expect-error
     } else if (typeof el.createTextRange != "undefined") {
         el.focus()
-        // @ts-ignore
-        var range = el.createTextRange()
+        // @ts-expect-error
+        const range = el.createTextRange()
         range.collapse(false)
         range.select()
     }
