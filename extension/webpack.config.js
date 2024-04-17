@@ -225,6 +225,7 @@ const options = {
         use: 'ts-loader',
         exclude: /node_modules/,
       },
+      // not sure if I really need css/html loader it since I'm not using any special features.. but whatever
       {
         test: /\.css$/,
         use: 'style-loader!css-loader',

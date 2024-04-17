@@ -2,7 +2,7 @@ import browser from "webextension-polyfill"
 
 
 function urlForPermissionsCheck(url: string): string {
-    var u = new URL(url)
+    const u = new URL(url)
 
     u.port = ''
     // firefox doesn't like port numbers
