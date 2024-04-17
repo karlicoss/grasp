@@ -192,7 +192,7 @@ const options = {
     global: false,
   },
   entry: {
-    background  : path.join(__dirname, "src", "js", "background"),
+    background  : path.join(__dirname, "src", "background.ts"),
     popup       : path.join(__dirname, "src", "popup.ts"),
     options_page: path.join(__dirname, "src", "options_page.ts"),
   },

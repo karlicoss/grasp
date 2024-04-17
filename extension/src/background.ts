@@ -1,6 +1,3 @@
-/* @flow */
-
-
 // hmm this works if you declare type: module in manifest
 // but it injects the script's contents statically?
 // I assume this is only processed with webpack
@@ -27,7 +24,10 @@
 // - in firefox it just works :shrug:
 //   but firefox foesn't allow type: module??
 // could it be bug in chrome??
-import * as browser from "webextension-polyfill"
+// import * as browser from "webextension-polyfill"
+
+
+import browser from "webextension-polyfill"
 
 
 import {COMMAND_CAPTURE_SIMPLE, METHOD_CAPTURE_WITH_EXTRAS, showNotification} from './common'
@@ -36,11 +36,11 @@ import type {Options} from './options'
 
 
 type Params = {
-    url: string,
-    title: ?string,
-    selection: ?string,
-    comment: ?string,
-    tag_str: ?string,
+    url: string
+    title: string | null
+    selection: string | null
+    comment: string | null
+    tag_str: string | null
 }
 
 
@@ -86,7 +86,7 @@ async function makeCaptureRequest(
 
 
 // TODO ugh. need defensive error handling on the very top...
-async function capture(comment: ?string = null, tag_str: ?string = null) {
+async function capture(comment: string | null = null, tag_str: string | null = null) {
     const tabs = await browser.tabs.query({currentWindow: true, active: true})
     const tab = tabs[0]
     if (tab.url == null) {
@@ -95,10 +95,10 @@ async function capture(comment: ?string = null, tag_str: ?string = null) {
         return
     }
     const url: string = tab.url
-    const title: ?string = tab.title
+    const title: string | null = tab.title || null
 
 
-    const payload = (selection: ?string) => {
+    const payload = (selection: string | null) => {
         return {
             url: url,
             title: title,
@@ -110,14 +110,16 @@ async function capture(comment: ?string = null, tag_str: ?string = null) {
 
     const opts = await getOptions()
 
+    // @ts-ignore
     const has_scripting = 'scripting' in chrome
     let selection
     if (has_scripting) {
+        const tab_id = tab.id as number
         // TODO switch to polyfill and add flow types
         // scripting is already promise based so it should be oly change to types
         const results = await browser.scripting.executeScript({
-            target: {tabId: tab.id},
-            func: () => window.getSelection().toString()
+            target: {tabId: tab_id},
+            func: () => window.getSelection()!.toString()
         })
         const [res] = results // should only inject in one frame, so just one result
         selection = res.result
@@ -133,7 +135,7 @@ async function capture(comment: ?string = null, tag_str: ?string = null) {
     } catch (err) {
         console.error(err)
         // todo make sure we catch errors from then clause too?
-        const error_message = `ERROR: ${err.toString()}`
+        const error_message = `ERROR: ${(err as Error).toString()}`
         console.error(error_message)
         showNotification(error_message, 1)
         // TODO crap, doesn't really seem to respect urgency...
@@ -141,7 +143,7 @@ async function capture(comment: ?string = null, tag_str: ?string = null) {
 }
 
 
-chrome.commands.onCommand.addListener(command => {
+browser.commands.onCommand.addListener(command => {
     if (command === COMMAND_CAPTURE_SIMPLE) {
         // todo await
         capture(null, null)
@@ -149,13 +151,13 @@ chrome.commands.onCommand.addListener(command => {
 })
 
 
-chrome.runtime.onMessage.addListener((message: any, sender: chrome$MessageSender, sendResponse: () => void) => {
+browser.runtime.onMessage.addListener((message: any, sender: any, sendResponse: () => void) => {
     if (message.method === 'logging') {
         console.error("[%s] %o", message.source, message.data)
     }
     if (message.method === METHOD_CAPTURE_WITH_EXTRAS) {
-        const comment = message.comment;
-        const tag_str = message.tag_str;
+        const comment = message.comment
+        const tag_str = message.tag_str
         // todo await
         capture(comment, tag_str)
         sendResponse()
