@@ -10,18 +10,22 @@ on:
   pull_request: # needed to trigger on others' PRs
   # Note that people who fork it need to go to "Actions" tab on their fork and click "I understand my workflows, go ahead and enable them".
   workflow_dispatch: # needed to trigger workflows manually
-  # todo cron?
+    # todo cron?
+    inputs:
+      debug_enabled:
+        type: boolean
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: false
 
 
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
-        platform: [ubuntu-latest, macos-latest] # , windows-latest]
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
-        # 3.11 on windows has this bug, lxml setup fails
-        #https://bugs.launchpad.net/lxml/+bug/1977998
-        exclude: [{platform: windows-latest, python-version: '3.11'}]
+        platform: [ubuntu-latest, macos-latest]  #, windows-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
         # vvv just an example of excluding stuff from matrix
         # exclude: [{platform: macos-latest, python-version: '3.6'}]
 
@@ -31,25 +35,27 @@ jobs:
     # ugh https://github.com/actions/toolkit/blob/main/docs/commands.md#path-manipulation
     - run: echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
+        fetch-depth: 0  # nicer to have all git history when debugging/for tests
 
-    # uncomment for SSH debugging
-    # - uses: mxschmitt/action-tmate@v3
+    - uses: mxschmitt/action-tmate@v3
+      if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
 
     # explicit bash command is necessary for Windows CI runner, otherwise it thinks it's cmd...
     - run: bash .ci/run
 
     - if: matrix.platform == 'ubuntu-latest'  # no need to compute coverage for other platforms
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: .coverage.mypy_${{ matrix.platform }}_${{ matrix.python-version }}
         path: .coverage.mypy/
+
 
   ###
   build_extension:
@@ -57,30 +63,33 @@ jobs:
       name: 'grasp'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
-    - uses: actions/setup-node@v3
+        fetch-depth: 0  # nicer to have all git history when debugging/for tests
+
+    - uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
+
     - run: extension/.ci/build --lint # debug version
     - run: extension/.ci/build --lint --release
 
     # TODO ugh. can't share github actions artifacts publicly...
     # TODO for fuck's sake... why does it end up named as .zip.zip ????
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: '${{ env.name }}-chrome-debug-latest.zip'
         path: 'extension/dist/artifacts/chrome/${{ env.name }}_dev_-*.zip'
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
-        .name : '${{ env.name }}-chrome-release-latest.zip'
+        name : '${{ env.name }}-chrome-release-latest.zip'
         path: 'extension/dist/artifacts/chrome/${{ env.name }}-*.zip'
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name : '${{ env.name }}-firefox-debug-latest.zip'
         path: 'extension/dist/artifacts/firefox/${{ env.name }}_dev_-*.zip'
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name : '${{ env.name }}-firefox-release-latest.zip'
         path: 'extension/dist/artifacts/firefox/${{ env.name }}-*.zip'

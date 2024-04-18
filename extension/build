@@ -35,6 +35,8 @@ def main():
 
     assert target is not None
 
+    manifest = args.manifest or '3'
+
     base_ext_dir = Path(__file__).absolute().parent / 'dist'
     ext_dir = (base_ext_dir / target).resolve() # webext can't into symlinks
     # sadly no way to specify zip name in the regex..
@@ -52,7 +54,7 @@ def main():
         'TARGET' : target,
         'RELEASE': 'YES' if args.release else 'NO',
         'PUBLISH': 'YES' if args.publish else 'NO',
-        'MANIFEST': args.manifest or '2',  # TODO 2 is default for now, but make required later?
+        'MANIFEST': manifest,
         'EXT_ID' : IDS[target],
         **os.environ,
     }
