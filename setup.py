@@ -37,7 +37,7 @@ def main() -> None:
         ],
         extras_require={
             'testing': ['pytest', 'requests'],
-            'linting': ['pytest', 'mypy', 'lxml'], # lxml for mypy coverage report
+            'linting': ['pytest', 'mypy', 'lxml', 'ruff'], # lxml for mypy coverage report
         },
 
 

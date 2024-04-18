@@ -7,7 +7,7 @@ import re
 import json
 import os
 
-import pytest # type: ignore
+import pytest
 from selenium import webdriver # type: ignore
 
 
@@ -85,7 +85,7 @@ def trigger_grasp():
     # pyautogui.locateOnScreen('/L/soft/browser-extensions/grasp/unicorn.png')
 
     print("sending hotkey!")
-    import pyautogui # type: ignore
+    import pyautogui
     pyautogui.hotkey('ctrl', 'alt', 'c')
 
 

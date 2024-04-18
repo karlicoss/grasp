@@ -112,18 +112,19 @@ const background = {}
 if (v3) {
   if (target === T.CHROME) {
     background['service_worker'] = 'background.js'
+    background['scripts'] = [
+      'background.js',
+    ]
     // see header of background.js, this was for some experiments
     // NOTE: not working in firefox? just fails to load the manifest
     // background['type'] = 'module'
   } else {
     background['scripts'] = [
-      'webextension-polyfill.js',
       'background.js',
     ]
   }
 } else {
   background['scripts'] = [
-    'webextension-polyfill.js',
     'background.js',
   ]
   background['persistent'] = false
@@ -151,12 +152,11 @@ if (v3) {
   // FIXME not sure if firefox supports this??
   // https://bugzilla.mozilla.org/show_bug.cgi?id=1766026
   manifestExtra['optional_host_permissions'] = optional_host_permissions
-  if (target === T.FIREFOX) {
-    manifestExtra['browser_specific_settings'] = {
-      "gecko": {
-        "id": ext_id,
-      },
-    }
+  const gecko_id = target === T.FIREFOX ? ext_id : "{00000000-0000-0000-0000-000000000000}"
+  manifestExtra['browser_specific_settings'] = {
+    "gecko": {
+      "id": gecko_id,
+    },
   }
 } else {
   manifestExtra.permissions.push(...host_permissions)
