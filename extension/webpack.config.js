@@ -45,8 +45,8 @@ const commands = {
     "capture-simple": {
         "description": "Quick capture: url, title and selection",
         "suggested_key": {
-            "default": `Ctrl+${modifier}+C`,
-            "mac":  `Command+${modifier}+C`,
+            "default": `Ctrl+${modifier}+H`,
+            "mac":  `Command+${modifier}+H`,
         },
     }
 }
@@ -147,20 +147,27 @@ const manifestExtra = {
 manifestExtra[action_name] = action
 
 if (v3) {
-  manifestExtra['host_permissions'] = host_permissions
+  if (target === T.FIREFOX) {
+    // firefox doesn't support optional host permissions
+    // note that these will still have to be granted by user (unlike in chrome)
+    manifestExtra['host_permissions'] = [...host_permissions, ...optional_host_permissions]
+  } else {
+    manifestExtra['host_permissions'] = host_permissions
+    manifestExtra['optional_host_permissions'] = optional_host_permissions
+  }
+} else {
+  manifestExtra.permissions.push(...host_permissions)
+  manifestExtra.optional_permissions.push(...optional_host_permissions)
+}
 
-  // FIXME not sure if firefox supports this??
-  // https://bugzilla.mozilla.org/show_bug.cgi?id=1766026
-  manifestExtra['optional_host_permissions'] = optional_host_permissions
+if (v3) {
+  // this isn't really required in chrome, but without it, webext lint fails for chrome addon
   const gecko_id = target === T.FIREFOX ? ext_id : "{00000000-0000-0000-0000-000000000000}"
   manifestExtra['browser_specific_settings'] = {
     "gecko": {
       "id": gecko_id,
     },
   }
-} else {
-  manifestExtra.permissions.push(...host_permissions)
-  manifestExtra.optional_permissions.push(...optional_host_permissions)
 }
 
 
