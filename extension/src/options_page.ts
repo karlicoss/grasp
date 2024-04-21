@@ -61,8 +61,18 @@ async function saveOptions() {
     // TODO could also check for permissions and display message?
 
     const endpoint = getEndpoint().value
-    await ensurePermissions(endpoint)
-    refreshPermissionValidation(endpoint)
+    try {
+        // note: this might fail if we messed up manifest for instance, and didn't add optional hosts
+        const got = await ensurePermissions(endpoint)
+        if (!got) {
+            throw Error("Permissions weren't granted!")
+        }
+    } catch (error) {
+        // todo show notification instead?
+        alert(`${(error as Error).toString()}`)
+        throw error
+    }
+    refreshPermissionValidation(endpoint)  // TODO need to call it after every typed character
 
     const opts = {
         endpoint: endpoint,

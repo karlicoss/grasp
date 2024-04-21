@@ -69,7 +69,7 @@ async function makeCaptureRequest(
     } catch (err) {
         console.error(err)
         // fetch only throws when host is unavailable
-        throw new Error(`${endpoint} unavailable, check if server is running`)
+        throw new Error(`${endpoint} unavailable, check if server is running: ${(err as Error).toString()}`)
     }
 
     if (!response.ok) { // http error
