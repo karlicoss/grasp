@@ -220,7 +220,7 @@ def confirm(what: str) -> None:
 
 # chrome  v3 works
 # firefox v2 works
-# firefox v3 BROKEN -- needs the user to approve the localhost access FIXME -- request permission at capture time?
+# firefox v3 BROKEN -- needs the user to approve the localhost access
 def test_capture_no_configuration(addon: Addon) -> None:
     """
     This checks that capture works with default hostname/port without opening settings first
@@ -229,7 +229,7 @@ def test_capture_no_configuration(addon: Addon) -> None:
     # so if it's already running, not sure what to do since we'll have to somehow detect it and extract data from it
     # (probably a bad idea to try to access it from the test either)
 
-    # TODO can we just request Driver object directly?
+    # todo can we just request Driver object directly?
     driver = addon.helper.driver
 
     driver.get('https://example.com')

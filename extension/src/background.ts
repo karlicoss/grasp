@@ -33,6 +33,7 @@ import browser from "webextension-polyfill"
 import {COMMAND_CAPTURE_SIMPLE, METHOD_CAPTURE_WITH_EXTRAS, showNotification} from './common'
 import {getOptions} from './options'
 import type {Options} from './options'
+import { hasPermissions } from './permissions'
 
 
 type Params = {
@@ -53,6 +54,16 @@ async function makeCaptureRequest(
     }
 
     const endpoint = options.endpoint
+
+    // Ugh. this is kinda idiotic.
+    // We can't call ensurePermissions here, getting "permissions.request may only be called from a user input handler" error
+    // even though it's called from the keyboard shortcut???
+    // so the best we can do is try to check and at least show a more helful error
+
+    const has = await hasPermissions(endpoint)
+    if (!has) {
+        throw new Error(`${endpoint}: no permissions detected! Go to extension settings and approve them.`)
+    }
 
     const data = JSON.stringify(params)
     console.log(`capturing ${data} via ${endpoint}`)
