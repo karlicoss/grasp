@@ -75,6 +75,13 @@ class Popup:
     def enter_data(self, *, comment: str, tags: str) -> None:
         import pyautogui
 
+        if self.helper.driver.name == 'firefox':
+            # for some reason in firefox under geckodriver it woudn't focus comment input field??
+            # tried both regular and dev edition firefox with latest geckodriver
+            # works fine when extension is loaded in firefox manually or in chrome with chromedriver..
+            # TODO file a bug??
+            pyautogui.hotkey('tab')  # give focus to the input
+
         pyautogui.write(comment)
 
         pyautogui.hotkey('tab')  # switch to tags
@@ -84,9 +91,6 @@ class Popup:
             pyautogui.hotkey('backspace')
         # pyautogui.hotkey(['backspace' for i in range(10)], interval=0.05)
         pyautogui.write(tags)
-
-        # FIXME ffs. focus in the popup isn't working when it's running via webdriver??
-        # tried both regular and dev edition firefox with latest geckodriver
 
     def submit(self) -> None:
         import pyautogui
@@ -241,7 +245,8 @@ def test_capture_no_configuration(addon: Addon) -> None:
 
 # chrome  v3 works
 # firefox v2 works
-# firefox v3 BROKEN (same issue as above)
+# firefox v3 BROKEN (sort of)
+#            seems like manifest v3 is prompting for permission even if we only change port
 def test_capture_bad_port(addon: Addon) -> None:
     """
     Check that we get error notification instead of silently failing if the endpoint is wrong
@@ -285,15 +290,19 @@ def test_capture_custom_endpoint(addon: Addon, server: Server) -> None:
 
 
 # chrome  v3 works
-# firefox v3 BROKEN (doesn't focus in popup, must be geckodriver issue)
-#                   UPD -- sometimes is working?? wtf...
-# firefox v2 BROKEN (same as above)
+# firefox v2 works
+# firefox v3 works
 @myparametrize("grasp_port", ["17890"])
 def test_capture_with_extra_data(addon: Addon, server: Server) -> None:
     driver = addon.helper.driver
 
     addon.options_page.open()
-    addon.options_page.change_endpoint(endpoint=f'http://localhost:{server.port}/capture')
+    addon.options_page.change_endpoint(
+        endpoint=f'http://localhost:{server.port}/capture',
+        # NOTE ugh ffs. chrome doesn't ask for permission here.
+        # firefox does, but only in v3???  TODO make conditional on manifest version..
+        wait_for_permissions=(driver.name == 'firefox'),
+    )
 
     driver.get('https://example.com')
 
