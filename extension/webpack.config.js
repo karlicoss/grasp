@@ -145,6 +145,12 @@ const manifestExtra = {
     } : content_security_policy,
 }
 manifestExtra[action_name] = action
+manifestExtra.content_scripts = [
+  {
+    "matches": ["<all_urls>"],
+    "js": ["detect_dark_mode.js"],
+  },
+]
 
 if (v3) {
   if (target === T.FIREFOX) {
@@ -202,6 +208,7 @@ const options = {
     background  : path.join(__dirname, "src", "background.ts"),
     popup       : path.join(__dirname, "src", "popup.ts"),
     options_page: path.join(__dirname, "src", "options_page.ts"),
+    detect_dark_mode: path.join(__dirname, "src", "detect_dark_mode.ts"),
   },
   output: {
       path: buildPath,

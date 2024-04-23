@@ -173,6 +173,13 @@ browser.runtime.onMessage.addListener((message: any, sender: any, sendResponse: 
         capture(comment, tag_str)
         sendResponse()
     }
+    if (message.method == 'DARK_MODE') {
+        const icon_path = message.hasDarkMode ? 'img/unicorn_dark.png' : 'img/unicorn.png'
+
+        // manifest v2 doesn't have browser.action
+        const action = browser.action ? browser.action : browser.browserAction
+        action.setIcon({path: icon_path})
+    }
 })
 
 // TODO handle cannot access chrome:// url??
