@@ -99,11 +99,17 @@ if (target === T.FIREFOX || v3) {
 
 
 const content_security_policy = [
-  "default-src 'self'",
-  "connect-src " + endpoints('*:*').join(' '),
+  "script-src 'self'",  // this must be specified when overriding, otherwise it complains
+  /// also this works, but it seems that default-src somehow shadows style-src???
+  // "default-src 'self'",
+  // "style-src 'unsafe-inline'", // FFS, otherwise <style> directives on extension's pages not working??
+  ///
 
-  // FFS, otherwise <style> directives on extension's pages not working??
-  "style-src 'unsafe-inline'",
+  // also need to override it to eclude 'upgrade-insecure-requests' in manifest v3?
+  // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_Security_Policy#upgrade_insecure_network_requests_in_manifest_v3
+  // NOTE: could be connect-src http: https: to allow all?
+  // but we're specifically allowing endpoints that have /capture in them
+  "connect-src " + endpoints('*:*').join(' '),
 ].join('; ')
 
 
@@ -140,10 +146,15 @@ const manifestExtra = {
     optional_permissions: optional_permissions,
     manifest_version: v3 ? 3 : 2,
     background: background,
-    content_security_policy: v3 ? {
-      extension_pages: content_security_policy,
-    } : content_security_policy,
 }
+
+if (target === T.FIREFOX) {
+    // NOTE: chrome v3 works without content_security_policy??
+    // but in firefox it refuses to make a request even when we allow hostname permission??
+  manifestExtra.content_security_policy = (v3 ? {extension_pages: content_security_policy} : content_security_policy)
+}
+
+
 manifestExtra[action_name] = action
 manifestExtra.content_scripts = [
   {
