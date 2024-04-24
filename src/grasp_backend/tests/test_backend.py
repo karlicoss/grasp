@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 from pathlib import Path
-from subprocess import Popen, check_call
+from subprocess import Popen
+import sys
 from time import sleep
 
 
@@ -8,10 +9,12 @@ import requests
 
 
 @contextmanager
-def grasp_test_server(capture_file: Path, port: str, template=None):
-    server = str((Path(__file__).parent / 'grasp_server.py').absolute())
+def grasp_test_server(*, capture_file: Path, port: str, template=None):
     cmdline = [
-        server, '--port', port, '--path', str(capture_file),
+        sys.executable, '-m', 'grasp_backend',
+        'serve',
+        '--port', port,
+        '--path', str(capture_file),
     ]
     if template is not None:
         cmdline.extend(['--template', template])
@@ -26,7 +29,7 @@ def test_server(tmp_path: Path) -> None:
     cfile = tmp_path / 'test-capture.org'
     PORT = '17890'
 
-    def send(url: str, title: str):
+    def send(url: str, title: str) -> None:
         r = requests.post(
             f'http://localhost:{PORT}',
             json = {
