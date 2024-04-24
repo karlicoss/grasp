@@ -12,8 +12,7 @@ In the simplest setup, the server runs locally, and you can use 'localhost' vers
 or your target capture file is just not there, you can selfhost the server part elsewhere. Don't forget to set the endpoint in extension settings!
 
 ## Setup
-- clone the repository and cd into the checkout directory
-- install `grasp_backend` package: `pip3 install --user git+https://github.com/karlicoss/grasp.git`
+- install `grasp_backend` package: `pip3 install --user grasp-backend`
 - install systemd/launchd service to autorun grasp
   
   `python3 -m grasp_backend setup --path /path/to/your/capture.org [--port <custom port>] [--template <custom org-capture template>]`
