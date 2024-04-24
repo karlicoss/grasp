@@ -1,4 +1,0 @@
-Till I've got some sort of automatic tests, just gonna write down manual testing scenarios here...
-
-* [#A] successful capture throught extension button press. should show notification and respect the notification option.
-* [#A] unsuccessful capture (set bad port in settings). should always show notification.

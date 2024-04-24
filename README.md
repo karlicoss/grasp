@@ -9,12 +9,18 @@ possibly selected text, additional comments or tags and adds it into your [Org M
 
 # Running
 In the simplest setup, the server runs locally, and you can use 'localhost' version of the extension. If you have to work on a computer where you can't run python scripts,
-or your target capture file is just not there, you can selfhost the server part elsewhere and use the 'any host' version. Don't forget to set the endpoint in extension settings!
+or your target capture file is just not there, you can selfhost the server part elsewhere. Don't forget to set the endpoint in extension settings!
 
-1. Install server counterpart as systemd service (to autostart it): `server/setup --path /path/to/your/capture.org [--port <custom port>] [--template <custom org-capture template>]`.
+## Setup
+- clone the repository and cd into the checkout directory
+- install `grasp_backend` package: `pip3 install --user git+https://github.com/karlicoss/grasp.git`
+- install systemd/launchd service to autorun grasp
+  
+  `python3 -m grasp_backend setup --path /path/to/your/capture.org [--port <custom port>] [--template <custom org-capture template>]`
+  
+  Or alternatively, just run it directly if you don't want to autostart `python3 -m grasp_backend serve --path /path/to/your/capture.org [--port <custom port>] [--template <custom org-capture template>]`
 
-    Or alternatively, just run it directly if you don't want to autostart it: `server/grasp_server.py --path /path/to/your/capture.org [--port <custom_port>] [--template <custom org-capture template>]`.
-2. Install chrome extension and configure hotkeys
+- install chrome extension and configure hotkeys
 
 That's it! If you're using custom port make sure it's the same as in the extension settings (default is `12212`).
 
@@ -23,7 +29,7 @@ That's it! If you're using custom port make sure it's the same as in the extensi
 [Here](https://github.com/karlicoss/grasp/blob/af24c991579986cec73695daa8318e7831049305/server/org_tools.py#L91-L109) you can find some references for the `--template` syntax.
 
 If you are looking for more flexible formatting that's not supported by template syntax, see [config.py.example](misc/config.py.example).
-You can modify it to your liking and pass as `--config` to `grasp_server/setup` scripts.
+You can modify it to your liking and pass as `--config` to `grasp_backend setup` command.
 
 # Motivation
 Why use org-capture? Well, it's hard to explain, maybe some other time... However, if you do know you want to use it instead of/alongside your browser bookmarks, by default
