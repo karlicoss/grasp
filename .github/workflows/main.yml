@@ -26,8 +26,12 @@ jobs:
       matrix:
         platform: [ubuntu-latest, macos-latest]  #, windows-latest]
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
-        # vvv just an example of excluding stuff from matrix
-        # exclude: [{platform: macos-latest, python-version: '3.6'}]
+        exclude: [
+          # 3.8 and 3.9 aren't available on latest macos M1 runners
+          # see https://github.com/actions/setup-python/issues/808
+          {platform: macos-latest, python-version: '3.8'},
+          {platform: macos-latest, python-version: '3.9'},
+        ]
 
     runs-on: ${{ matrix.platform }}
 
