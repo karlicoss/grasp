@@ -61,6 +61,37 @@ jobs:
         path: .coverage.mypy/
 
 
+  pypi:
+    runs-on: ubuntu-latest
+    needs: [build] # add all other jobs here
+
+    steps:
+    # ugh https://github.com/actions/toolkit/blob/main/docs/commands.md#path-manipulation
+    - run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.8'
+
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: 'release to test pypi'
+      # always deploy merged master to test pypi
+      if: github.event_name != 'pull_request' && github.event.ref == 'refs/heads/master'
+      env:
+        TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_TEST }}
+      run: pip3 install --user --upgrade build twine && .ci/release --test
+
+    - name: 'release to pypi'
+      # always deploy tags to release pypi
+      # NOTE: release tags are guarded by on: push: tags on the top
+      if: github.event_name != 'pull_request' && startsWith(github.event.ref, 'refs/tags')
+      env:
+        TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+      run: pip3 install --user --upgrade build twine && .ci/release
+
   ###
   build_extension:
     env:
@@ -97,3 +128,4 @@ jobs:
       with:
         name : '${{ env.name }}-firefox-release-latest.zip'
         path: 'extension/dist/artifacts/firefox/${{ env.name }}-*.zip'
+
