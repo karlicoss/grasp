@@ -3,6 +3,7 @@ import argparse
 import os
 from subprocess import check_call
 from pathlib import Path
+from sys import platform
 
 # right, specifying id in manifest doesn't seem to work
 # AMO responds with: Server response: Duplicate add-on ID found. (status: 400)
@@ -17,12 +18,14 @@ TARGETS = [
     'firefox',
 ]
 
-def main():
+npm = "npm.cmd" if platform == "win32" else "npm"
+
+def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument('--release', action='store_true', help="Use release flavor of build")
     p.add_argument('--watch'  , action='store_true')
     p.add_argument('--lint'   , action='store_true')
-    p.add_argument('--publish', action='store_true', help="Publish on chrome web store/addons.mozilla.org")
+    p.add_argument('--publish', choices=['listed', 'unlisted'], help="Publish on chrome web store/addons.mozilla.org")
     p.add_argument('--v3', action='store_const', const='3', dest='manifest')
     p.add_argument('--v2', action='store_const', const='2', dest='manifest')
 
@@ -41,9 +44,9 @@ def main():
     ext_dir = (base_ext_dir / target).resolve() # webext can't into symlinks
     # sadly no way to specify zip name in the regex..
     artifacts_dir = (base_ext_dir / 'artifacts' / target).resolve()
-    def webext(*args, **kwargs):
+    def webext(*args, **kwargs) -> None:
         check_call([
-            'npm', 'run', 'web-ext',
+            npm, 'run', 'web-ext',
             '--',
             '--source-dir'   , ext_dir,
             '--artifacts-dir', artifacts_dir,
@@ -53,7 +56,7 @@ def main():
     env = {
         'TARGET' : target,
         'RELEASE': 'YES' if args.release else 'NO',
-        'PUBLISH': 'YES' if args.publish else 'NO',
+        'PUBLISH': 'YES' if args.publish is not None else 'NO',
         'MANIFEST': manifest,
         'EXT_ID' : IDS[target],
         **os.environ,
@@ -61,13 +64,13 @@ def main():
 
     if args.watch:
         check_call([
-            'npm', 'run', 'watch',
+            npm, 'run', 'watch',
         ], env=env, cwd=str(Path(__file__).absolute().parent))
         # TODO exec instead?
         return
 
     check_call([
-        'npm', 'run', 'build',
+        npm, 'run', 'build',
     ], env=env, cwd=str(Path(__file__).absolute().parent))
 
     if args.lint:
@@ -91,20 +94,22 @@ def main():
             '--id'           , IDS[target],
         ]
 
-    if args.publish:
+    if args.publish is not None:
+        assert args.lint
         assert args.release
         if 'firefox' in target:
             check_call([
-                'npm', 'run', 'release:amo',
+                npm, 'run', 'release:amo',
                 '--',
-                '--channel', 'listed',
+                '--channel', args.publish,
                 '--source-dir', str(ext_dir),
                 *firefox_release_args(),
             ])
         elif target == 'chrome':
+            assert args.publish == 'listed'  # no notion of unlisted on chrome store?
             from chrome_dev_secrets import CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN
             check_call([
-                'npm', 'run', 'release:cws',
+                npm, 'run', 'release:cws',
                 '--',
                 'upload',
                 # '--auto-publish',

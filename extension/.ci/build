@@ -11,8 +11,7 @@ npm install
 FAILED=0
 
 npm run eslint || FAILED=1
-# TODO later
-#npm run test   || FAILED=1
+npm run test   || FAILED=1
 
 for browser in 'firefox' 'chrome'; do
     ./build --target "$browser" "$@"
