@@ -1,5 +1,6 @@
 // @ts-check
 
+const globals = require('globals')
 const eslint = require('@eslint/js')
 const tseslint = require('typescript-eslint')
 
@@ -19,6 +20,13 @@ module.exports = tseslint.config(
           "caughtErrorsIgnorePattern": "^_",
         },
       ],
+    },
+    languageOptions: {
+      globals: {
+        // necessary for document. window. etc variables to work
+        ...globals.browser,
+        ...globals.webextensions,
+      },
     },
   },
 )

@@ -41,6 +41,10 @@ testing = [
 ]
 
 
+[project.scripts]
+grasp_backend = 'grasp_backend.__main__:main'
+
+
 [build-system]
 requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
