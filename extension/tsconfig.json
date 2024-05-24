@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "outDir": "./dist/",
     "baseUrl": "src/",
     "noImplicitAny": true,
     "module": "nodenext",

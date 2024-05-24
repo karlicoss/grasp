@@ -7,10 +7,9 @@ import subprocess
 from typing import Any
 
 from loguru import logger
-import psutil
 from selenium import webdriver
 
-from .webdriver_utils import is_headless
+from .webdriver_utils import is_headless, get_browser_process
 
 
 @dataclass
@@ -85,7 +84,7 @@ class AddonHelper:
         import pyautogui
 
         focus_browser_window(self.driver)
-        pyautogui.write(*args, **kwargs)  # select first item
+        pyautogui.write(*args, **kwargs)
 
 
 # NOTE looks like it used to be posssible in webdriver api?
@@ -146,11 +145,7 @@ def get_window_id(driver: webdriver.Remote) -> str:
         pid = str(driver.capabilities['moz:processID'])
     elif driver.name == 'chrome':
         # ugh no pid in capabilities...
-        driver_pid = driver.service.process.pid  # type: ignore[attr-defined]
-        process = psutil.Process(driver_pid)
-        [chrome_process] = process.children()
-        cmdline = chrome_process.cmdline()
-        assert '--enable-automation' in cmdline, cmdline
+        chrome_process = get_browser_process(driver)
         pid = str(chrome_process.pid)
     else:
         raise RuntimeError(driver.name)

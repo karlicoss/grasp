@@ -1,7 +1,7 @@
 import browser from "webextension-polyfill"
 
-import {METHOD_CAPTURE_WITH_EXTRAS} from './common'
-import {getOptions} from './options'
+import {METHOD_CAPTURE_WITH_EXTRAS} from './common.js'
+import {getOptions} from './options.js'
 
 // TODO template it in html too?
 const BUTTON_ID = 'button_id'

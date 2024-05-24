@@ -30,10 +30,10 @@
 import browser from "webextension-polyfill"
 
 
-import {COMMAND_CAPTURE_SIMPLE, METHOD_CAPTURE_WITH_EXTRAS, showNotification} from './common'
-import {getOptions} from './options'
-import type {Options} from './options'
-import { hasPermissions } from './permissions'
+import {COMMAND_CAPTURE_SIMPLE, METHOD_CAPTURE_WITH_EXTRAS, showNotification} from './common.js'
+import {getOptions} from './options.js'
+import type {Options} from './options.js'
+import { hasPermissions } from './permissions.js'
 
 
 type Params = {
