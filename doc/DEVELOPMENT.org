@@ -1,0 +1,17 @@
+* Releasing extension
+** AMO (addons.mozilla.org)
+: cd extension
+: npm install # (if necessary)
+: ./build --firefox --v2 --lint --release --publish
+
+Note that this command will go in a busy loop waiting for the extension to be approved on AMO.
+(you will see it on https://addons.mozilla.org/en-US/developers/addon/grasp/versions)
+
+- for now =v2= version of manifest is used with Firefox
+- you can use =--publish=unlisted= if you want to test extension yourself first
+
+
+Currently seems like it's not possible to upload the source code and notes for reviewers automatically:
+
+- https://github.com/mozilla/web-ext/issues/3137
+- https://github.com/mozilla/addons/issues/6158
