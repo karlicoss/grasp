@@ -70,9 +70,6 @@ In addition:
 - \+ using a bookmarklet, hence browser-agnostic
 - \+ capable of on the fly HTML to org-mode markup conversion
 
-# Requirements
-No third party dependencies! Just `python3`.
-
 # Potential improvements
 * see [todos](./TODO.org)
 
@@ -96,13 +93,11 @@ You need `npm` for building the extension.
 After that you can find the extension in `dist` directory and 'Load unpacked** if necessary. There is also Flow and Eslint set up.
 
 ## testing and linting
-Check [CI config](./.circleci/config.yml) to figure out all the checks I'm doing.
+Check [CI config](./.github/workflows/main.yml) to figure out all the checks I'm doing.
 
-The only test(s) that don't run on CI at the moment (e.g. due to lack of X server) are marked with `@skip_if_ci`. You can run them manually though.
+There are some end2end tests which check both web extension and the browser, but require GUI, so they can't run on github actions. You can run them manually though.
 
-Extra tests (not integrated in CI yet):
-
-- `scripts/test_with_browser.py`
+- `pytest -s --pyargs tests.test_end2end`
 
 ## publishing
 

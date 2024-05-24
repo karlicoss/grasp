@@ -1,5 +1,5 @@
-import {getOptions, setOptions} from './options'
-import {ensurePermissions, hasPermissions} from './permissions'
+import {getOptions, setOptions} from './options.js'
+import {ensurePermissions, hasPermissions} from './permissions.js'
 
 
 const ENDPOINT_ID       = 'endpoint_id'
