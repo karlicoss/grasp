@@ -167,7 +167,8 @@ export function generateManifest({
         manifest.optional_permissions.push(...optional_host_permissions)
     }
 
-    if (v3) {
+    if (target === T.FIREFOX || v3) {
+        // for firefox, this is required during publishing?
         // this isn't really required in chrome, but without it, webext lint fails for chrome addon
         const gecko_id = target === T.FIREFOX ? ext_id : '{00000000-0000-0000-0000-000000000000}'
         manifest['browser_specific_settings'] = {

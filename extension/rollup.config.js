@@ -56,7 +56,7 @@ function generateManifestPlugin() {
             const manifest = generateManifest({
                 target: target,
                 version: manifest_version,
-                releas: release,
+                release: release,
                 ext_id: ext_id,
             })
             const mjs = JSON.stringify(manifest, null, 2)
