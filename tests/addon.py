@@ -38,7 +38,29 @@ class OptionsPage:
     def open(self) -> None:
         self.helper.open_page(self.helper.options_page_name)
 
+    def check_opened(self) -> None:
+        current_url = self.helper.driver.current_url
+        assert current_url.endswith(self.helper.options_page_name), current_url  #  just in case
+
+    def save(self, *, wait_for_permissions: bool = False) -> None:
+        self.check_opened()
+
+        driver = self.helper.driver
+
+        se = driver.find_element('id', 'save_id')
+        se.click()
+
+        if wait_for_permissions:
+            # we can't accept this alert via webdriver, it's a native chrome alert, not DOM
+            click.confirm(click.style('You should see prompt for permissions. Accept them', blink=True, fg='yellow'), abort=True)
+
+        alert = driver.switch_to.alert
+        assert alert.text == 'Saved!', alert.text  # just in case
+        alert.accept()
+
     def change_endpoint(self, endpoint: str, *, wait_for_permissions: bool = False) -> None:
+        self.check_opened()
+
         driver = self.helper.driver
 
         current_url = driver.current_url
@@ -52,16 +74,7 @@ class OptionsPage:
         ep.clear()
         ep.send_keys(endpoint)
 
-        se = driver.find_element('id', 'save_id')
-        se.click()
-
-        if wait_for_permissions:
-            # we can't accept this alert via webdriver, it's a native chrome alert, not DOM
-            click.confirm(click.style('You should see prompt for permissions. Accept them', blink=True, fg='yellow'), abort=True)
-
-        alert = driver.switch_to.alert
-        assert alert.text == 'Saved!', alert.text  # just in case
-        alert.accept()
+        self.save(wait_for_permissions=wait_for_permissions)
 
 
 @dataclass
@@ -74,7 +87,12 @@ class Popup:
     def enter_data(self, *, comment: str, tags: str) -> None:
         helper = self.addon.helper
 
-        helper.gui_hotkey('tab')  # give focus to the input
+        if helper.driver.name == 'firefox':
+            # for some reason in firefox under geckodriver it woudn't focus comment input field??
+            # tried both regular and dev edition firefox with latest geckodriver
+            # works fine when extension is loaded in firefox manually or in chrome with chromedriver..
+            # TODO file a bug??
+            helper.gui_hotkey('tab')  # give focus to the input
 
         helper.gui_write(comment)
 

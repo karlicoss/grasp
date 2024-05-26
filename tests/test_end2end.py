@@ -80,7 +80,7 @@ def confirm(what: str) -> None:
 
 # chrome  v3 works
 # firefox v2 works
-# firefox v3 BROKEN -- needs the user to approve the localhost access
+# firefox v3 works (although a little more elaborate due to additional approvals)
 def test_capture_no_configuration(addon: Addon) -> None:
     """
     This checks that capture works with default hostname/port without opening settings first
@@ -96,13 +96,25 @@ def test_capture_no_configuration(addon: Addon) -> None:
 
     addon.quick_capture()
 
+    if addon.helper.driver.name == 'firefox' and addon.helper.manifest_version == 3:
+        # Seems like if v3 firefox, localhost permissions aren't granted by default
+        # (despite being declared in host_permissions manifest)
+        # so the above will result in error + opening options page so the user can approve
+        time.sleep(0.5)  # meh. give the options page time to open
+        [orig_page, options_page] = driver.window_handles
+        driver.switch_to.window(options_page)  # meh. is there a better way??
+        addon.options_page.save(wait_for_permissions=True)
+        driver.close()  # close settings
+        driver.switch_to.window(orig_page)  # meh. is there a better way??
+
+        addon.quick_capture()  # retry capture
+
     confirm('Should show a successful capture notification, and the link should be in your default capture file')
 
 
 # chrome  v3 works
 # firefox v2 works
-# firefox v3 BROKEN (sort of)
-#            seems like manifest v3 is prompting for permission even if we only change port
+# firefox v3 works
 def test_capture_bad_port(addon: Addon) -> None:
     """
     Check that we get error notification instead of silently failing if the endpoint is wrong
@@ -110,7 +122,10 @@ def test_capture_bad_port(addon: Addon) -> None:
     driver = addon.helper.driver
 
     addon.options_page.open()
-    addon.options_page.change_endpoint(endpoint='http://localhost:12345/capture')
+
+    # seems like manifest v3 in firefox is prompting for permission even if we only change port
+    wait_for_permissions = addon.helper.driver.name == 'firefox' and addon.helper.manifest_version == 3
+    addon.options_page.change_endpoint(endpoint='http://localhost:12345/capture', wait_for_permissions=wait_for_permissions)
 
     driver.get('https://example.com')
 
@@ -200,3 +215,4 @@ some multiline
 note
 '''
     )
+    confirm("Popup should be closed")
