@@ -84,7 +84,7 @@ async function restoreState(state: State | null) {
 }
 
 
-function submitCapture () {
+async function submitCapture () {
     const state = getUiState()
 
     const message = {
@@ -92,16 +92,16 @@ function submitCapture () {
         ...state,
     }
 
-    browser.runtime.sendMessage(message).then((_: any) => {
+    const result = await browser.runtime.sendMessage(message)
+    if (result.success) {
         // @ts-expect-error
         window.justSubmitted = true
         clearState()
-
-        // TODO not sure about this?
-        window.close()
         console.log("[popup] captured!")
-    })
-
+    } else {
+        // if capture wasn't successful, keep the state intact
+    }
+    window.close()
 }
 
 

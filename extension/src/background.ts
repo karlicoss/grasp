@@ -59,10 +59,13 @@ async function makeCaptureRequest(
     // We can't call ensurePermissions here, getting "permissions.request may only be called from a user input handler" error
     // even though it's called from the keyboard shortcut???
     // so the best we can do is try to check and at least show a more helful error
+    // also relevant https://bugzilla.mozilla.org/show_bug.cgi?id=1811608
 
     const has = await hasPermissions(endpoint)
     if (!has) {
-        throw new Error(`${endpoint}: no permissions detected! Go to extension settings and approve them.`)
+        // kinda awkward to open options page here etc, but fine for now
+        browser.tabs.create({url: 'options.html'})
+        throw new Error(`${endpoint}: no permissions detected!\nApprove the endpoint in extension settings, and repeat capture after that.`)
     }
 
     const data = JSON.stringify(params)
@@ -96,14 +99,16 @@ async function makeCaptureRequest(
 }
 
 
-// TODO ugh. need defensive error handling on the very top...
-async function capture(comment: string | null = null, tag_str: string | null = null) {
+async function capture(comment: string | null = null, tag_str: string | null = null): Promise<boolean> {
+    /**
+     * Returns whether capture has succeeded
+     */
     const tabs = await browser.tabs.query({currentWindow: true, active: true})
     const tab = tabs[0]
     if (tab.url == null) {
-        // todo await?
+        // todo when does this happen?
         showNotification('ERROR: trying to capture null')
-        return
+        return false
     }
     const url: string = tab.url
     const title: string | null = tab.title || null
@@ -126,8 +131,6 @@ async function capture(comment: string | null = null, tag_str: string | null = n
     let selection
     if (has_scripting) {
         const tab_id = tab.id as number
-        // TODO switch to polyfill and add flow types
-        // scripting is already promise based so it should be oly change to types
         const results = await browser.scripting.executeScript({
             target: {tabId: tab_id},
             func: () => window.getSelection()!.toString()
@@ -143,35 +146,47 @@ async function capture(comment: string | null = null, tag_str: string | null = n
 
     try {
         await makeCaptureRequest(payload(selection), opts)
+        return true
     } catch (err) {
         console.error(err)
         // todo make sure we catch errors from then clause too?
         const error_message = `ERROR: ${(err as Error).toString()}`
         console.error(error_message)
-        showNotification(error_message, 1)
-        // TODO crap, doesn't really seem to respect urgency...
+        showNotification(error_message, 1)  // todo crap, doesn't really seem to respect urgency...
+        return false
     }
 }
 
 
-browser.commands.onCommand.addListener(command => {
+browser.commands.onCommand.addListener((command: string) => {
     if (command === COMMAND_CAPTURE_SIMPLE) {
-        // todo await
-        capture(null, null)
+        // not checking return value here, can't really do much?
+        capture(null, null)  // todo await?
     }
 })
 
 
-browser.runtime.onMessage.addListener((message: any, sender: any, sendResponse: () => void) => {
+// ok so sadly it seems like async listener doesn't really work in chrome due to a bug
+// https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/onMessage#sending_an_asynchronous_response_using_a_promise
+// also see https://stackoverflow.com/questions/44056271/chrome-runtime-onmessage-response-with-async-await
+browser.runtime.onMessage.addListener((message: any, sender: any, sendResponse: (_arg: any) => void) => {
     if (message.method === 'logging') {
         console.error("[%s] %o", message.source, message.data)
     }
     if (message.method === METHOD_CAPTURE_WITH_EXTRAS) {
         const comment = message.comment
         const tag_str = message.tag_str
-        // todo await
-        capture(comment, tag_str)
-        sendResponse()
+
+        // NOTE: calling async directly doesn't work here in firefox
+        // (getting "Could not establish connection. Receiving end does not exist" error)
+        // I guess has something to do with micro (async) vs macro (setTimeout) tasks
+        // although if anything I'd expect macro tasks to work worse :shrug:
+        setTimeout(async () => {
+            // this will be handled in the popup
+            const success = await capture(comment, tag_str)
+            sendResponse({success: success})
+        })
+        return true  // means 'async response'
     }
     if (message.method == 'DARK_MODE') {
         const icon_path = message.hasDarkMode ? 'img/unicorn_dark.png' : 'img/unicorn.png'
@@ -181,6 +196,3 @@ browser.runtime.onMessage.addListener((message: any, sender: any, sendResponse: 
         action.setIcon({path: icon_path})
     }
 })
-
-// TODO handle cannot access chrome:// url??
-

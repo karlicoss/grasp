@@ -155,12 +155,15 @@ export function generateManifest({
 
     if (v3) {
         if (target === T.FIREFOX) {
-            // firefox doesn't support optional host permissions
+            // firefox doesn't support optional_host_permissions yet
+            // see https://bugzilla.mozilla.org/show_bug.cgi?id=1766026
+            // and https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/optional_permissions#host_permissions
             // note that these will still have to be granted by user (unlike in chrome)
-            manifest['host_permissions'] = [...host_permissions, ...optional_host_permissions]
+            manifest.host_permissions = host_permissions
+            manifest.optional_permissions.push(...optional_host_permissions)
         } else {
-            manifest['host_permissions'] = host_permissions
-            manifest['optional_host_permissions'] = optional_host_permissions
+            manifest.host_permissions = host_permissions
+            manifest.optional_host_permissions = optional_host_permissions
         }
     } else {
         manifest.permissions.push(...host_permissions)
