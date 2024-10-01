@@ -1,2 +1,10 @@
 #!/bin/bash
-http post "$1" title=123 url=test selection=null comment=null tag_str=null
+curl -X POST "$1" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "title": "123",
+       "url": "test",
+       "selection": null,
+       "comment": null,
+       "tag_str": null
+     }'
