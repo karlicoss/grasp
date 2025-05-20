@@ -2,6 +2,7 @@
 # without it, pytest can't discover the package root for some reason
 # also see https://github.com/karlicoss/pytest_namespace_pkgs for more
 
+import os
 import pathlib
 from typing import Optional
 
@@ -20,6 +21,11 @@ namespace_pkg_dirs = [str(d) for d in root_dir.iterdir() if d.is_dir()]
 # takes a full abs path to the test file and needs to return the path to the 'root' package on the filesystem
 resolve_pkg_path_orig = _pytest.pathlib.resolve_package_path
 def resolve_package_path(path: pathlib.Path) -> Optional[pathlib.Path]:
+    if path.name == 'conftest.py':
+        # this helps if you have conftest files somewhere in your repo apart from this one
+        # otherwise pytest gets confused
+        return resolve_pkg_path_orig(path)
+
     result = path  # search from the test file upwards
     for parent in result.parents:
         if str(parent) in namespace_pkg_dirs:
@@ -34,5 +40,9 @@ _pytest.pathlib.resolve_package_path = resolve_package_path
 # not sure what are the consequences.. maybe it wouldn't be able to run against installed packages? not sure..
 search_pypath_orig = _pytest.main.search_pypath
 def search_pypath(module_name: str) -> str:
-    return str(root_dir)
+    mpath = root_dir / module_name.replace('.', os.sep)
+    if not mpath.is_dir():
+        mpath = mpath.with_suffix('.py')
+        assert mpath.exists(), mpath  # just in case
+    return str(mpath)
 _pytest.main.search_pypath = search_pypath

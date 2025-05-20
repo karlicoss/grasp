@@ -1,10 +1,10 @@
 # see https://github.com/karlicoss/pymplate for up-to-date reference
 [project]
-dynamic = ["version"]  # version is managed by setuptools_scm
+dynamic = ["version"]  # version is managed by build backend
 name = "grasp_backend"
-dependencies = []
-requires-python = ">=3.8"
-
+dependencies = [
+]
+requires-python = ">=3.9"
 ## these need to be set if you're planning to upload to pypi
 # description = "TODO"
 license = {file = "LICENSE.md"}
@@ -26,29 +26,45 @@ Homepage = "https://github.com/karlicoss/grasp"
 
 
 [project.optional-dependencies]
+[dependency-groups]
 testing = [
     "pytest",
+    "ruff",
     "mypy",
     "lxml",  # for mypy html coverage
-    "ruff",
 
-    "requests",
-
-    # end2end tests:
+    "requests", "types-requests",  # for backend tests
+]
+end2end = [
     "selenium",
     "loguru",
     "click",
+
+    "psutil", "types-psutil",
+    "pyautogui", "types-PyAutoGUI",
 ]
 
 
 [project.scripts]
 grasp_backend = 'grasp_backend.__main__:main'
 
+# workaround for error during uv publishing
+# see https://github.com/astral-sh/uv/issues/9513#issuecomment-2519527822
+[tool.setuptools]
+license-files = []
+
 
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
-[tool.setuptools_scm]
+# unfortunately have to duplicate project name here atm, see https://github.com/pypa/hatch/issues/1894
+[tool.hatch.build.targets.wheel]
+packages = ["src/grasp_backend"]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.version.raw-options]
 version_scheme = "python-simplified-semver"
 local_scheme = "dirty-tag"
