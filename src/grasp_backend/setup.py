@@ -1,12 +1,12 @@
-#!/usr/bin/env python3
+from __future__ import annotations
+
 import argparse
 import os
-from pathlib import Path
 import platform
 import shlex
-from subprocess import check_call, run, DEVNULL
-from typing import List
 import sys
+from pathlib import Path
+from subprocess import DEVNULL, check_call, run
 
 SYSTEM = platform.system()
 
@@ -49,12 +49,11 @@ LAUNCHD_TEMPLATE = '''
 
 
 def systemd(*args, method=check_call):
-    method([
-        'systemctl', '--user', *args,
-    ])
+    method(['systemctl', '--user', *args])
 
 
-def get_command(args) -> List[str]:
+def get_command(args) -> list[str]:
+    # fmt: off
     return [
         sys.executable, '-m', 'grasp_backend',
         'serve',
@@ -63,10 +62,11 @@ def get_command(args) -> List[str]:
         '--template', args.template,
         *([] if args.config is None else ['--config'  , args.config]),
     ]
+    # fmt: on
 
 
 def setup_systemd(args) -> None:
-    args.template = args.template.replace('%', '%%').replace('\n', r'\n') # escape for systemd...
+    args.template = args.template.replace('%', '%%').replace('\n', r'\n')  # escape for systemd...
     args.unit_name = args.unit_name.removesuffix('.service')  # legacy unit_name default had .service
 
     base_path = '~/.config/systemd/user'
@@ -82,10 +82,10 @@ def setup_systemd(args) -> None:
 
     out.write_text(SYSTEMD_TEMPLATE.format(arguments=arguments))
     try:
-        systemd('stop' , unit_name, method=run) # ignore errors here if it wasn't running in the first place
+        systemd('stop', unit_name, method=run)  # ignore errors here if it wasn't running in the first place
         systemd('daemon-reload')
         systemd('enable', unit_name)
-        systemd('start' , unit_name)
+        systemd('start', unit_name)
         systemd('status', unit_name)
     except Exception as e:
         print(f"Something has gone wrong... you might want to use 'journalctl --user -u {unit_name}' to debug")
@@ -105,19 +105,22 @@ def setup_launchd(args) -> None:
     command = get_command(args)
     arguments = '\n'.join(f'<string>{a}</string>' for a in command)
 
-    out.write_text(LAUNCHD_TEMPLATE.format(
-        service_name=unit_name,
-        arguments=arguments,
-    ))
+    out.write_text(
+        LAUNCHD_TEMPLATE.format(
+            service_name=unit_name,
+            arguments=arguments,
+        )
+    )
 
     DOMAIN = f'gui/{os.getuid()}'
     # defensive since might not have been running
-    run(['launchctl', 'bootout', DOMAIN + '/' + unit_name], stdout=DEVNULL, stderr=DEVNULL)
+    run(['launchctl', 'bootout', DOMAIN + '/' + unit_name], stdout=DEVNULL, stderr=DEVNULL, check=False)
     check_call(['launchctl', 'bootstrap', DOMAIN, out])
 
 
 def setup_parser(p: argparse.ArgumentParser) -> None:
     from . import __main__
+
     p.add_argument('--unit-name', type=str, default=DEFAULT_UNIT_NAME, help='systemd/launchd unit name')
     __main__.setup_parser(p)
 

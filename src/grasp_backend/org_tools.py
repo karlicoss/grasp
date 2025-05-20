@@ -1,15 +1,20 @@
-from datetime import datetime
+from __future__ import annotations
+
 import re
-from typing import List, Optional
+from datetime import datetime
+from typing import Optional
 
 DEFAULT_TEMPLATE = "* %U %:description %:tags\n%:link\n%:initial\n"
+
 
 # TODO reuse inorganic/orgparse??
 def date2org(t: datetime) -> str:
     return t.strftime("%Y-%m-%d %a")
 
+
 def datetime2orgtime(t: datetime) -> str:
     return t.strftime("%H:%M")
+
 
 def datetime2org(t: datetime) -> str:
     return date2org(t) + " " + datetime2orgtime(t)
@@ -23,48 +28,44 @@ def empty(s) -> bool:
 # TODO put template in config??
 class Config:
     @staticmethod
-    def format_selection(selection: str) -> List[str]:  # type: ignore[empty-body]
+    def format_selection(selection: str) -> list[str]:  # type: ignore[empty-body]
         ...
 
     @staticmethod
-    def format_comment(comment: str) -> List[str]:  # type: ignore[empty-body]
+    def format_comment(comment: str) -> list[str]:  # type: ignore[empty-body]
         ...
 
 
 class DefaultConfig(Config):
     @staticmethod
-    def format_selection(selection: str) -> List[str]:
+    def format_selection(selection: str) -> list[str]:
         return [
             'Selection:',
             selection,
         ]
 
-
     @staticmethod
-    def format_comment(comment: str) -> List[str]:
-        return [
-            'Comment:',
-            comment
-        ]
+    def format_comment(comment: str) -> list[str]:
+        return ['Comment:', comment]
 
 
 def as_org(
-        url: str,
-        title: str,
-        selection: str,
-        comment: str,
-        tags: List[str],
-        org_template: str,
-        config: Optional[Config] = None,
-        *,
-        _now=None,
+    url: str,
+    title: str,
+    selection: str,
+    comment: str,
+    tags: list[str],
+    org_template: str,
+    config: Optional[Config] = None,
+    *,
+    _now=None,
 ):
     """
-Formats captured results according to org template. Supports all sensible (e.g. non-interactive) template expansions from https://orgmode.org/manual/Template-expansion.html#Template-expansion.
+    Formats captured results according to org template. Supports all sensible (e.g. non-interactive) template expansions from https://orgmode.org/manual/Template-expansion.html#Template-expansion.
 
-Additionally, supports :selection, :comment and :tags expansions.
+    Additionally, supports :selection, :comment and :tags expansions.
 
-You can look at `test_templates` for some specific examples.
+    You can look at `test_templates` for some specific examples.
     """
     py_template = re.sub(r'([^\\])%[:]?([?\w]+)', r'\1{\2}', org_template)
     # replace all escaped % with regular %, safe to do after substitution
@@ -95,15 +96,15 @@ You can look at `test_templates` for some specific examples.
         U=f'[{org_datetime}]',
         description=title,
         link=url,
-
+        #
         initial=initial,
         i=initial,
-
+        #
         tags=tags_s,
         selection=selection,
         comment=comment,
-        annotation=f'[[{url}][{title}]]', # https://orgmode.org/manual/capture-protocol.html
-        **{'?': ''}, # just ignore it
+        annotation=f'[[{url}][{title}]]',  # https://orgmode.org/manual/capture-protocol.html
+        **{'?': ''},  # just ignore it
     )
     return res
 
@@ -142,6 +143,7 @@ def test_templates() -> None:
     ]
     # check they aren't crashing
     for org_template in org_templates:
+        # fmt: off
         res = as_org(
             url,
             title,
@@ -151,6 +153,7 @@ def test_templates() -> None:
             org_template=org_template
 
         )
+        # fmt: on
         print()
         print(res)
     res = as_org(
@@ -172,7 +175,7 @@ some
     
 Comment:
 fafewfewf
-'''.lstrip()
+'''.lstrip()  # noqa: W293
     assert res == expected
 
     res = as_org(
