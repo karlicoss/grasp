@@ -1,12 +1,12 @@
 """
 Grasp-specific addon wrappers
 """
+
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass
 from pathlib import Path
-import time
-from typing import Iterator
 
 import click
 import pytest
@@ -79,7 +79,7 @@ class OptionsPage:
 
 @dataclass
 class Popup:
-    addon: 'Addon'
+    addon: Addon
 
     def open(self) -> None:
         self.addon.activate()
@@ -132,7 +132,7 @@ class Addon:
 
 
 @pytest.fixture
-def addon(driver: Driver) -> Iterator[Addon]:
+def addon(driver: Driver) -> Addon:
     addon_source = get_addon_source(kind=driver.name)
     helper = AddonHelper(driver=driver, addon_source=addon_source)
-    yield Addon(helper=helper)
+    return Addon(helper=helper)

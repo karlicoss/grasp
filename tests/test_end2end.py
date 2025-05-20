@@ -1,20 +1,25 @@
-#!/usr/bin/env python3
-from contextlib import contextmanager
-from dataclasses import dataclass
-from pathlib import Path
+from __future__ import annotations
+
 import re
 import socket
 import sys
 import time
-from typing import Iterator
+from collections.abc import Iterator
+from contextlib import contextmanager
+from dataclasses import dataclass
+from pathlib import Path
 
 import click
-from loguru import logger
 import psutil
 import pytest
+from loguru import logger
 from selenium.webdriver import Remote as Driver
 
-from .addon import addon, get_addon_source, Addon
+from .addon import (
+    Addon,
+    addon,  # noqa: F401 used as fixture
+    get_addon_source,
+)
 from .webdriver_utils import get_webdriver
 
 
