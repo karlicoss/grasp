@@ -130,7 +130,9 @@ def test_capture_bad_port(addon: Addon) -> None:
 
     # seems like manifest v3 in firefox is prompting for permission even if we only change port
     wait_for_permissions = addon.helper.driver.name == 'firefox' and addon.helper.manifest_version == 3
-    addon.options_page.change_endpoint(endpoint='http://localhost:12345/capture', wait_for_permissions=wait_for_permissions)
+    addon.options_page.change_endpoint(
+        endpoint='http://localhost:12345/capture', wait_for_permissions=wait_for_permissions
+    )
 
     driver.get('https://example.com')
 

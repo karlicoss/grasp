@@ -75,7 +75,7 @@ class AddonHelper:
         lkey = key.lower().split('+')
         logger.debug(f'sending hotkey {lkey}')
 
-        import pyautogui
+        import pyautogui  # noqa: PLC0415
 
         focus_browser_window(self.driver)
         pyautogui.hotkey(*lkey)
@@ -83,7 +83,7 @@ class AddonHelper:
     def gui_write(self, *args, **kwargs) -> None:
         assert not self.headless
 
-        import pyautogui
+        import pyautogui  # noqa: PLC0415
 
         focus_browser_window(self.driver)
         pyautogui.write(*args, **kwargs)

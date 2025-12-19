@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import re
 from datetime import datetime
-from typing import Optional
 
 DEFAULT_TEMPLATE = "* %U %:description %:tags\n%:link\n%:initial\n"
 
@@ -56,7 +55,7 @@ def as_org(
     comment: str,
     tags: list[str],
     org_template: str,
-    config: Optional[Config] = None,
+    config: Config | None = None,
     *,
     _now=None,
 ):

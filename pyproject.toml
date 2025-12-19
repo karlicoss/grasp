@@ -4,7 +4,7 @@ dynamic = ["version"]  # version is managed by build backend
 name = "grasp_backend"
 dependencies = [
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 ## these need to be set if you're planning to upload to pypi
 # description = "TODO"
 license = {file = "LICENSE.md"}
@@ -28,31 +28,33 @@ Homepage = "https://github.com/karlicoss/grasp"
 [project.optional-dependencies]
 [dependency-groups]
 testing = [
-    "pytest",
+    "pytest>=9",  # need version 9 for proper namespace package support
     "ruff",
-    "mypy",
-    "lxml",  # for mypy html coverage
-
-    "requests", "types-requests",  # for backend tests
+    "requests",  # for backend tests
 ]
 end2end = [
     "selenium",
     "loguru",
     "click",
 
-    "psutil", "types-psutil",
-    "pyautogui", "types-PyAutoGUI",
+    "psutil",
+    "pyautogui",
+]
+typecheck = [
+    { include-group = "testing" },
+    { include-group = "end2end" },
+    "mypy",
+    "lxml", # for mypy html coverage
+    "ty>=0.0.3",
+
+    "types-requests",
+    "types-psutil",
+    "types-PyAutoGUI",
 ]
 
 
 [project.scripts]
 grasp_backend = 'grasp_backend.__main__:main'
-
-# workaround for error during uv publishing
-# see https://github.com/astral-sh/uv/issues/9513#issuecomment-2519527822
-[tool.setuptools]
-license-files = []
-
 
 [build-system]
 requires = ["hatchling", "hatch-vcs"]
