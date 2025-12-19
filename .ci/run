@@ -16,7 +16,7 @@ tox_cmd='run-parallel --parallel-live'
 if [ -n "${CI-}" ]; then
     # install OS specific stuff here
     case "$OSTYPE" in
-    darwin*) 
+    darwin*)
         # macos
         :
         ;;

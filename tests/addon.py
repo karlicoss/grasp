@@ -52,7 +52,9 @@ class OptionsPage:
 
         if wait_for_permissions:
             # we can't accept this alert via webdriver, it's a native chrome alert, not DOM
-            click.confirm(click.style('You should see prompt for permissions. Accept them', blink=True, fg='yellow'), abort=True)
+            click.confirm(
+                click.style('You should see prompt for permissions. Accept them', blink=True, fg='yellow'), abort=True
+            )
 
         alert = driver.switch_to.alert
         assert alert.text == 'Saved!', alert.text  # just in case

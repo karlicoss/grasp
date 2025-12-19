@@ -119,7 +119,7 @@ def setup_launchd(args) -> None:
 
 
 def setup_parser(p: argparse.ArgumentParser) -> None:
-    from . import __main__
+    from . import __main__  # noqa: PLC0415
 
     p.add_argument('--unit-name', type=str, default=DEFAULT_UNIT_NAME, help='systemd/launchd unit name')
     __main__.setup_parser(p)

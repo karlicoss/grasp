@@ -7,7 +7,7 @@ import os
 import re
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from .org_tools import DEFAULT_TEMPLATE, Config, as_org, empty
 
@@ -38,7 +38,7 @@ from functools import lru_cache
 
 
 @lru_cache(1)
-def capture_config() -> Optional[Config]:
+def capture_config() -> Config | None:
     cvar = os.environ.get(CAPTURE_CONFIG_VAR)
     if cvar is None:
         return None
@@ -59,7 +59,7 @@ def capture(
     logger = get_logger()
 
     # protect strings against None
-    def safe(s: Optional[str]) -> str:
+    def safe(s: str | None) -> str:
         if s is None:
             return ''
         else:
@@ -134,7 +134,7 @@ class GraspRequestHandler(BaseHTTPRequestHandler):
             self.respond_error(message=str(e))
 
 
-def run(*, port: str, capture_path: str, template: str, config: Optional[Path]) -> None:
+def run(*, port: str, capture_path: str, template: str, config: Path | None) -> None:
     logger = get_logger()
     logger.info("Using template %s", template)
 
@@ -166,9 +166,11 @@ def setup_parser(p) -> None:
 def main() -> None:
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 
-    from . import setup
+    from . import setup  # noqa: PLC0415
 
-    p = argparse.ArgumentParser('grasp server', formatter_class=lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog, width=100))
+    p = argparse.ArgumentParser(
+        'grasp server', formatter_class=lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog, width=100)
+    )
     subp = p.add_subparsers(dest='mode')
     setup_p = subp.add_parser('setup')
     setup.setup_parser(setup_p)
