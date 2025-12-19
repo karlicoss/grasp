@@ -89,11 +89,16 @@ class Popup:
     def enter_data(self, *, comment: str, tags: str) -> None:
         helper = self.addon.helper
 
+        # ugh. need time for it to actually show popup?..
+        # otherwise it doesn't receive focus
+        time.sleep(0.1)
+
         if helper.driver.name == 'firefox':
             # for some reason in firefox under geckodriver it woudn't focus comment input field??
             # tried both regular and dev edition firefox with latest geckodriver
             # works fine when extension is loaded in firefox manually or in chrome with chromedriver..
             # TODO file a bug??
+            # ugh, still an issue as of 20251219
             helper.gui_hotkey('tab')  # give focus to the input
 
         helper.gui_write(comment)

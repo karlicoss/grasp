@@ -33,6 +33,8 @@ testing = [
     "requests",  # for backend tests
 ]
 end2end = [
+    { include-group = "testing" },
+
     "selenium",
     "loguru",
     "click",

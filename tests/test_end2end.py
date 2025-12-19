@@ -152,6 +152,8 @@ def test_capture_custom_endpoint(addon: Addon, server: Server) -> None:
     # hack to make chrome think we changed the endpoint
     # (it'll be actual host name instead of localhost)
     hostname = socket.gethostname()
+    # FIXME 20251219 seems like it doesn't ask for permissions in firefox anymore?
+    # even if hostname is something completely random? odd
     addon.options_page.change_endpoint(
         endpoint=f'http://{hostname}:{server.port}/capture',
         wait_for_permissions=True,
@@ -205,6 +207,7 @@ def test_capture_with_extra_data(addon: Addon, server: Server) -> None:
     popup = addon.popup
     popup.open()
     popup.enter_data(comment='some multiline\nnote', tags='tag2 tag1')
+    time.sleep(0.5)  # ugh sometimes resulted in failed test otherwise, at least in firefox
     popup.submit()
 
     captured = server.capture_file.read_text()
@@ -222,4 +225,4 @@ some multiline
 note
 '''
     )
-    confirm("Popup should be closed")
+    confirm("Popup should be closed after a few seconds")

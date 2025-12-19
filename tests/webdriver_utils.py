@@ -96,7 +96,14 @@ def get_webdriver(
     version_data: dict[str, str]
     if browser == 'firefox':
         ff_options = webdriver.FirefoxOptions()
-        ff_options.set_preference('profile', str(profile_dir))
+
+        # selenium manager should download latest dev version of firefox
+        ff_options.browser_version = 'dev'
+
+        # Without this, notifications aren't showing in firefox
+        # I think possibly it's because we run under tox, and maybe it needs to connect to some bus or something
+        ff_options.set_preference("alerts.useSystemBackend", value=False)
+
         # ff_options.binary_location = ''  # set custom path here
         # e.g. use firefox from here to test https://www.mozilla.org/en-GB/firefox/developer/
         if headless:
@@ -113,10 +120,21 @@ def get_webdriver(
         version_data['driver_path'] = getattr(driver.service, '_path')
     elif browser == 'chrome':
         cr_options = webdriver.ChromeOptions()
+
+        # in case user wants some adhoc override
         chrome_bin: str | None = None  # default (e.g. apt version)
+
+        # NOTE: regular/stable chrome, --load-extension isn't working anymore
+        # https://stackoverflow.com/questions/25064523/load-extension-parameter-for-chrome-doesnt-work
 
         if chrome_bin is not None:
             cr_options.binary_location = chrome_bin
+        else:
+            # selenium manager should download latest "chrome for testing"
+            cr_options.browser_version = 'dev'
+
+            # seems like necessary from chrome-for-testing? otherwise doesn't start
+            cr_options.add_argument('--no-sandbox')
 
         cr_options.add_argument(f'--load-extension={addon_source}')
         cr_options.add_argument(f'--user-data-dir={profile_dir}')  # todo point to a subdir?
