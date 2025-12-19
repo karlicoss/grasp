@@ -1,3 +1,14 @@
+* Running end2end tests
+
+There are some end2end tests which check both web extension and the browser, but require GUI, so they can't run on github actions. 
+
+You can run them manually via `tox -e end2end`.
+
+- you need `xdotool` installed (it's used for simulating keyboard input)
+- they won't work on Wayland right now (need X11)
+
+To test specific browser use `--browser` option, e.g.: `tox -e end2end -- --browser chrome`
+
 * Releasing extension
 ** AMO (addons.mozilla.org)
 : cd extension

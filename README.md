@@ -95,9 +95,7 @@ After that you can find the extension in `dist` directory and 'Load unpacked** i
 ## testing and linting
 Check [CI config](./.github/workflows/main.yml) to figure out all the checks I'm doing.
 
-There are some end2end tests which check both web extension and the browser, but require GUI, so they can't run on github actions. You can run them manually though.
-
-- `pytest -s --pyargs tests.test_end2end`
+Also see [development guide](./doc/DEVELOPMENT.org).
 
 ## publishing
 
