@@ -126,23 +126,13 @@ async function capture(comment: string | null = null, tag_str: string | null = n
 
     const opts = await getOptions()
 
-    // @ts-expect-error
-    const has_scripting = 'scripting' in chrome
-    let selection: string | null
-    if (has_scripting) {
-        const tab_id = tab.id as number
-        const results = await browser.scripting.executeScript({
-            target: {tabId: tab_id},
-            func: () => window.getSelection()!.toString()
-        })
-        const [res] = results // should only inject in one frame, so just one result
-        selection = res.result as string
-    } else {
-        const selections = await browser.tabs.executeScript({
-            code: "window.getSelection().toString();"
-        })
-        selection = selections == null ? null : (selections[0] as string)
-    }
+    const tab_id = tab.id as number
+    const results = await browser.scripting.executeScript({
+        target: {tabId: tab_id},
+        func: () => window.getSelection()!.toString()
+    })
+    const [res] = results // should only inject in one frame, so just one result
+    const selection = res.result as string
 
     try {
         await makeCaptureRequest(payload(selection), opts)
