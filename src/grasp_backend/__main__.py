@@ -107,7 +107,6 @@ def capture(
 class GraspRequestHandler(BaseHTTPRequestHandler):
     def handle_POST(self):
         logger = get_logger()
-
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
         payload = json.loads(post_data.decode('utf8'))
