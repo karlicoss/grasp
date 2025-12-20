@@ -11,16 +11,19 @@ from pathlib import Path
 import click
 import pytest
 from selenium.webdriver import Remote as Driver
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 from .addon_helper import AddonHelper
 
 
-def get_addon_source(kind: str) -> Path:
+@pytest.fixture
+def addon_source(*, browser) -> Path:
     # TODO compile first?
-    addon_path = (Path(__file__).parent.parent / 'extension' / 'dist' / kind).absolute()
-    assert addon_path.exists()
-    assert (addon_path / 'manifest.json').exists()
-    return addon_path
+    res = (Path(__file__).parent.parent / 'extension' / 'dist' / browser.name).absolute()
+    assert res.exists(), res
+    assert (res / 'manifest.json').exists(), res
+    return res
 
 
 class Command:
@@ -56,6 +59,7 @@ class OptionsPage:
                 click.style('You should see prompt for permissions. Accept them', blink=True, fg='yellow'), abort=True
             )
 
+        WebDriverWait(driver, 3).until(EC.alert_is_present())
         alert = driver.switch_to.alert
         assert alert.text == 'Saved!', alert.text  # just in case
         alert.accept()
@@ -140,7 +144,6 @@ class Addon:
 
 
 @pytest.fixture
-def addon(driver: Driver) -> Addon:
-    addon_source = get_addon_source(kind=driver.name)
+def addon(*, driver: Driver, addon_source: Path) -> Addon:
     helper = AddonHelper(driver=driver, addon_source=addon_source)
     return Addon(helper=helper)

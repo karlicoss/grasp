@@ -1,14 +1,24 @@
 from collections.abc import Iterator
 from contextlib import contextmanager
+from dataclasses import dataclass
 from pathlib import Path
 from time import sleep
+from typing import Literal
 
 import psutil
+import pytest
+from loguru import logger
 from selenium import webdriver
 from selenium.common.exceptions import NoAlertPresentException
 from selenium.webdriver import Remote as Driver
 from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.remote.webelement import WebElement
+
+
+@dataclass
+class Browser:
+    name: Literal['chrome', 'firefox']
+    headless: bool
 
 
 def get_current_frame(driver: Driver) -> WebElement | None:
@@ -182,3 +192,16 @@ def get_browser_process(driver: webdriver.Remote) -> psutil.Process:
     else:
         raise AssertionError
     return process
+
+
+@pytest.fixture
+def driver(*, tmp_path: Path, addon_source: Path, browser: Browser) -> Iterator[Driver]:
+    profile_dir = tmp_path / 'browser_profile'
+    with get_webdriver(
+        profile_dir=profile_dir,
+        addon_source=addon_source,
+        browser=browser.name,
+        headless=browser.headless,
+        logger=logger,
+    ) as res:
+        yield res
