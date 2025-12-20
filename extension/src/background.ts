@@ -30,10 +30,10 @@
 import browser from "webextension-polyfill"
 
 
-import {COMMAND_CAPTURE_SIMPLE, METHOD_CAPTURE_WITH_EXTRAS, showNotification} from './common.js'
-import {getOptions} from './options.js'
-import type {Options} from './options.js'
-import { hasPermissions } from './permissions.js'
+import {COMMAND_CAPTURE_SIMPLE, METHOD_CAPTURE_WITH_EXTRAS, showNotification} from './common'
+import {getOptions} from './options'
+import type {Options} from './options'
+import { hasPermissions } from './permissions'
 
 
 type Params = {
@@ -128,7 +128,7 @@ async function capture(comment: string | null = null, tag_str: string | null = n
 
     // @ts-expect-error
     const has_scripting = 'scripting' in chrome
-    let selection
+    let selection: string | null
     if (has_scripting) {
         const tab_id = tab.id as number
         const results = await browser.scripting.executeScript({
@@ -136,12 +136,12 @@ async function capture(comment: string | null = null, tag_str: string | null = n
             func: () => window.getSelection()!.toString()
         })
         const [res] = results // should only inject in one frame, so just one result
-        selection = res.result
+        selection = res.result as string
     } else {
         const selections = await browser.tabs.executeScript({
             code: "window.getSelection().toString();"
         })
-        selection = selections == null ? null : selections[0]
+        selection = selections == null ? null : (selections[0] as string)
     }
 
     try {
@@ -169,7 +169,9 @@ browser.commands.onCommand.addListener((command: string) => {
 // ok so sadly it seems like async listener doesn't really work in chrome due to a bug
 // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/onMessage#sending_an_asynchronous_response_using_a_promise
 // also see https://stackoverflow.com/questions/44056271/chrome-runtime-onmessage-response-with-async-await
-browser.runtime.onMessage.addListener((message: any, sender: any, sendResponse: (_arg: any) => void) => {
+// @ts-expect-error // ugh -- maybe need to split into two listeneres? one that returns true, and other that doesn't take sendResponse?
+browser.runtime.onMessage.addListener((_message: unknown, sender: browser.Runtime.MessageSender, sendResponse: (_arg: unknown) => void) => {
+    const message = _message as {[key: string]: any}
     if (message.method === 'logging') {
         console.error("[%s] %o", message.source, message.data)
     }
