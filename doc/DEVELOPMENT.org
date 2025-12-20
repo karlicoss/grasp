@@ -2,12 +2,17 @@
 
 There are some end2end tests which check both web extension and the browser, but require GUI, so they can't run on github actions. 
 
-You can run them manually via `tox -e end2end`.
+You can run them manually, however:
 
 - you need `xdotool` installed (it's used for simulating keyboard input)
 - they won't work on Wayland right now (need X11)
 
-To test specific browser use `--browser` option, e.g.: `tox -e end2end -- --browser chrome`
+The commands to run are something like this:
+
+: tox -e end2end -- -s  # runs all available tests with all browsers. -s is necessary to confirm prompts
+: tox -e end2end -- -s --collect-only  # to see all available tests
+: tox -e end2end -- -s -k headless  # only run tests on headless firefox/chrome
+: tox -e end2end -- -s -k 'firefox_gui and bad_port'  # only run one specific test against  gui firefox
 
 * Releasing extension
 ** AMO (addons.mozilla.org)

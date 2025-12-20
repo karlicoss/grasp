@@ -153,3 +153,26 @@ jobs:
         name : '${{ env.name }}-firefox-release-latest.zip'
         path: 'extension/dist/artifacts/firefox/${{ env.name }}-*.zip'
 
+  end2end_tests:
+    strategy:
+      matrix:
+        browser: [chrome, firefox]
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        submodules: recursive
+        fetch-depth: 0  # nicer to have all git history when debugging/for tests
+
+    - uses: actions/setup-node@v6
+      with:
+        node-version: '24'
+
+    - uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: false  # we don't have lock files, so can't use them as cache key
+
+    - run: extension/.ci/build  # debug version, don't lint since build_extension already did that
+    - run: bash .ci/run -e end2end -- -k ${{ matrix.browser }}
