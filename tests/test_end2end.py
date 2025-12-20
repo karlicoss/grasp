@@ -3,10 +3,8 @@ from __future__ import annotations
 import os
 import re
 import socket
-import sys
 import time
 from collections.abc import Iterator
-from dataclasses import dataclass
 from pathlib import Path
 
 import click
@@ -14,33 +12,28 @@ import pytest
 from loguru import logger
 from selenium.webdriver import Remote as Driver
 
+from grasp_backend.tests.test_backend import Backend, grasp_test_backend
+
 from .addon import (
     Addon,
     addon,  # noqa: F401 used as fixture
     addon_source,  # noqa: F401 used as fixture, imported here to avoid circular import between webdirver utils and addon.py
 )
-from .utils import has_x, parametrize_named, tmp_popen
+from .utils import has_x, parametrize_named
 from .webdriver_utils import (
     Browser,
     driver,  # noqa: F401 used as fixture
 )
 
 
-@dataclass
-class Server:
-    port: str
-    capture_file: Path
-
-
 @pytest.fixture
-def server(tmp_path: Path, grasp_port: str) -> Iterator[Server]:
+def backend(tmp_path: Path, grasp_port: str) -> Iterator[Backend]:
     capture_file = tmp_path / 'capture.org'
-
-    cmdline = [sys.executable, '-m', 'grasp_backend', 'serve', '--port', grasp_port, '--path', capture_file]
-    logger.debug(f'running {cmdline}')
-    with tmp_popen(cmdline):
-        # todo wait till it's ready?
-        yield Server(port=grasp_port, capture_file=capture_file)
+    with grasp_test_backend(
+        capture_file=capture_file,
+        port=grasp_port,
+    ) as backend:
+        yield backend
 
 
 def confirm(what: str) -> None:
@@ -119,7 +112,7 @@ def test_capture_bad_port(*, addon: Addon, driver: Driver) -> None:
 
 @browsers()
 @parametrize_named("grasp_port", ["17890"])
-def test_capture_custom_endpoint(*, addon: Addon, driver: Driver, server: Server, browser: Browser) -> None:
+def test_capture_custom_endpoint(*, addon: Addon, driver: Driver, backend: Backend, browser: Browser) -> None:
     addon.options_page.open()
     # hack to make chrome think we changed the endpoint
     # (it'll be actual host name instead of localhost)
@@ -132,25 +125,25 @@ def test_capture_custom_endpoint(*, addon: Addon, driver: Driver, server: Server
     # due to broad permissions given by content script to detect dark mode and set icon accordingly.
     # See comment about detect_dark_mode.js in generate_manifest.js
     addon.options_page.change_endpoint(
-        endpoint=f'http://{hostname}:{server.port}/capture',
+        endpoint=f'http://{hostname}:{backend.port}/capture',
         wait_for_permissions=True,
     )
 
     driver.get('https://example.com')
 
-    assert not server.capture_file.exists()  # just in case
+    assert not backend.capture_file.exists()  # just in case
 
     addon.quick_capture()
     time.sleep(1)  # just to give it time to actually capture
 
-    assert 'https://example.com' in server.capture_file.read_text()
+    assert 'https://example.com' in backend.capture_file.read_text()
 
 
 @browsers()
 @parametrize_named("grasp_port", ["17890"])
-def test_capture_with_extra_data(*, addon: Addon, driver: Driver, server: Server, browser: Browser) -> None:
+def test_capture_with_extra_data(*, addon: Addon, driver: Driver, backend: Backend, browser: Browser) -> None:
     addon.options_page.open()
-    addon.options_page.change_endpoint(endpoint=f'http://localhost:{server.port}/capture', wait_for_permissions=False)
+    addon.options_page.change_endpoint(endpoint=f'http://localhost:{backend.port}/capture', wait_for_permissions=False)
 
     driver.get('https://example.com')
 
@@ -170,7 +163,7 @@ def test_capture_with_extra_data(*, addon: Addon, driver: Driver, server: Server
     )
     ##
 
-    assert not server.capture_file.exists()  # just in case
+    assert not backend.capture_file.exists()  # just in case
 
     popup = addon.popup
     popup.open()
@@ -182,7 +175,7 @@ def test_capture_with_extra_data(*, addon: Addon, driver: Driver, server: Server
     time.sleep(0.5)  # ugh sometimes resulted in failed test otherwise, at least in firefox
     popup.submit()
 
-    captured = server.capture_file.read_text()
+    captured = backend.capture_file.read_text()
     captured = re.sub(r'\[.*?\]', '[date]', captured)  # dates are volatile, can't test against them
 
     assert (

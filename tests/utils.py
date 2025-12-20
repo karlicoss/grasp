@@ -1,20 +1,6 @@
 import os
-from contextlib import contextmanager
 
-import psutil
 import pytest
-
-
-@contextmanager
-def tmp_popen(*args, **kwargs):
-    with psutil.Popen(*args, **kwargs) as p:
-        try:
-            yield p
-        finally:
-            for c in p.children(recursive=True):
-                c.kill()
-            p.kill()
-            p.wait()
 
 
 def parametrize_named(param: str, values):

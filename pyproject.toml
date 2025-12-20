@@ -31,6 +31,7 @@ testing = [
     "pytest>=9",  # need version 9 for proper namespace package support
     "ruff",
     "requests",  # for backend tests
+    "psutil",  # for backend tests
 ]
 end2end = [
     { include-group = "testing" },
@@ -39,7 +40,6 @@ end2end = [
     "loguru",
     "click",
 
-    "psutil",
     "pyautogui",
 ]
 typecheck = [
