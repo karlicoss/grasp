@@ -1,7 +1,7 @@
 import browser from "webextension-polyfill"
 
-import {METHOD_CAPTURE_WITH_EXTRAS} from './common.js'
-import {getOptions} from './options.js'
+import {METHOD_CAPTURE_WITH_EXTRAS} from './common'
+import {getOptions} from './options'
 
 // TODO template it in html too?
 const BUTTON_ID = 'button_id'
@@ -92,7 +92,7 @@ async function submitCapture () {
         ...state,
     }
 
-    const result = await browser.runtime.sendMessage(message)
+    const result = await browser.runtime.sendMessage(message) as any
     if (result.success) {
         // @ts-expect-error
         window.justSubmitted = true

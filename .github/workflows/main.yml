@@ -129,7 +129,7 @@ jobs:
 
     - uses: actions/setup-node@v6
       with:
-        node-version: '20'  # TODO update?
+        node-version: '24'
 
     - run: extension/.ci/build --lint # debug version
     - run: extension/.ci/build --lint --release

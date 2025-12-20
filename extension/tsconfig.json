@@ -2,11 +2,22 @@
   "compilerOptions": {
     "baseUrl": "src/",
     "noImplicitAny": true,
-    "module": "nodenext",
+
+    /// these two should be together?
+    "module": "esnext",
+    // seems like it allows to import without .js extensions
+    "moduleResolution": "bundler",
+    ///
+
     "target": "es2022",
     "strict": true,
     "allowJs": true,
-    "moduleResolution": "nodenext",
+
+    // Ensures that `import type` statements are completely removed from the output, and regular imports are kept as-is.
+    // This is mainly to help Rollup, otherwise typescript uses some sort of guessing?
+    "verbatimModuleSyntax": true,
+
+    "skipLibCheck": true
   },
   "include": [
     "./src/**/*.ts"

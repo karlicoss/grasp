@@ -154,6 +154,7 @@ def test_capture_custom_endpoint(addon: Addon, server: Server) -> None:
     hostname = socket.gethostname()
     # FIXME 20251219 seems like it doesn't ask for permissions in firefox anymore?
     # even if hostname is something completely random? odd
+    # ugh, v2 manifest in firefox and v3 chrome do ask; whereas v3 in firefox doesn't??
     addon.options_page.change_endpoint(
         endpoint=f'http://{hostname}:{server.port}/capture',
         wait_for_permissions=True,
