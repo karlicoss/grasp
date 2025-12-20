@@ -40,6 +40,8 @@ def main() -> None:
 
     manifest = args.manifest or '3'
 
+    assert not (target == 'chrome' and manifest == '2'), "chrome doesn't support manifest v2 anymore"
+
     base_ext_dir = Path(__file__).absolute().parent / 'dist'
     ext_dir = (base_ext_dir / target).resolve() # webext can't into symlinks
     # sadly no way to specify zip name in the regex..

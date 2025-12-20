@@ -91,7 +91,7 @@ class Popup:
 
         # ugh. need time for it to actually show popup?..
         # otherwise it doesn't receive focus
-        time.sleep(0.1)
+        time.sleep(0.5)
 
         if helper.driver.name == 'firefox':
             # for some reason in firefox under geckodriver it woudn't focus comment input field??
@@ -100,6 +100,7 @@ class Popup:
             # TODO file a bug??
             # ugh, still an issue as of 20251219
             helper.gui_hotkey('tab')  # give focus to the input
+            time.sleep(0.5)
 
         helper.gui_write(comment)
 

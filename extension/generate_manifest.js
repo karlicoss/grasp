@@ -60,7 +60,6 @@ export function generateManifest({
     ]
 
 
-    // prepare for manifest v3
     const host_permissions = endpoints('localhost')
     const optional_host_permissions = endpoints('*')
 
@@ -75,33 +74,13 @@ export function generateManifest({
 
         // need to query active tab and get its url/title
         "activeTab",
+
+        // needed to get selected text
+        "scripting",
     ]
 
 
     const optional_permissions = []
-
-    if (target === T.FIREFOX || v3) {
-        // chrome v2 doesn't support scripting api
-        // code has a fallback just for that
-        // (needed to get selected text)
-        permissions.push("scripting")
-    }
-
-
-    const content_security_policy = [
-        "script-src 'self'",  // this must be specified when overriding, otherwise it complains
-        /// also this works, but it seems that default-src somehow shadows style-src???
-        // "default-src 'self'",
-        // "style-src 'unsafe-inline'", // FFS, otherwise <style> directives on extension's pages not working??
-        ///
-
-        // also need to override it to eclude 'upgrade-insecure-requests' in manifest v3?
-        // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_Security_Policy#upgrade_insecure_network_requests_in_manifest_v3
-        // NOTE: could be connect-src http: https: to allow all?
-        // but we're specifically allowing endpoints that have /capture in them
-        "connect-src " + endpoints('*:*').join(' '),
-    ].join('; ')
-
 
     const background = {}
     if (v3) {
@@ -140,12 +119,24 @@ export function generateManifest({
     }
     manifest[action_name] = action
 
-    if (target === T.FIREFOX) {
-        // NOTE: chrome v3 works without content_security_policy??
-        // but in firefox it refuses to make a request even when we allow hostname permission??
-        manifest.content_security_policy = (v3 ? {extension_pages: content_security_policy} : content_security_policy)
+    if (target === T.FIREFOX && v3) {
+        // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_Security_Policy#upgrade_insecure_network_requests_in_manifest_v3
+        // Firefox v3 manifest is trying to always force https, which isn't ideal for small backend like grasp (seemsingly unless it's localhost)
+        // I.e. can see in devtools
+        //   Content-Security-Policy: Upgrading insecure request ‘http://hostname:17890/capture’ to use ‘https’
+        // , after that it fails to talk to the server via https, and it manifests as network error.
+
+        // See https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_Security_Policy#default_content_security_policy
+        // This is just default policy, but with 'upgrade-insecure-requests' excluded
+        const content_security_policy = "script-src 'self'"
+
+        manifest.content_security_policy = {extension_pages: content_security_policy}
     }
 
+    // FIXME ugh...
+    // this will basically require "Reads data on all sites" permission
+    // and seems like all other methods for detecting it (e.g. listener on popup page/offscreen page don't work reliably)
+    // https://stackoverflow.com/a/77806811/706389/
     manifest.content_scripts = [
         {
             "matches": ["<all_urls>"],
@@ -154,17 +145,8 @@ export function generateManifest({
     ]
 
     if (v3) {
-        if (target === T.FIREFOX) {
-            // firefox doesn't support optional_host_permissions yet
-            // see https://bugzilla.mozilla.org/show_bug.cgi?id=1766026
-            // and https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/optional_permissions#host_permissions
-            // note that these will still have to be granted by user (unlike in chrome)
-            manifest.host_permissions = host_permissions
-            manifest.optional_permissions.push(...optional_host_permissions)
-        } else {
-            manifest.host_permissions = host_permissions
-            manifest.optional_host_permissions = optional_host_permissions
-        }
+        manifest.host_permissions = host_permissions
+        manifest.optional_host_permissions = optional_host_permissions
     } else {
         manifest.permissions.push(...host_permissions)
         manifest.optional_permissions.push(...optional_host_permissions)
