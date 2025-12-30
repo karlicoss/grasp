@@ -1,15 +1,12 @@
 from __future__ import annotations
 
-import os
 import re
 import socket
 import time
 from collections.abc import Iterator
 from pathlib import Path
 
-import click
 import pytest
-from loguru import logger
 from selenium.webdriver import Remote as Driver
 
 from grasp_backend.tests.test_backend import Backend, grasp_test_backend
@@ -19,11 +16,18 @@ from .addon import (
     addon,  # noqa: F401 used as fixture
     addon_source,  # noqa: F401 used as fixture, imported here to avoid circular import between webdirver utils and addon.py
 )
-from .utils import has_x, parametrize_named
+from .utils import parametrize_named
 from .webdriver_utils import (
     Browser,
+    Manual,
+    browsers,
     driver,  # noqa: F401 used as fixture
 )
+
+# you can use mode='headless' to always auto-confirm even with gui tests
+manual = Manual(mode='auto')
+confirm = manual.confirm
+#
 
 
 @pytest.fixture
@@ -34,34 +38,6 @@ def backend(tmp_path: Path, grasp_port: str) -> Iterator[Backend]:
         port=grasp_port,
     ) as backend:
         yield backend
-
-
-def confirm(what: str) -> None:
-    is_headless = 'headless' in os.environ.get('PYTEST_CURRENT_TEST', '')
-    if is_headless:
-        # ugh.hacky
-        logger.warning(f'"{what}": headless mode, responding "yes"')
-        return
-    click.confirm(click.style(what, blink=True, fg='yellow'), abort=True)
-
-
-def browsers(*br: Browser):
-    if len(br) == 0:
-        # if no args passed, test all combinations
-        br = (
-            Browser(name='chrome' , headless=False),
-            Browser(name='firefox', headless=False),
-            Browser(name='chrome' , headless=True),
-            Browser(name='firefox', headless=True),
-        )  # fmt: skip
-    if not has_x():
-        # this is convenient to filter out automatically for CI
-        br = tuple(b for b in br if b.headless)
-    return pytest.mark.parametrize(
-        "browser",
-        br,
-        ids=[f'browser={b.name}_{"headless" if b.headless else "gui"}' for b in br],
-    )
 
 
 @browsers()
@@ -92,6 +68,7 @@ def test_capture_no_configuration(*, addon: Addon, driver: Driver) -> None:
     #     addon.quick_capture()  # retry capture
 
     confirm('Should show a successful capture notification, and the link should be in your default capture file')
+    # NOTE: in headless mode, we might shut down too quickly before the capture is sent
 
 
 @browsers()
@@ -118,15 +95,15 @@ def test_capture_custom_endpoint(*, addon: Addon, driver: Driver, backend: Backe
     # (it'll be actual host name instead of localhost)
     hostname = socket.gethostname()
 
-    if browser.headless:
-        pytest.skip("This test requires GUI to confirm permission prompts")
-
     # FIXME 20251220 seems like in some browsers (firefox?) this may not request permissions
     # due to broad permissions given by content script to detect dark mode and set icon accordingly.
     # See comment about detect_dark_mode.js in generate_manifest.js
+    wait_for_permissions = browser.name != 'firefox'
+    if wait_for_permissions:
+        pytest.skip("This test requires GUI to confirm permission prompts")
     addon.options_page.change_endpoint(
         endpoint=f'http://{hostname}:{backend.port}/capture',
-        wait_for_permissions=True,
+        wait_for_permissions=wait_for_permissions,
     )
 
     driver.get('https://example.com')
@@ -169,7 +146,7 @@ def test_capture_with_extra_data(*, addon: Addon, driver: Driver, backend: Backe
     popup.open()
 
     if browser.headless:
-        pytest.skip("This test requires GUI to confirm permission prompts")
+        pytest.skip("This test requires GUI to interact with a popup")
 
     popup.enter_data(comment='some multiline\nnote', tags='tag2 tag1')
     time.sleep(0.5)  # ugh sometimes resulted in failed test otherwise, at least in firefox

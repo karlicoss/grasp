@@ -1,6 +1,6 @@
 import browser from "webextension-polyfill"
 
-// NOTE: keep consistent with webpack.config.js
+// NOTE: keep consistent with manifest/generate_manifest.js
 export const COMMAND_CAPTURE_SIMPLE = 'capture-simple'
 
 export const METHOD_CAPTURE_WITH_EXTRAS = 'captureWithExtras'

@@ -28,6 +28,7 @@
 
 
 import browser from "webextension-polyfill"
+import type {Runtime} from "webextension-polyfill"
 
 
 import {COMMAND_CAPTURE_SIMPLE, METHOD_CAPTURE_WITH_EXTRAS, showNotification} from './common'
@@ -148,10 +149,15 @@ async function capture(comment: string | null = null, tag_str: string | null = n
 }
 
 
+async function handleCaptureSimple() {
+    // not checking return value here, can't really do much?
+    await capture(null, null)  // todo await?
+}
+
+
 browser.commands.onCommand.addListener((command: string) => {
     if (command === COMMAND_CAPTURE_SIMPLE) {
-        // not checking return value here, can't really do much?
-        capture(null, null)  // todo await?
+        handleCaptureSimple()
     }
 })
 
@@ -160,7 +166,7 @@ browser.commands.onCommand.addListener((command: string) => {
 // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/onMessage#sending_an_asynchronous_response_using_a_promise
 // also see https://stackoverflow.com/questions/44056271/chrome-runtime-onmessage-response-with-async-await
 // @ts-expect-error // ugh -- maybe need to split into two listeneres? one that returns true, and other that doesn't take sendResponse?
-browser.runtime.onMessage.addListener((_message: unknown, sender: browser.Runtime.MessageSender, sendResponse: (_arg: unknown) => void) => {
+browser.runtime.onMessage.addListener((_message: unknown, sender: Runtime.MessageSender, sendResponse: (_arg: unknown) => void) => {
     const message = _message as {[key: string]: any}
     if (message.method === 'logging') {
         console.error("[%s] %o", message.source, message.data)
@@ -186,5 +192,19 @@ browser.runtime.onMessage.addListener((_message: unknown, sender: browser.Runtim
         // manifest v2 doesn't have browser.action
         const action = browser.action ? browser.action : browser.browserAction
         action.setIcon({path: icon_path})
+    }
+})
+
+
+browser.runtime.onMessage.addListener((info: any, _: Runtime.MessageSender) => {
+    // see selenium_bridge.js
+    if (info === 'selenium-bridge-_execute_action') {
+        // sadly this won't work anyway since need GUI to enter things in a popup...
+    }
+    if (info === 'selenium-bridge-_execute_browser_action') {
+        // sadly this won't work anyway since need GUI to enter things in a popup...
+    }
+    if (info === 'selenium-bridge-capture-simple') {
+        handleCaptureSimple()
     }
 })
