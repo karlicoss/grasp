@@ -99,7 +99,7 @@ def test_capture_custom_endpoint(*, addon: Addon, driver: Driver, backend: Backe
     # due to broad permissions given by content script to detect dark mode and set icon accordingly.
     # See comment about detect_dark_mode.js in generate_manifest.js
     wait_for_permissions = browser.name != 'firefox'
-    if wait_for_permissions:
+    if wait_for_permissions and browser.headless:
         pytest.skip("This test requires GUI to confirm permission prompts")
     addon.options_page.change_endpoint(
         endpoint=f'http://{hostname}:{backend.port}/capture',
