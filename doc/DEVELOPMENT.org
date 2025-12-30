@@ -1,18 +1,30 @@
 * Running end2end tests
 
-There are some end2end tests which check both web extension and the browser, but require GUI, so they can't run on github actions. 
+There are some end2end tests which check both web extension in a browser + backend functionality.
 
-You can run them manually, however:
+There are two flavours: `headless` and `gui`.
 
-- you need `xdotool` installed (it's used for simulating keyboard input)
-- they won't work on Wayland right now (need X11)
+Headless run the browsers in headless mode (no GUI), so they are the ones running on github actions.
 
-The commands to run are something like this:
+GUI ones require a visible browser window, and need to be run manually. For these, you'll need:
+- `xdotool` installed (it's used for simulating keyboard input).
+  I'm not sure if there is a decent alternative for OSX, so these only work on Linux.
+- They won't work on Wayland right now (need X11).
+
+Necessary browsers and webdrivers should be installed automatically by selenium (via "selenium manager").
+
+Some example commands to run the tests:
 
 : tox -e end2end -- -s  # runs all available tests with all browsers. -s is necessary to confirm prompts
 : tox -e end2end -- -s --collect-only  # to see all available tests
 : tox -e end2end -- -s -k headless  # only run tests on headless firefox/chrome
-: tox -e end2end -- -s -k 'firefox_gui and bad_port'  # only run one specific test against  gui firefox
+: tox -e end2end -- -s -k 'firefox_gui and bad_port'  # only run one specific test against gui firefox
+
+Some tips:
+- It's useful to pass =--pdb= to pytest, so you can inspect the browser state if something goes wrong.
+- When you're in development/debugging process, perhaps best to run the firefox version of tests -- Chrome has a 5-ish seconds lag after installing the extension for some reason.
+- Since these tests can be quite slow, =-n auto= flag to parallelize can be helpful (via =pytest-xdist=).
+- To debug flaky tests, it's useful to use =--count=N= flag (via =pytest-repeat=).
 
 * Releasing extension
 ** AMO (addons.mozilla.org)

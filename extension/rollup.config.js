@@ -53,10 +53,13 @@ function generateManifestPlugin() {
     return {
         name: 'generate-manifest',
         generateBundle(outputOptions, bundle) {
+            // TODO maybe need to use emitFile instead?
+            // docs say "Do not directly add assets to the bundle"
             const manifest = generateManifest({
                 target: target,
                 version: manifest_version,
                 release: release,
+                publish: publish,
                 ext_id: ext_id,
             })
             const mjs = JSON.stringify(manifest, null, 2)
@@ -87,8 +90,9 @@ const compile = inputs => { return {
        cleanOutputDir(),
        copy({
          targets: [
-           {src: 'src/**/*.html', dest: buildDir},
-           {src: 'src/**/*.png' , dest: buildDir},
+           {src: 'src/**/*.png'          , dest: buildDir},
+           {src: 'src/**/*.html'         , dest: buildDir},
+           {src: 'src/selenium_bridge.js', dest: buildDir},
          ],
          flatten: false,
        }),

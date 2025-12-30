@@ -20,6 +20,7 @@ from .addon_helper import AddonHelper
 @pytest.fixture
 def addon_source(*, browser) -> Path:
     # TODO compile first?
+    # TODO not sure, maybe need kind here? e.g. mobile
     res = (Path(__file__).parent.parent / 'extension' / 'dist' / browser.name).absolute()
     assert res.exists(), res
     assert (res / 'manifest.json').exists(), res

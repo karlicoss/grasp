@@ -142,19 +142,21 @@ jobs:
         path: 'extension/dist/artifacts/chrome/${{ env.name }}_dev_-*.zip'
     - uses: actions/upload-artifact@v6
       with:
-        name : '${{ env.name }}-chrome-release-latest.zip'
+        name: '${{ env.name }}-chrome-release-latest.zip'
         path: 'extension/dist/artifacts/chrome/${{ env.name }}-*.zip'
     - uses: actions/upload-artifact@v6
       with:
-        name : '${{ env.name }}-firefox-debug-latest.zip'
+        name: '${{ env.name }}-firefox-debug-latest.zip'
         path: 'extension/dist/artifacts/firefox/${{ env.name }}_dev_-*.zip'
     - uses: actions/upload-artifact@v6
       with:
-        name : '${{ env.name }}-firefox-release-latest.zip'
+        name: '${{ env.name }}-firefox-release-latest.zip'
         path: 'extension/dist/artifacts/firefox/${{ env.name }}-*.zip'
 
+  # split in two pipelines to speedup running
   end2end_tests:
     strategy:
+      fail-fast: false
       matrix:
         browser: [chrome, firefox]
 
@@ -174,5 +176,9 @@ jobs:
       with:
         enable-cache: false  # we don't have lock files, so can't use them as cache key
 
+    - uses: mxschmitt/action-tmate@v3
+      if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+
     - run: extension/.ci/build  # debug version, don't lint since build_extension already did that
-    - run: bash .ci/run -e end2end -- -k ${{ matrix.browser }}
+    # -n is used to run in parallel (pytes-xdist)
+    - run: bash .ci/run -e end2end -- -k ${{ matrix.browser }} -n auto

@@ -1,4 +1,6 @@
 import os
+from collections.abc import Iterator
+from contextlib import ExitStack
 
 import pytest
 
@@ -12,3 +14,12 @@ def parametrize_named(param: str, values):
 
 def has_x() -> bool:
     return 'DISPLAY' in os.environ
+
+
+@pytest.fixture
+def exit_stack() -> Iterator[ExitStack]:
+    """
+    Useful to request ExitStack in a test to avoid excessive indentation.
+    """
+    with ExitStack() as stack:
+        yield stack

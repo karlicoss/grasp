@@ -1,3 +1,6 @@
+// due to firefox + chrome and manifest v2 + v3 combination, 95% of the manifest is JS generated anyway
+// so with this we're just generating it fully dynamically
+
 import assert from 'assert'
 
 import pkg from './package.json' with { type: "json" }
@@ -12,7 +15,8 @@ const T = {
 export function generateManifest({
     target,  // str
     version, // str
-    release,     // bool
+    release, // bool
+    publish, // bool
     ext_id   // str
 } = {}) {
     assert(target)
@@ -100,6 +104,19 @@ export function generateManifest({
     }
     background['type'] = 'module'  // hmm seems like it works in firefox v2 too now??
 
+    const content_scripts = []
+
+    // this is only needed during testing
+    if (!publish) {
+        content_scripts.push({"matches": ["<all_urls>"], "js": ["selenium_bridge.js"]})
+    }
+
+    // FIXME ugh...
+    // this will basically require "Reads data on all sites" permission
+    // and seems like all other methods for detecting it (e.g. listener on popup page/offscreen page don't work reliably)
+    // https://stackoverflow.com/a/77806811/706389/
+    content_scripts.push({"matches": ["<all_urls>"], "js": ["detect_dark_mode.js"]})
+
     const manifest = {
         name: pkg.name + (release ? '' : ' [dev]'),
         version: pkg.version,
@@ -119,6 +136,10 @@ export function generateManifest({
     }
     manifest[action_name] = action
 
+    if (content_scripts.length > 0) {
+        manifest['content_scripts'] = content_scripts
+    }
+
     if (target === T.FIREFOX && v3) {
         // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_Security_Policy#upgrade_insecure_network_requests_in_manifest_v3
         // Firefox v3 manifest is trying to always force https, which isn't ideal for small backend like grasp (seemsingly unless it's localhost)
@@ -132,17 +153,6 @@ export function generateManifest({
 
         manifest.content_security_policy = {extension_pages: content_security_policy}
     }
-
-    // FIXME ugh...
-    // this will basically require "Reads data on all sites" permission
-    // and seems like all other methods for detecting it (e.g. listener on popup page/offscreen page don't work reliably)
-    // https://stackoverflow.com/a/77806811/706389/
-    manifest.content_scripts = [
-        {
-            "matches": ["<all_urls>"],
-            "js": ["detect_dark_mode.js"],
-        },
-    ]
 
     if (v3) {
         manifest.host_permissions = host_permissions

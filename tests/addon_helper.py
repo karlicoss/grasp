@@ -8,9 +8,9 @@ from functools import cached_property
 from pathlib import Path
 from typing import Any
 
-from loguru import logger
 from selenium import webdriver
 
+from .common import logger
 from .webdriver_utils import get_browser_process, is_headless
 
 
@@ -57,7 +57,10 @@ class AddonHelper:
         assert command in commands, (command, commands)
 
         if self.headless:
-            # see selenium_bridge.js
+            # see selenium_bridge.js -- this is to avoid using pyautogui in headless mode
+            assert any(
+                entry.get('js') == ['selenium_bridge.js'] for entry in self.manifest.get('content_scripts', [])
+            ), "This won't work without selenium_bridge.js, you probably built the extension in --publish mode"
             ccc = f'selenium-bridge-{command}'
             self.driver.execute_script(
                 f"""
