@@ -113,6 +113,5 @@ export default [
         path.join(srcDir, 'background.ts'),
         path.join(srcDir, 'options_page.ts'),
         path.join(srcDir, 'popup.ts'),
-        path.join(srcDir, 'detect_dark_mode.ts'),
     ]),
 ]

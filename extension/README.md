@@ -1,5 +1,8 @@
 - manifest version: both chrome and firefox store versions are on manifest v3 now
 
+# Icon
+Icon is from https://www.freepik.com/icon/unicorn_14284894, scaled a bit up with `convert unicorn.png  -resize 110% -gravity center -background none -extent 128x128 unicorn2.png`
+
 # permissions used
 See main `README.md`.
 

@@ -109,12 +109,6 @@ export function generateManifest({
         content_scripts.push({"matches": ["<all_urls>"], "js": ["selenium_bridge.js"]})
     }
 
-    // FIXME ugh...
-    // this will basically require "Reads data on all sites" permission
-    // and seems like all other methods for detecting it (e.g. listener on popup page/offscreen page don't work reliably)
-    // https://stackoverflow.com/a/77806811/706389/
-    content_scripts.push({"matches": ["<all_urls>"], "js": ["detect_dark_mode.js"]})
-
     const manifest = {
         name: pkg.name + (release ? '' : ' [dev]'),
         version: pkg.version,
