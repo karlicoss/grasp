@@ -186,13 +186,6 @@ browser.runtime.onMessage.addListener((_message: unknown, sender: Runtime.Messag
         })
         return true  // means 'async response'
     }
-    if (message.method == 'DARK_MODE') {
-        const icon_path = message.hasDarkMode ? 'img/unicorn_dark.png' : 'img/unicorn.png'
-
-        // manifest v2 doesn't have browser.action
-        const action = browser.action ? browser.action : browser.browserAction
-        action.setIcon({path: icon_path})
-    }
 })
 
 
