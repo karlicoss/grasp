@@ -69,6 +69,7 @@ export function generateManifest({
 
 
     // TODO make permissions literate
+    // keep in sync with readme
     const permissions = [
         // for keeping extension settings
         "storage",
@@ -90,11 +91,8 @@ export function generateManifest({
     if (v3) {
         if (target === T.CHROME) {
             // webext lint will warn about this since it's not supported in firefox yet
+            // see https://github.com/mozilla/web-ext/issues/2916
             background['service_worker'] = 'background.js'
-
-            // this isn't supported in chrome manifest v3 (chrome warns about unsupported field)
-            // but without it webext lint fails
-            background['scripts'] = ['background.js']
         } else {
             background['scripts'] = ['background.js']
         }
@@ -102,7 +100,7 @@ export function generateManifest({
         background['scripts'] = ['background.js']
         background['persistent'] = false
     }
-    background['type'] = 'module'  // hmm seems like it works in firefox v2 too now??
+    background['type'] = 'module'
 
     const content_scripts = []
 
@@ -169,6 +167,9 @@ export function generateManifest({
         manifest['browser_specific_settings'] = {
             'gecko': {
                 'id': gecko_id,
+                'data_collection_permissions': {  // required for new firefox addons
+                    'required': ['none']
+                },
             },
         }
     }

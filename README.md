@@ -81,6 +81,7 @@ In addition:
 * `storage` for settings
 * `notifications` for showing notification
 * `activeTab` for requesting page info
+* `scripting` for getting text selection on the page
 
 # Building & developing
 The most up-to-date instructions should be in [CI config](./.circleci/config.yml).

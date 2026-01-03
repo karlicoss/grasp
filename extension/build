@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 import argparse
+import json
 import os
-from subprocess import check_call
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
+from subprocess import check_call
 
 # right, specifying id in manifest doesn't seem to work
 # AMO responds with: Server response: Duplicate add-on ID found. (status: 400)
@@ -71,9 +72,8 @@ def main() -> None:
             '--output=json',
             '--no-config-discovery',  # prevent it from printing "Applying config file" to stdout
             silent=True,  # otherwise craps in stdout
-            method=lambda cmd: subprocess.run(cmd, stdout=subprocess.PIPE, text=True),
+            method=lambda cmd: subprocess.run(cmd, check=False, stdout=subprocess.PIPE, text=True),
         )
-        import json
         j = json.loads(res.stdout)
         errors = j['errors']
         if len(errors) == 0:
@@ -97,7 +97,7 @@ def main() -> None:
     }
 
     if args.watch:
-        check_call([npm, 'run', 'watch'], env=env, cwd=str(THISDIR)) # TODO exec instead?
+        check_call([npm, 'run', 'watch'], env=env, cwd=str(THISDIR))  # todo exec instead?
         return
 
     check_call([npm, 'run', 'build'], env=env, cwd=str(THISDIR))
@@ -108,32 +108,34 @@ def main() -> None:
         webext_lint()
 
         # TODO move somewhere more appropriate..
-        webext('build', '-o') # -o overwrites existing artifact
+        webext('build', '-o')  # -o overwrites existing artifact
 
     if args.release:
-        assert args.lint # TODO not sure..
-
-    def firefox_publish_args():
-        from firefox_dev_secrets import API_KEY, API_SECRET
-        return [
-            '--artifacts-dir', str(artifacts_dir),
-            '--api-key'      , API_KEY,
-            '--api-secret'   , API_SECRET,
-            # seems like webext sign requires addon id to be in manifest now
-        ]
+        assert args.lint  # TODO not sure..
 
     if args.publish not in {None, 'skip'}:
         # 'skip' mode is useful to build exactly same build as for the store, but without actually uploading
         assert args.lint
         assert args.release
+
+        check_call(['git', 'diff-index', 'HEAD'])  # ensure repo is clean
+        source_zip = base_ext_dir / f'extension-source-{target}.zip'
+        check_call(['git', 'archive', 'HEAD', '--output', source_zip], cwd=THISDIR)  # cwd so we only package the extension
+
         if 'firefox' in target:
+            from firefox_dev_secrets import API_KEY, API_SECRET
             check_call([
                 npm, 'run', 'web-ext',
                 '--',
-                'sign', '--use-submission-api',
+                'sign',
                 '--channel', args.publish,
                 '--source-dir', str(ext_dir),
-                *firefox_publish_args(),
+                '--artifacts-dir', str(artifacts_dir),
+                '--api-key'      , API_KEY,
+                '--api-secret'   , API_SECRET,
+                # seems like webext sign requires addon id to be in manifest now
+                '--amo-metadata' , THISDIR / 'amo-metadata.json',
+                '--upload-source-code', source_zip,
             ])
         elif target == 'chrome':
             assert args.publish == 'listed'  # no notion of unlisted on chrome store?
@@ -151,7 +153,7 @@ def main() -> None:
                 # TODO trusted testers?
             ])
         else:
-            raise RuntimeError("{target} is not supported for publishing yet".format(target=target))
+            raise RuntimeError(f"{target} is not supported for publishing yet")
 
 if __name__ == '__main__':
     main()
