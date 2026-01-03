@@ -27,10 +27,16 @@ Some tips:
 - To debug flaky tests, it's useful to use =--count=N= flag (via =pytest-repeat=).
 
 * Releasing extension
+
+- bump extension =version= and =version_name= in =extension/package.json=
+- commit your changes (the build script expects a clean git state)
+
 ** AMO (addons.mozilla.org)
+
 : cd extension
 : npm install # (if necessary)
-: ./build --firefox --v2 --lint --release --publish
+: source ./webext_secrets.sh  # puts api key/secret in the environment
+: ./build --firefox --lint --release --publish listed
 
 Note that this command will go in a busy loop waiting for the extension to be approved on AMO.
 (you will see it on https://addons.mozilla.org/en-US/developers/addon/grasp/versions)
