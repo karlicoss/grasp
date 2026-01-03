@@ -1,6 +1,5 @@
 import assert from 'assert'
 import fs from 'fs'
-const { globSync } = import('node:fs')
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -77,6 +76,8 @@ const compile = inputs => { return {
         dir: buildDir,
         // format: 'esm', //  default??
         // format: 'iife',  // inlines? e.g. could use for bg page if we disable splitting..
+
+        chunkFileNames: '[name].js',  // instead of '[name]-[hash].js' -- otherwise the emitted filenames change every time, very annoying for tracking in git
 
         // huh! so if I build all files in one go, it figures out the shared files properly it seems
         // however it still inlines webextension stuff into one of the files? e.g. common
