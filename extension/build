@@ -192,7 +192,7 @@ def main() -> None:
         assert args.lint
         assert args.release
 
-        check_call(['git', 'diff-index', 'HEAD'])  # ensure repo is clean
+        check_call(['git', 'diff-index', '--exit-code', 'HEAD'])  # ensure repo is clean
         source_zip = base_ext_dir / f'extension-source-{target}.zip'
         check_call(['git', 'archive', 'HEAD', '--output', source_zip], cwd=THISDIR)  # cwd so we only package the extension
 

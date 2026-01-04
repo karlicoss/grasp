@@ -14,17 +14,16 @@ const T = {
 // ugh. declarative formats are shit.
 export function generateManifest({
     target,  // str
-    version, // str
-    release, // bool
+    manifest_version, // str
     publish, // bool
     ext_id   // str
 } = {}) {
     assert(target)
-    assert(version)
-    assert(release !== null)
+    assert(manifest_version)
+    assert(publish !== null)
     assert(ext_id)
 
-    const v3 = version == '3'
+    const v3 = manifest_version == '3'
 
     // Firefox wouldn't let you rebind its default shortcuts most of which use Shift
     // On the other hand, Chrome wouldn't let you use Alt
@@ -106,11 +105,12 @@ export function generateManifest({
 
     // this is only needed during testing
     if (!publish) {
+        // NOTE: ugh seems like in some browsers (firefox?) this may implicitly grant broad host permissions during installation??
         content_scripts.push({"matches": ["<all_urls>"], "js": ["selenium_bridge.js"]})
     }
 
     const manifest = {
-        name: pkg.name + (release ? '' : ' [dev]'),
+        name: pkg.name + (publish ? '' : ' [dev]'),
         version: pkg.version,
         description: pkg.description,
         permissions: permissions,

@@ -11,17 +11,10 @@ import copy from 'rollup-plugin-copy'
 import {generateManifest} from './generate_manifest.js'
 
 
-const env = {
-    RELEASE: process.env.RELEASE,
-    PUBLISH: process.env.PUBLISH,
-    MANIFEST: process.env.MANIFEST,
-}
-
-const target = process.env.TARGET; assert(target)
+const target           = process.env.TARGET; assert(target)
 const manifest_version = process.env.MANIFEST; assert(manifest_version)
-const ext_id = process.env.EXT_ID; assert(ext_id)
-const release = env.RELEASE === 'YES' // TODO use --environment=production for rollup?
-const publish = env.PUBLISH === 'YES'
+const ext_id           = process.env.EXT_ID; assert(ext_id)
+const publish          = process.env.PUBLISH === 'YES'
 
 
 const thisDir = path.dirname(fileURLToPath(import.meta.url)); assert(path.isAbsolute(thisDir))
@@ -56,8 +49,7 @@ function generateManifestPlugin() {
             // docs say "Do not directly add assets to the bundle"
             const manifest = generateManifest({
                 target: target,
-                version: manifest_version,
-                release: release,
+                manifest_version: manifest_version,
                 publish: publish,
                 ext_id: ext_id,
             })

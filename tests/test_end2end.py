@@ -95,10 +95,10 @@ def test_capture_custom_endpoint(*, addon: Addon, driver: Driver, backend: Backe
     # (it'll be actual host name instead of localhost)
     hostname = socket.gethostname()
 
-    # FIXME 20251220 seems like in some browsers (firefox?) this may not request permissions
-    # due to broad permissions given by content script to detect dark mode and set icon accordingly.
-    # See comment about detect_dark_mode.js in generate_manifest.js
-    wait_for_permissions = browser.name != 'firefox'
+    # NOTE: seems like in some browsers (firefox?) this may not request permissions
+    #  due to broad permissions given by content scripts
+    # See comment about that in generate_manifest.js
+    wait_for_permissions = not (browser.name == 'firefox' and addon.helper.has_selenium_bridge)
     if wait_for_permissions and browser.headless:
         pytest.skip("This test requires GUI to confirm permission prompts")
     addon.options_page.change_endpoint(
@@ -151,6 +151,7 @@ def test_capture_with_extra_data(*, addon: Addon, driver: Driver, backend: Backe
     popup.enter_data(comment='some multiline\nnote', tags='tag2 tag1')
     time.sleep(0.5)  # ugh sometimes resulted in failed test otherwise, at least in firefox
     popup.submit()
+    time.sleep(1)  # just to give it time to actually capture
 
     captured = backend.capture_file.read_text()
     captured = re.sub(r'\[.*?\]', '[date]', captured)  # dates are volatile, can't test against them
