@@ -33,6 +33,8 @@ Some tips:
 
 ** AMO (addons.mozilla.org)
 
+https://addons.mozilla.org/en-US/developers/addon/grasp/edit
+
 : cd extension
 : npm install # (if necessary)
 : source ./webext_secrets.sh  # puts api key/secret in the environment
@@ -46,4 +48,18 @@ Note:
 
 
 ** CWS (chrome web store)
-TODO
+
+https://chrome.google.com/u/1/webstore/devconsole
+
+You'll need OAuth credentials for uploading the extension, see [this guide](https://github.com/fregante/chrome-webstore-upload-keys).
+Note that they can expire after 6 month, so may not be worth doing it via CLI and just do a browser upload.
+
+: cd extension
+: npm install # (if necessary)
+: source ./cws_secrets.sh  # puts api key/secret in the environment
+: ./build --chrome --lint --release --publish listed
+
+This will upload and publish the new version. It will submit it for review, and the CWS page should have 'pending review' status now.
+
+Note:
+- it [seems](https://developer.chrome.com/docs/extensions/develop/migrate/publish-mv3#publish-beta) that CWS doesn't support something similar to "unlisted" version, and would require a whole separate "beta" extension? 

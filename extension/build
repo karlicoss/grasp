@@ -201,14 +201,14 @@ def main() -> None:
             amo_metadata.write_text(json.dumps(AMO_METADATA, indent=2))
 
             # see https://extensionworkshop.com/documentation/develop/web-ext-command-reference/#web-ext-sign
-            assert ('WEB_EXT_API_KEY' in os.environ) and ('WEB_EXT_API_SECRET' in os.environ), "WEB_EXT_API_KEY and WEB_EXT_API_SECRET environment variables must be set for publishing to AMO"
+            assert ('WEB_EXT_API_KEY' in os.environ) and ('WEB_EXT_API_SECRET' in os.environ), "env variables must be set to publish"
             check_call([
                 npm, 'run', 'web-ext',
                 '--',
                 'sign',
                 '--channel', args.publish,
-                '--source-dir', str(ext_dir),
-                '--artifacts-dir', str(artifacts_dir),
+                '--source-dir', ext_dir,
+                '--artifacts-dir', artifacts_dir,
                 # this will be passed automatically from env
                 # '--api-key'      , ...,
                 # '--api-secret'   , ...,
@@ -218,18 +218,21 @@ def main() -> None:
             ])
         elif target == 'chrome':
             assert args.publish == 'listed'  # no notion of unlisted on chrome store?
-            from chrome_dev_secrets import CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN
+
+            # see https://extensionworkshop.com/documentation/develop/web-ext-command-reference/#web-ext-sign
+            assert ('CLIENT_ID' in os.environ) and ('CLIENT_SECRET' in os.environ) and ('REFRESH_TOKEN' in os.environ), "env variables must be set to publish"
             check_call([
-                npm, 'run', 'release:cws',
+                npm, 'run', 'chrome-webstore-upload',
                 '--',
-                'upload',
-                # '--auto-publish',
-                '--source'        , str(ext_dir),
-                '--client-id'     , CLIENT_ID,
-                '--client-secret' , CLIENT_SECRET,
-                '--refresh--token', REFRESH_TOKEN,
+                # 'upload'/'publish'
+                # NOTE: without command would do both
+                '--source'        , ext_dir,
+                # this will be passed automatically from env
+                # '--client-id'     , ...,
+                # '--client-secret' , ...,
+                # '--refresh--token', ...,
                 '--extension-id'  , IDS[target],
-                # TODO trusted testers?
+                # todo trusted testers?
             ])
         else:
             raise RuntimeError(f"{target} is not supported for publishing yet")
