@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from datetime import datetime
+from typing import Protocol
 
 DEFAULT_TEMPLATE = "* %U %:description %:tags\n%:link\n%:initial\n"
 
@@ -23,16 +24,13 @@ def empty(s) -> bool:
     return s is None or len(s.strip()) == 0
 
 
-# TODO protocol??
 # TODO put template in config??
-class Config:
+class Config(Protocol):
     @staticmethod
-    def format_selection(selection: str) -> list[str]:  # type: ignore[empty-body]
-        ...
+    def format_selection(selection: str) -> list[str]: ...
 
     @staticmethod
-    def format_comment(comment: str) -> list[str]:  # type: ignore[empty-body]
-        ...
+    def format_comment(comment: str) -> list[str]: ...
 
 
 class DefaultConfig(Config):

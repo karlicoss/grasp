@@ -7,12 +7,13 @@ dependencies = [
 requires-python = ">=3.12"
 
 ## these are only useful for pypi
-description = "Backend for grasp browser extension"
+description = "Backend for grasp browser extension"  # shows on project page/in search
+readme      = "README.md"
 license     = {file = "LICENSE"}
 authors     = [{name = "Dima Gerasimov (@karlicoss)", email = "karlicoss@gmail.com"}]
 maintainers = [{name = "Dima Gerasimov (@karlicoss)", email = "karlicoss@gmail.com"}]
 
-[project.urls]
+[project.urls]  # pypi will fetch some github stats/link, so somewhat useful
 Homepage = "https://github.com/karlicoss/grasp"
 ##
 
@@ -20,7 +21,7 @@ Homepage = "https://github.com/karlicoss/grasp"
 [project.optional-dependencies]
 [dependency-groups]
 testing = [
-    "pytest>=9",  # need version 9 for proper namespace package support
+    "pytest",
     "ruff",
     "requests",  # for backend tests
     "psutil",  # for backend tests
@@ -39,15 +40,16 @@ end2end = [
     "pytest-repeat" ,  # helpful to debug flaky tests
 ]
 typecheck = [
-    { include-group = "testing" },
-    { include-group = "end2end" },
     "mypy",
     "lxml", # for mypy html coverage
-    "ty>=0.0.8",
+    "ty",
 
     "types-requests",
     "types-psutil",
     "types-PyAutoGUI",
+
+    { include-group = "testing" },
+    { include-group = "end2end" },
 ]
 
 
@@ -59,6 +61,7 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/grasp_backend"]
 
+
 [tool.hatch.version]
 source = "vcs"
 
@@ -69,3 +72,337 @@ local_scheme = "dirty-tag"
 
 [project.scripts]
 grasp_backend = 'grasp_backend.__main__:main'
+
+
+[tool.mypy]
+pretty = true
+show_error_context = true
+show_error_end = true
+
+# see https://mypy.readthedocs.io/en/stable/error_code_list2.html
+## NOTE: strict implies all of these.. will gradually move onto it
+## TODO: maybe make it stricter later
+strict = false
+check_untyped_defs = true
+warn_redundant_casts = true
+strict_equality = true
+warn_unused_ignores = true
+##
+enable_error_code = [
+    "deprecated",
+    "redundant-expr",
+    "possibly-undefined",
+    "truthy-bool",
+    "truthy-iterable",
+    "ignore-without-code",
+    "unused-awaitable",
+]
+
+# an example of suppressing
+# [[tool.mypy.overrides]]
+# module = "my.config.repos.pdfannots.pdfannots"
+# ignore_errors = true
+
+
+[tool.ty.analysis]
+# suppressing rules/changing error level goes here
+
+[tool.ty.src]
+# exclude = [...]
+
+
+[tool.ruff]
+line-length = 120  # impacts import sorting
+
+lint.extend-select = [
+    "ALL",
+]
+
+lint.ignore = [
+    "CPY",   # copyright headers
+    "D",     # annoying nags about docstrings
+    "N",     # pep naming
+    "TCH",   # type checking rules, mostly just suggests moving imports under TYPE_CHECKING
+    "S",     # bandit (security checks) -- tends to be not very useful, lots of nitpicks
+    "DTZ",   # datetimes checks -- complaining about missing tz and mostly false positives
+    "FIX",   # complains about fixmes/todos -- annoying
+    "TD",    # complains about todo formatting -- too annoying
+    "ANN",   # missing type annotations? seems way to strict though
+    "EM" ,   # suggests assigning all exception messages into a variable first... pretty annoying
+
+### too opinionated style checks
+    "E203",  # whitespace before , -- sometimes used for readability, and ruff format should cover it anyway
+    "E221",  # multiple spaces before operator -- also covered by ruff format
+    "E266",  # too many leading '#' for block comment -- sometimes genuinely useful for visual separation
+    "E501",  # too long lines
+    "E731",  # assigning lambda instead of using def
+    "E741",  # Ambiguous variable name: `l`
+    "E742",  # Ambiguous class name: `O
+    "E401",  # Multiple imports on one line
+    "F403",  # import *` used; unable to detect undefined names
+###
+
+###
+    "E722",  # Do not use bare `except` ## Sometimes it's useful for defensive imports and that sort of thing..
+    "F811",  # Redefinition of unused  # this gets in the way of pytest fixtures (e.g. in cachew)
+
+## might be nice .. but later and I don't wanna make it strict
+    "E402",  # Module level import not at top of file
+
+### these are just nitpicky, we usually know better
+    "PLR0911",  # too many return statements
+    "PLR0912",  # too many branches
+    "PLR0913",  # too many function arguments
+    "PLR0915",  # too many statements
+    "PLR1714",  # consider merging multiple comparisons
+    "PLR2044",  # line with empty comment
+    "PLR5501",  # use elif instead of else if
+    "PLR2004",  # magic value in comparison -- super annoying in tests
+###
+    "PLR0402",  # import X.Y as Y -- TODO maybe consider enabling it, but double check
+
+    "B009",  # calling gettattr with constant attribute -- this is useful to convince mypy
+    "B010",  # same as above, but setattr
+    "B017",  # pytest.raises(Exception)
+    "B023",  # seems to result in false positives?
+
+    # complains about useless pass, but has sort of a false positive if the function has a docstring?
+    # this is common for click entrypoints (e.g. in __main__), so disable
+    "PIE790",
+
+    # a bit too annoying, offers to convert for loops to list comprehension
+    # , which may heart readability
+    "PERF401",
+
+    # suggests no using exception in for loops
+    # we do use this technique a lot, plus in 3.11 happy path exception handling is "zero-cost"
+    "PERF203",
+
+    "RET504", # unnecessary assignment before returning -- that can be useful for readability
+    "RET505", # unnecessary else after return -- can hurt readability
+
+
+
+    "PLW0603",  # global variable update.. we usually know why we are doing this
+    "PLW2901",  # for loop variable overwritten, usually this is intentional
+
+    "PT011",  # pytest raises is too broad
+
+    "COM812",  # trailing comma missing -- mostly just being annoying with long multiline strings
+
+    "TRY003",  # suggests defining exception messages in exception class -- kinda annoying
+    "TRY201",  # raise without specifying exception name -- sometimes hurts readability
+    "TRY400",  # a bit dumb, and results in false positives (see https://github.com/astral-sh/ruff/issues/18070)
+    "TRY401",  # redundant exception in logging.exception call? TODO double check, might result in excessive logging
+
+    "TID252",  # Prefer absolute imports over relative imports from parent modules
+
+    ## too annoying
+    "T20",     # just complains about prints and pprints (TODO maybe consider later?)
+    "Q",       # flake quotes, too annoying
+    "C90",     # some complexity checking
+    "G004",    # logging statement uses f string
+    "ERA001",  # commented out code
+    "SLF001",  # private member accessed
+    "BLE001",  # do not catch 'blind' Exception
+    "INP001",  # complains about implicit namespace packages
+    "SIM102",  # if statements collapsing, often hurts readability
+    "SIM103",  # multiple conditions collapsing, often hurts readability
+    "SIM105",  # suggests using contextlib.suppress instad of try/except -- this wouldn't be mypy friendly
+    "SIM108",  # suggests using ternary operation instead of if -- hurts readability
+    "SIM110",  # suggests using any(...) instead of for look/return -- hurts readability
+    "SIM117",  # suggests using single with statement instead of nested -- doesn't work in tests
+    "RSE102",  # complains about missing parens in exceptions
+    ##
+
+    "PLC0415", # "imports should be at the top level" -- not realistic
+
+    "RUF067",  # `__init__` module should only contain docstrings and re-exports -- might be nice to aim for, but dunno
+]
+
+extend-exclude = [
+    ## Keep Python tooling away from local/private/browser-extension build artifacts.
+    "extension/node_modules/**",
+    "extension/dist/**",
+    ##
+
+    "private/**",
+    "untracked/**",
+]
+
+[tool.ruff.format]
+quote-style = "preserve"
+
+
+[tool.pytest.ini_options]
+# discover files that don't follow test_ naming. Useful to keep tests along with the source code
+python_files = ["*.py"]
+
+# this is necessary for --pyargs to discover implicit namespace packages correctly
+consider_namespace_packages = true
+
+# see https://docs.pytest.org/en/stable/reference/reference.html#confval-strict
+strict = true
+
+addopts = [
+  # prevent pytest cache from being created... it craps into project dir and I never use it anyway
+  "-p", "no:cacheprovider",
+
+  # -rap to print tests summary even when they are successful
+  "-rap",
+  "--verbose",
+
+  # otherwise it won't discover doctests
+  "--doctest-modules",
+
+  # show all test durations (unless they are too short)
+  "--durations=0",
+]
+
+
+[tool.tox]
+min_version = "4"
+
+# Relies on the correct version of Python installed.
+# We rely on CI for the test matrix.
+env_list = ["ruff", "format", "tests", "mypy", "ty"]
+
+# https://github.com/tox-dev/tox/issues/20#issuecomment-247788333
+# Hack to prevent .tox from crapping to the project directory.
+work_dir = "{env:TOXWORKDIR_BASE:}{tox_root}{/}.tox"
+
+[tool.tox.env_run_base]
+pass_env = [
+    # Useful for tests to know they are running under CI.
+    "CI",
+    "CI_*",
+
+    # Respect user's cache dirs to prevent tox from crapping into project dir.
+    "PYTHONPYCACHEPREFIX",
+    "MYPY_CACHE_DIR",
+    "RUFF_CACHE_DIR",
+]
+
+# Do not add current working directory to PYTHONPATH.
+# Generally this is more robust and safer, and prevents weird issues later on.
+set_env.PYTHONSAFEPATH = "1"
+
+# Uhh. This is relying on https://github.com/tox-dev/tox-uv and things are a bit confusing...
+# With this runner:
+#   runner = "uv-venv-runner"
+# First of all, we also want to use:
+#   package = "uv-editable"
+# Otherwise default is "editable", in which tox builds a wheel first for some reason?
+# Not sure if that makes much sense.
+# However, the main issue is that it does some sort of hacky dependency extraction from pyproject, i.e.:
+#   tests: install_dependency-groups> .../uv pip install '<packagename>[export]' 'pytest>=9' ruff
+# ...and then installs the actual package:
+#   tests: install_package> .../uv pip install --reinstall -e /code/packagename
+# This is wrong?!
+# The first command would install from PyPI, ignoring optional deps if not found.
+# What we actually want is something like "uv pip install --group -e .".
+# This is the same as this tox issue: https://github.com/tox-dev/tox/issues/3561
+
+# Another option is using this:
+runner = "uv-venv-lock-runner"
+# However, this requires a lock file to exist.
+# This is slightly annoying because I'm not pushing lock files for my projects.
+# By default this runner checks that running tox would not change the lock file.
+# We can work around that with this setting, so the lock file is created if it
+# does not exist, or updated if needed.
+# NOTE: in addition, this is the only runner supporting tools.uv.sources.
+# Some projects need it.
+uv_sync_locked = false
+# This is a bit annoying.
+# I'm not sure what happens if two tests running in parallel result in different
+# lock files, but I guess it is unlikely.
+# Another option could be to create the lock file on CI before running things.
+
+
+[tool.tox.env.ruff]
+skip_install = true
+dependency_groups = ["testing"]
+commands = [
+    [
+        "{env_python}", "-m", "ruff",
+        "check",
+        { replace = "posargs", default = [], extend = true },
+    ],
+]
+
+
+[tool.tox.env.format]
+skip_install = true
+dependency_groups = ["testing"]
+commands = [
+    [
+        "{env_python}", "-m", "ruff",
+        "format",
+        "--check",
+        { replace = "posargs", default = [], extend = true },
+    ],
+]
+
+
+[tool.tox.env.tests]
+dependency_groups = ["testing"]
+commands = [
+    [
+        "{env_python}", "-m", "pytest",
+        "--pyargs", "{[project]name}",
+        { replace = "posargs", default = [], extend = true },
+    ],
+]
+
+
+[tool.tox.env.end2end]
+pass_env = [
+    { replace = "ref", of = ["tool", "tox", "env_run_base", "pass_env"], extend = true },
+
+    # needed to launch browser
+    "DISPLAY",
+
+    # for pyautogui -- see  https://stackoverflow.com/questions/48103873/pip3-install-pyautogui-error-code-1
+    "XAUTHORITY",
+]
+# For some reason pytest struggles to discover tests otherwise,
+# unless we add (even if empty) conftest.py and __init__.py files.
+set_env.PYTHONSAFEPATH = ""
+dependency_groups = ["end2end"]
+commands = [
+    [
+        "{env_python}", "-m", "pytest",
+        "--pyargs", "tests.test_end2end",
+        { replace = "posargs", default = [], extend = true },
+    ],
+]
+
+
+[tool.tox.env.mypy]
+dependency_groups = ["typecheck"]
+commands = [
+    [
+        "{env_python}", "-m", "mypy",
+        "-p", "{[project]name}",
+        # uncomment if you need coverage
+        # "--txt-report" , ".coverage.mypy",
+        # "--html-report", ".coverage.mypy",
+        { replace = "posargs", default = [], extend = true },
+    ],
+    [
+        "{env_python}", "-m", "mypy",
+        "-p", "tests",
+        { replace = "posargs", default = [], extend = true },
+    ],
+]
+
+
+[tool.tox.env.ty]
+dependency_groups = ["typecheck"]
+commands = [
+    [
+        "{env_python}", "-m", "ty",
+        "check",
+        { replace = "posargs", default = [], extend = true },
+    ],
+]

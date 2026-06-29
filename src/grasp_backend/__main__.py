@@ -165,7 +165,7 @@ def setup_parser(p) -> None:
 def main() -> None:
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 
-    from . import setup  # noqa: PLC0415
+    from . import setup
 
     p = argparse.ArgumentParser(
         'grasp server', formatter_class=lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog, width=100)

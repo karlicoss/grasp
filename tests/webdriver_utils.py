@@ -13,12 +13,13 @@ import psutil
 import pytest
 from selenium import webdriver
 from selenium.common.exceptions import NoAlertPresentException
-from selenium.webdriver import Remote as Driver
 from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.remote.webelement import WebElement
 
 from .common import logger
 from .utils import has_x
+
+type Driver = webdriver.Chrome | webdriver.Firefox
 
 # useful for debugging
 # from selenium.webdriver.remote.remote_connection import LOGGER
@@ -89,7 +90,7 @@ def frame_context(driver: Driver, *, frame: WebElement) -> Iterator[WebElement]:
         # hmm mypy says it can't be None
         # but pretty sure it worked when current frame is None?
         # see https://github.com/SeleniumHQ/selenium/blob/trunk/py/selenium/webdriver/remote/switch_to.py
-        driver.switch_to.frame(current)  # type: ignore[arg-type]
+        driver.switch_to.frame(current)  # type: ignore[arg-type]  # ty: ignore[invalid-argument-type]
 
 
 @contextmanager
@@ -261,8 +262,8 @@ def get_webdriver(
     return driver
 
 
-def get_browser_process(driver: webdriver.Remote) -> psutil.Process:
-    driver_pid = driver.service.process.pid  # type: ignore[attr-defined]
+def get_browser_process(driver: Driver) -> psutil.Process:
+    driver_pid = driver.service.process.pid
     dprocess = psutil.Process(driver_pid)
     [process] = dprocess.children()
     cmdline = process.cmdline()
@@ -291,7 +292,7 @@ def driver(*, tmp_path: Path, addon_source: Path, browser: Browser) -> Iterator[
             # ugh. in firefox get_webdriver we set log_output=2 (stderr) to see driver logs
             # however seems like webdriver will try to close it which may result in crashes on shutdown
             # https://github.com/SeleniumHQ/selenium/blob/4c64df2cde912aec7000589b2dc96fd21c6c27cd/py/selenium/webdriver/common/service.py#L146-L152
-            service = res.service  # type: ignore[attr-defined] # ty: ignore[unresolved-attribute]
+            service = res.service
             if service.log_output == 2:
                 service.log_output = None
 

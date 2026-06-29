@@ -10,11 +10,11 @@ from pathlib import Path
 
 import click
 import pytest
-from selenium.webdriver import Remote as Driver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from .addon_helper import AddonHelper
+from .webdriver_utils import Driver
 
 
 @pytest.fixture
