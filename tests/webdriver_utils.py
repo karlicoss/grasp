@@ -181,8 +181,14 @@ def get_webdriver(
 
         driver = webdriver.Firefox(
             options=ff_options,
-            # 2 means stderr (seems like otherwise it's not logging at all)
-            service=webdriver.FirefoxService(log_output=2),
+            service=webdriver.FirefoxService(
+                # 2 means stderr (seems like otherwise it's not logging at all)
+                log_output=2,
+                # Workaround for this change introduced in
+                #  https://hg-edge.mozilla.org/releases/mozilla-beta/diff/907505ff1d4ab20d52b63c91a5e6f3147e75ab68/remote/marionette/driver.sys.mjs
+                # Without it, opening moz-extension:// from webdriver doesn't work.
+                service_args=["--allow-system-access"],
+            ),
         )
 
         addon_id = driver.install_addon(str(addon_source), temporary=True)
