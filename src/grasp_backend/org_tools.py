@@ -47,6 +47,7 @@ class DefaultConfig(Config):
 
 
 def as_org(
+    *,
     url: str,
     title: str,
     selection: str,
@@ -54,7 +55,6 @@ def as_org(
     tags: list[str],
     org_template: str,
     config: Config | None = None,
-    *,
     _now=None,
 ):
     """
@@ -142,11 +142,11 @@ def test_templates() -> None:
     for org_template in org_templates:
         # fmt: off
         res = as_org(
-            url,
-            title,
-            selection,
-            comment,
-            tags,
+            url=url,
+            title=title,
+            selection=selection,
+            comment=comment,
+            tags=tags,
             org_template=org_template
 
         )
@@ -154,11 +154,11 @@ def test_templates() -> None:
         print()
         print(res)
     res = as_org(
-        url,
-        title,
-        selection,
-        comment,
-        tags,
+        url=url,
+        title=title,
+        selection=selection,
+        comment=comment,
+        tags=tags,
         org_template=DEFAULT_TEMPLATE,
         _now=datetime(1111, 11, 11),
     )
@@ -176,11 +176,11 @@ fafewfewf
     assert res == expected
 
     res = as_org(
-        url,
-        title,
-        selection,
-        comment,
-        tags,
+        url=url,
+        title=title,
+        selection=selection,
+        comment=comment,
+        tags=tags,
         org_template=vimzettel_template,
     )
     assert res == 'zettel %title [hello] testing'
