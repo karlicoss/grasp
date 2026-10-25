@@ -74,8 +74,13 @@ const compile = inputs => { return {
         // huh! so if I build all files in one go, it figures out the shared files properly it seems
         // however it still inlines webextension stuff into one of the files? e.g. common
         manualChunks: id => {  // ugh, seems a bit shit?
-            if (id.includes('webextension-polyfill')) {
-                return 'webextension-polyfill' // move it in a separate chunk
+            const third_party = [
+                'webextension-polyfill',
+            ]
+            for (const x of third_party) {
+                if (id.includes(x)) {
+                    return `third_party/${x}`  // move it in a separate chunk
+                }
             }
         },
    },

@@ -66,7 +66,7 @@ jobs:
     # Ugh, I tried using matrix or something to explicitly generate only test pypi or prod pypi pipelines.
     # But github actions is so shit, it's impossible to do any logic at all, e.g. doesn't support conditional matrix, if/else statements for variables etc.
 
-    needs: [build] # add all other jobs here
+    needs: [build, end2end_tests] # add all other jobs here
 
     runs-on: ubuntu-latest
 

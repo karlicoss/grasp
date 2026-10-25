@@ -114,6 +114,8 @@ export function generateManifest({
         version: pkg.version,
         description: pkg.description,
         permissions: permissions,
+        // Firefox for Android does not support extension keyboard shortcuts.
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=1584246
         commands: commands,
         optional_permissions: optional_permissions,
         manifest_version: v3 ? 3 : 2,
