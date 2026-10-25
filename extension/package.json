@@ -3,7 +3,6 @@
   "version": "1.0.2.2",
   "version_name": "released on 2026.01.20",
   "description": "Reliably capture links and webpage content in a plaintext file (org-mode/markdown)",
-  "main": "dist/background.js",
   "scripts": {
     "test": "jest",
     "build": "rollup --config",
