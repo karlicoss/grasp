@@ -1,6 +1,6 @@
 import os
 import shlex
-from collections.abc import Iterator
+from collections.abc import Generator, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -79,7 +79,7 @@ def get_current_frame(driver: Driver) -> WebElement | None:
 
 
 @contextmanager
-def frame_context(driver: Driver, *, frame: WebElement) -> Iterator[WebElement]:
+def frame_context(driver: Driver, *, frame: WebElement) -> Generator[WebElement, None, None]:
     current = get_current_frame(driver)
     assert current is None, current  # just in case? not sure if really necessary
     # todo use switching to parent instead??
@@ -94,7 +94,7 @@ def frame_context(driver: Driver, *, frame: WebElement) -> Iterator[WebElement]:
 
 
 @contextmanager
-def window_context(driver: Driver, window_handle: str) -> Iterator[None]:
+def window_context(driver: Driver, window_handle: str) -> Generator[None, None, None]:
     original = driver.current_window_handle
     driver.switch_to.window(window_handle)
     try:

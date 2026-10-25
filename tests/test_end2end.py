@@ -127,17 +127,18 @@ def test_capture_with_extra_data(*, addon: Addon, driver: Driver, backend: Backe
     ## select some text (fuck my life)
     driver.execute_script(
         '''
-    var h1 = document.querySelector('h1')
-    var node = h1.firstChild
+    var paragraph = document.querySelector('p')
+    var node = paragraph.firstChild
     var range = document.createRange()
     range.setStart(node, 5)
-    range.setEnd(node, 5 + 7)
+    range.setEnd(node, 5 + 6)
 
     var sel = window.getSelection()
     sel.removeAllRanges()
     sel.addRange(range)
     '''
     )
+    assert driver.execute_script('return window.getSelection().toString()') == 'domain'
     ##
 
     assert not backend.capture_file.exists()  # just in case
@@ -162,7 +163,7 @@ def test_capture_with_extra_data(*, addon: Addon, driver: Driver, backend: Backe
 * [date] Example Domain :tag2:tag1:
 https://example.com/
 Selection:
-le Doma
+domain
 Comment:
 some multiline
 note

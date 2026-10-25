@@ -1,5 +1,5 @@
 import sys
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -18,7 +18,7 @@ class Backend:
 
 
 @contextmanager
-def grasp_test_backend(*, capture_file: Path, port: str, template: str | None = None) -> Iterator[Backend]:
+def grasp_test_backend(*, capture_file: Path, port: str, template: str | None = None) -> Generator[Backend, None, None]:
     cmdline = [
         sys.executable, '-m', 'grasp_backend',
         'serve',
