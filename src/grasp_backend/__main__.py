@@ -183,7 +183,7 @@ def main() -> None:
     elif args.mode == 'setup':
         setup.setup(args)
     else:
-        raise RuntimeError(args.mode)
+        p.error(f"a subcommand is required (choose from 'serve', 'setup'), got {args.mode!r}")
 
 
 if __name__ == '__main__':
